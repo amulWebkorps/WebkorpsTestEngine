@@ -5,7 +5,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Question</title>
+    <title>Webkorps</title>
+    <link rel="icon" type="image/x-icon" href="images/Grouplogo.svg"/>
     <link rel="stylesheet" href="css/style.css" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -43,17 +44,12 @@
                     <div class="card_scroll1">
                         <div class="d-flex justify-content-center mt-5">
 
-                            <div class="question2">
-                                <h4 class="text-white text-center  fw-bold  problem_input1 question_size ">
-                                    <a href="returnquestionlistforspecificcontest" class="text-decoration-none text-white">Questions</a>
-                                </h4>
-                            </div>
-
+                   
 
                             <div class="">
-                                <div class="answer2">
+                                <div class="answer_level1">
                                     <h4 class="text-white text-center  fw-bold  problem_input1 question_size">
-                                        <a href="viewparticipators" class="text-decoration-none text-dark">Participators</a>
+                                        <a href="viewparticipators" class="text-decoration-none text-white">Level 1 Questions</a>
                                     </h4>
                                 </div>
                             </div>
@@ -126,9 +122,10 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="    text-center text-white fw-bold pt-2 mx-5  ">
-                                            <button class="addQuestionBtn question_btn btn btn-primary">Add
+                                        <div class="    text-center text-white fw-bold pt-2 mx-5 d-flex justify-content-end ">
+                                            <button class="addQuestionBtn question_btn_level1 btn btn-primary">Add
                                                 Question</button>
+                                                
                                         </div>
                                     </div>
 
@@ -197,7 +194,7 @@
                             </div>
                             <div>
                                 <div class="question_box">
-                                    <h3 class="mx-4 pt-4 fw-bold text-dark">Added Questions</h3>
+                                    <h3 class="mx-4 pt-4 fw-bold text-dark">Available  Questions</h3>
                                 </div>
                                 <div class="added_questions overflow-y-scroll ">
                                 <div th:each="q:${questions}">
@@ -246,71 +243,6 @@
             var data = '<li class="removeCurrentIOli1 listStyle">';
             data += '<textarea class="form-control textarea_1 bg-white mx-3" readonly="readonly" id="input" name="dataOfIO">' + input + '</textarea><textarea class="form-control textarea_1 bg-white" id="output" readonly="readonly" name="dataOfIO">' + output + '</textarea> <div class="btn_img_cross" id="' + liId + '" onclick="removeCurrentIOli(this.id)" ><img src="images/crossbtn.svg" class=" mx-3 mt-2" alt="cross" height="20px" width="20px" /></div></li>';
             liId++;
-            //$(".testCaseOutput").val()
-            if(($(".testCaseInput").val())&&($(".testCaseOutput").val()))
-            $('.inputOutputList').append(data);
-            
-            
-            
-            debugger;
-            var testCaseValue = document.getElementsByName('dataOfIO');
-            var numberofElements= parseInt(testCaseValue.length);
-            if(numberofElements == 0)
-            	{
-            	 if ((!$('.testCaseInput').val()) && (!$('.testCaseOutput').val())) {
-                     $("#validateTestInputOut").html("field is required").addClass("#validateTestInputOut")
-                     return ;
-                    }else{
-                    	
-                    	 $(".validateTestInputOut").html("").removeClass(".validateTestInputOut")
-                    } 
-            	 
-            	 if (!$('.testCaseInput').val()) {
-                     $(".validateTestInput").html("Input field is required").addClass(".validateTestInput")
-                     return ;
-                    }else{
-                    	
-                    	 $(".validateTestInput").html("").removeClass(".validateTestInput")
-                    } 
-             	 if (!$('.testCaseOutput').val()) {
-                     $(".validateTestOutput").html("output field is required").addClass(".validateTestOutput")
-                     return ;
-                    }else{
-                    	
-                    	 $(".validateTestOutput").html("").removeClass(".validateTestOutput")
-                    } 
-            	}
-            else
-            	{
-            	$(".validateTestInput").html("").removeClass(".validateTestInput")
-            	$(".validateTestInputOut").html("").removeClass(".validateTestInputOut")
-            	$(".validateTestOutput").html("").removeClass(".validateTestOutput")
-            	}
-            
-            testCaseValue.forEach(element => {
-                console.log(element.value);
-            });
-        
-            $('.testCaseInput').val('')
-               $('.testCaseOutput').val('')
-  
-            
-        });
-     
-       /*  $("#form1").validate({
-        	rules:{
-        		firstname:true
-        	},
-        	 messages: {
-        		 required :"Please specify your name"
-             },
-
-        }) */
-
-        
-        
-        $(".addQuestionBtn").on("click", function () {
-        
             $('.inputOutputList').append(data);
             var testCaseValue = document.getElementsByName('dataOfIO');
             testCaseValue.forEach(element => {
@@ -355,36 +287,6 @@
                 'input': $(".aboutSampleInput").val(),
                 'output': $(".aboutSampleOutput").val()
             };
-            
-            if (!$('.aboutQuestion').val()) {
-                $(".error-msgQuestion").html("Question field is required").addClass(".error-msgQuestion")
-                return ;
-               }else{
-               	 $(".error-msgQuestion").html("").removeClass(".error-msgQuestion")
-               } 
-         
-            if (!$('.aboutConstraints').val()) {
-             $(".error-msg").html("Constraints field is required").addClass(".error-msg")
-             return ;
-            }else{
-            	 $(".error-msg").html("").removeClass(".error-msg")
-            } 
-            if (!$('.aboutSampleInput').val()) {
-                $(".error-msgInput").html("Input field is required").addClass(".error-msgInput")
-                return ;
-               }else{
-               	 $(".error-msgInput").html("").removeClass(".error-msgInput")
-               } 
-            if (!$('.aboutSampleOutput').val()) {
-                $(".error-msgOutput").html("Output field is required").addClass(".error-msgOutput")
-                return ;
-               }else{
-               	 $(".error-msgOutput").html("").removeClass(".error-msgOutput")
-               } 
-            	
-            SampleTestCaseList.push(sampleTestCase);
-            console.log(SampleTestCaseList);
-            var Question = {
             SampleTestCaseList.push(sampleTestCase);
             console.log(SampleTestCaseList);
             var Question = {
@@ -405,18 +307,12 @@
                 success: function (response) {
                     console.log(response);
                     var data = '';
-                  $(".aboutQuestion").val(''); 
-                  $(".aboutConstraints").val(''); 
-                  $(".aboutSampleInput").val(''); 
-                  $(".aboutSampleOutput").val('');
-                  $('.inputOutputList').remove();
-                  
-                    //window.location.href = "returnquestionlistforspecificcontest";
                     window.location.href = "returnquestionlistforspecificcontest";
                 },
                 error: function (error) {
                     console.log(error);
                 },
+
             });
 
         });
@@ -424,12 +320,6 @@
             $("#" + temp).closest("li").remove();
         }
     
-        function deleteQuestion(divClass) {
-        	console.log("Hello...");
-        	console.log(divClass);
-            $(".divClass").remove();
-        }
-      //]]>
         function deleteQuestion(divId) {  
         	console.log("===>",divId);
         	var qid=divId;

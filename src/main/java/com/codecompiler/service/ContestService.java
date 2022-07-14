@@ -20,8 +20,9 @@ public class ContestService {
 	ContestRepository contestRepository;
 	@Autowired
 	QuestionRepository questionRepository;
+	
 	public Contest saveContest(Contest contest) {
-		Contest con = contestRepository.save(contest);		
+		Contest con = contestRepository.save(contest);				
 		return con;
 	}
 	
@@ -36,5 +37,10 @@ public class ContestService {
 		return contest;
 	}
 
+	public void deleteContest(String contestId) {
+		System.out.println("@@@@@@@@ 2"+contestId);
+		
+		 contestRepository.delete(contestId);			
+			}
 	
 }

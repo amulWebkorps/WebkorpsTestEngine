@@ -51,7 +51,7 @@ public class HomeController {
 	
 	@RequestMapping("/home")
 	public String home(Model model) {
-		List<Question> question = commonService.getQuestionFromDataBase(40);
+		List<Question> question = commonService.getQuestionFromDataBase("40");
 		Question localQuestion = new Question();
 		List <SampleTestCase> sampleTestCase = new ArrayList<>();
 		List<TestCases> testCasesList = new ArrayList<>();
@@ -110,7 +110,7 @@ public class HomeController {
 		System.out.println(">>>"+contestId+"   "+contestLevel);
 		//if(contestId.equals("") && contestLevel.equals(""))
 		  allQuestionsspecificcontest = commonService.findByContestIdAndContestLevel(contestId, contestLevel);
-		System.out.println(">>>"+allQuestionsspecificcontest);
+		//System.out.println(">>>"+allQuestionsspecificcontest);
 		model.addAttribute("contestId",contestId);
 		model.addAttribute("contestLevel",contestLevel);
 		model.addAttribute("questions", allQuestionsspecificcontest);
@@ -134,14 +134,42 @@ public class HomeController {
 	}
 	
 	@PostMapping("/savequestion")
-	public ResponseEntity<Question> saveQuestion(@RequestBody Question question, Model model) throws IOException {
-        System.out.println(question);
+	public ResponseEntity<String> saveQuestion(@RequestBody Question question, Model model) throws IOException {
+        System.out.println("Obj : "+question);
+        System.out.println("Obj q id : "+question.getQuestionId());
+        String tempQid = question.getQuestionId();
+        if(tempQid == ("")) {
+        	System.out.println(" inside if condition ");
         question.setQuestionId(UUID.randomUUID().toString());
+        }
         //System.out.println(">>>"+commonService.getAllQuestionFromDataBase());
         model.addAttribute("questions",commonService.getAllQuestionFromDataBase());
-		return ResponseEntity.ok(commonService.saveQuestion(question));
+        commonService.saveUpdatedQuestion(question);
+		return ResponseEntity.ok("");
 	}
 
+	@RequestMapping("/deletequestion") 
+	private ResponseEntity<String> deleteQuestion(@RequestBody String questionId) {
+		System.out.println("delete.........."+questionId);
+		System.out.println(commonService.deleteQuestion(questionId));
+				return ResponseEntity.ok("Done");
+	}
+	
+	@RequestMapping("/getsavedquestion") 
+	private ResponseEntity<Question> getSavedQuestion(@RequestBody String questionId) {
+		questionId = questionId.subSequence(1, questionId.length()-1).toString();
+		System.out.println("1 =>"+questionId);
+		List<Question>  question = commonService.getQuestionFromDataBase(questionId);
+		Question questionObj = new Question();
+		for (Question q : question) {
+			questionObj = q;
+		}
+		System.out.println("2 =>"+questionObj);
+	
+				return ResponseEntity.ok(questionObj);
+	}
+	
+	
 	@PostMapping("/add-test-cases-api") 
 	public ResponseEntity<Question> saveTestCases(@RequestBody ArrayList<TestCases> testCasesobject,Model model) {
 		//TestCases test = new TestCases();
@@ -167,6 +195,35 @@ public class HomeController {
 		return "questions";
 	}
 	
+	@RequestMapping("/viewparticipators") 
+	private String viewParticipators() {
+	    return "participators";
+	}
+	
+	@RequestMapping("/participatordetail") 
+	private String participatorDetail() {
+	    return "participatorDetail";
+	}
+	
+	@RequestMapping("/compiler") 
+	private String IDECompiler() {
+	    return "IDECompiler";
+	}
+	
+	@RequestMapping("/level1questions") 
+	private String level1Questions() {
+	    return "level1Questions";
+	}
+	
+	@RequestMapping("/level2questions") 
+	private String level2Questions() {
+	    return "level2Questions";
+	}
+	
+	@RequestMapping("/allquestions") 
+	private String allQuestions() {
+	    return "allQuestions";
+	}
 	
 	
 	@RequestMapping("/idforquestiondetail")
@@ -176,82 +233,89 @@ public class HomeController {
 		return ResponseEntity.ok(questionID);
 	}
 	
-	@RequestMapping("/questiondetail")
-	public String questionDetail(Model model) {
-		List<Question> question = commonService.getQuestionFromDataBase(questionID);
-		Question localQuestion = new Question();
-		List <SampleTestCase> sampleTestCase = new ArrayList<>();
-		List<TestCases> testCasesList = new ArrayList<>();
-		for (Question q : question) {
-			sampleTestCase = q.getSampleTestCase();
-			testCasesList = q.getTestcases();
-			localQuestion = q;
-		}
-		SampleTestCase localSampleTestCase = new SampleTestCase();
-		for(SampleTestCase s : sampleTestCase){
-			localSampleTestCase = s;			
-		}	
-		System.out.println("outside for each loop : "+localQuestion);
-		model.addAttribute("question",localQuestion);
-		model.addAttribute("stc",localSampleTestCase);		
-		model.addAttribute("tc",testCasesList);
-		return "QuestionDetail";
+	@RequestMapping("/deletecontest") 
+	private void deleteContest(String contestId) {
+		System.out.println("@@@@@@@@"+contestId);
+		contestService.deleteContest(contestId);
 	}
 	
-	@RequestMapping("/questionlistforspecificcontest")
-	public ResponseEntity<List<Question>> questionsListOfContest(@RequestBody String contestId, Model model) {
-		allQuestionsspecificcontest = commonService.getQuestionByContestId(contestId.substring(1, contestId.length()-1));
-		System.out.println("question list : "+allQuestionsspecificcontest);
-		model.addAttribute("question", allQuestionsspecificcontest);
-		return ResponseEntity.ok(allQuestionsspecificcontest);
-	}
-	
-	
-	
-	@RequestMapping("/editquestiondetails")
-	public String editQuestions(Model model) {
-		List<Question> question = commonService.getQuestionFromDataBase(questionID);
-		Question localQuestion = new Question();
-		List <SampleTestCase> sampleTestCase = new ArrayList<>();
-		List<TestCases> testCasesList = new ArrayList<>();
-		for (Question q : question) {
-			sampleTestCase = q.getSampleTestCase();
-			testCasesList = q.getTestcases();
-			localQuestion = q;
-		}
-		SampleTestCase localSampleTestCase = new SampleTestCase();
-		for(SampleTestCase s : sampleTestCase){
-			localSampleTestCase = s;			
-		}			
-		model.addAttribute("question",localQuestion);
-		model.addAttribute("stc",localSampleTestCase);		
-		model.addAttribute("tc",testCasesList);
-        return "editQuestion";
-	}
-	
-	@PostMapping("/addupdatedquestion")
-	public ResponseEntity<String> addUpdatedQuestion(@RequestBody Question q) {
-		commonService.saveQuestion(q);		
-		return ResponseEntity.ok("ok");
-	}	
-	
-	
-	
-	
-	
-	@GetMapping("/getquestion/{questionId}")
-	public ResponseEntity<List<TestCases>> getQuestion(@PathVariable int questionId) {
-		List<Question> question = commonService.getQuestionFromDataBase(questionId);
-		//System.out.println(question);
-		List<TestCases> testCasesCollection = null;
-		for (Question q : question) {
-			testCasesCollection = q.getTestcases();
-		}
-		for (TestCases tastCases : testCasesCollection) {			
-           System.out.println(tastCases.getOutput());
-		}
-		return ResponseEntity.ok(testCasesCollection);		
-	}
+//	IDECompiler.html
+//	@RequestMapping("/questiondetail")
+//	public String questionDetail(Model model) {
+//		List<Question> question = commonService.getQuestionFromDataBase(questionID);
+//		Question localQuestion = new Question();
+//		List <SampleTestCase> sampleTestCase = new ArrayList<>();
+//		List<TestCases> testCasesList = new ArrayList<>();
+//		for (Question q : question) {
+//			sampleTestCase = q.getSampleTestCase();
+//			testCasesList = q.getTestcases();
+//			localQuestion = q;
+//		}
+//		SampleTestCase localSampleTestCase = new SampleTestCase();
+//		for(SampleTestCase s : sampleTestCase){
+//			localSampleTestCase = s;			
+//		}	
+//		System.out.println("outside for each loop : "+localQuestion);
+//		model.addAttribute("question",localQuestion);
+//		model.addAttribute("stc",localSampleTestCase);		
+//		model.addAttribute("tc",testCasesList);
+//		return "QuestionDetail";
+//	}
+//	
+//	@RequestMapping("/questionlistforspecificcontest")
+//	public ResponseEntity<List<Question>> questionsListOfContest(@RequestBody String contestId, Model model) {
+//		allQuestionsspecificcontest = commonService.getQuestionByContestId(contestId.substring(1, contestId.length()-1));
+//		System.out.println("question list : "+allQuestionsspecificcontest);
+//		model.addAttribute("question", allQuestionsspecificcontest);
+//		return ResponseEntity.ok(allQuestionsspecificcontest);
+//	}
+//	
+//	
+//	
+//	@RequestMapping("/editquestiondetails")
+//	public String editQuestions(Model model) {
+//		List<Question> question = commonService.getQuestionFromDataBase(questionID);
+//		Question localQuestion = new Question();
+//		List <SampleTestCase> sampleTestCase = new ArrayList<>();
+//		List<TestCases> testCasesList = new ArrayList<>();
+//		for (Question q : question) {
+//			sampleTestCase = q.getSampleTestCase();
+//			testCasesList = q.getTestcases();
+//			localQuestion = q;
+//		}
+//		SampleTestCase localSampleTestCase = new SampleTestCase();
+//		for(SampleTestCase s : sampleTestCase){
+//			localSampleTestCase = s;			
+//		}			
+//		model.addAttribute("question",localQuestion);
+//		model.addAttribute("stc",localSampleTestCase);		
+//		model.addAttribute("tc",testCasesList);
+//        return "editQuestion";
+//	}
+//	
+//	@PostMapping("/addupdatedquestion")
+//	public ResponseEntity<String> addUpdatedQuestion(@RequestBody Question q) {
+//		commonService.saveQuestion(q);		
+//		return ResponseEntity.ok("ok");
+//	}	
+//	
+//	
+//	
+//	
+//	
+//	@GetMapping("/getquestion/{questionId}")
+//	public ResponseEntity<List<TestCases>> getQuestion(@PathVariable int questionId) {
+//		List<Question> question = commonService.getQuestionFromDataBase(questionId);
+//		//System.out.println(question);
+//		List<TestCases> testCasesCollection = null;
+//		for (Question q : question) {
+//			testCasesCollection = q.getTestcases();
+//		}
+//		for (TestCases tastCases : testCasesCollection) {			
+//           System.out.println(tastCases.getOutput());
+//		}
+//		return ResponseEntity.ok(testCasesCollection);		
+//	}
 }
 
 

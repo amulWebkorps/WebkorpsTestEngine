@@ -1,16 +1,14 @@
 package com.codecompiler.service;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
-import com.codecompiler.controller.BinaryDataController;
 import com.codecompiler.dao.QuestionRepository;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.SampleTestCase;
@@ -20,9 +18,21 @@ import com.codecompiler.entity.TestCases;
 public class CommonService {
 
 	@Autowired private QuestionRepository questionRepository;
+	
+	@Autowired private MongoTemplate mongoTemplate;
 	//@Autowired private BinaryDataController binaryDataController;
 	public Question saveQuestion(Question question) {		
 		return questionRepository.save(question);		
+	}
+	
+	public void saveUpdatedQuestion(Question question) {
+		System.out.println("Commaon service : "+question);
+		Query query=new Query();
+		query.addCriteria(Criteria.where("_id").is(question.getQuestionId()));
+		Question q = mongoTemplate.findOne(query, Question.class);
+		mongoTemplate.save(question);
+		System.out.println("**** >"+q);
+		
 	}
 	
 	public int numberOfQuestionsCount() {
@@ -30,18 +40,18 @@ public class CommonService {
 		
 	}
 		
-	public List<Question> getQuestionFromDataBase(int questionId) {
+	public List<Question> getQuestionFromDataBase(String questionId) {
 		List<Question> question= questionRepository.findByQuestionId(questionId);
 		return question;
 	}
 
 	public List<Question> getAllQuestionFromDataBase() {
-		List<Question> question = questionRepository.findAll();
+		List<Question> question = questionRepository.findAll();		
 		return question;
 	}
 
 	
-	public List<TestCases> getTestCase(int questionId){
+	public List<TestCases> getTestCase(String questionId){
 		List<Question>  question= getQuestionFromDataBase(questionId);	
 		List<TestCases> testCasesCollection = null;
 		for (Question q : question) {
@@ -51,7 +61,7 @@ public class CommonService {
 		}
 		return testCasesCollection;
 	}
-	public List<SampleTestCase> getSampleTestCase(int questionId){
+	public List<SampleTestCase> getSampleTestCase(String questionId){
 		List<Question>  question= getQuestionFromDataBase(questionId);	
 		
 		List<SampleTestCase> sampleTestCaseCollection = null;
@@ -72,9 +82,16 @@ public class CommonService {
 	public ArrayList<Question>  findByContestIdAndContestLevel(String contestId, String contestLevel){
 		System.out.println("CID  : "+contestId+"cLevel"+contestLevel);
 		ArrayList<Question> question = questionRepository.findByContestIdAndContestLevel(contestId, contestLevel);
-        System.out.println("qList  :    "+question);        
+       // System.out.println("qList  :    "+question);        
 		return question;
 	}
+	
+	public String deleteQuestion(String questionId){
+		questionId=questionId.subSequence(1, questionId.length()-1).toString();
+		questionRepository.deleteByQuestionId(questionId);
+		return "Deleting....";
+	}
+		
 	
 // Currently not using :-	
 //	public void storeFileToFolder(String studentId, String code) throws IOException {
