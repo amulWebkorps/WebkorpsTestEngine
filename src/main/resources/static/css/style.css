@@ -1126,3 +1126,27 @@ border-radius: 14px;
 .btn_img_cross{
     cursor: pointer;
 }
+.error-msg {
+  color: red;
+}
+.error-msgInput {
+  color: red;
+}
+
+.error-msgOutput{
+  color: red;
+}
+
+.error-msgQuestion{
+  color: red;
+}
+.validateTestInput{
+  color: red;
+}
+.validateTestOutput{
+  color: red;
+}
+#validateTestInputOut
+{
+	  color: red;
+}
