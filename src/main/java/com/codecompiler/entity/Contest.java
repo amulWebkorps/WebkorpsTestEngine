@@ -2,7 +2,7 @@ package com.codecompiler.entity;
 
 import javax.annotation.Generated;
 
-import org.hibernate.annotations.GenericGenerator;
+
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
