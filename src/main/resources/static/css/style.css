@@ -1493,6 +1493,28 @@ accordion-header {
   box-shadow: 2px 9px 19px rgba(230, 230, 230, 0.37);
   border-radius: 18px 0px 0px 18px;
 }
+.error-msgQuestion{
+	color:red
+}
+.error-msg{
+	color:red
+}
+.error-msgInput{
+	color:red
+}
+.error-msgOutput{
+	color:red
+}
+.validateTestOutput{
+	color:red
+}
+
+#validateTestInputOut{
+	color:red
+}
+.validateTestInput{
+	color:red
+}
 /* 
 #side-arrow {
   background-image: url('images/arrow.svg') !important;
