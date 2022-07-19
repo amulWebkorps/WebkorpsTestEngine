@@ -1,8 +1,9 @@
 package com.codecompiler.entity;
 
+import java.util.ArrayList;
+
 import javax.annotation.Generated;
 
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,15 +12,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EntityScan
 public class Contest {
 	@Id
-	@Generated(value = "uuid")
-	@GenericGenerator(name="uuid", strategy="uuid2")
+	@Generated(value = "uuid")	
 	private String contestId;
 	private  String contestName;
 	private  String contestDescription;
 	private  String contestLevel;
-	public Contest() {
+	private ArrayList<String> QuestionIds = new ArrayList<>();
+	
+   public Contest() {
 		super();
-			}
+		
+	}
 	public String getContestId() {
 		return contestId;
 	}
@@ -44,12 +47,17 @@ public class Contest {
 	public void setContestLevel(String contestLevel) {
 		this.contestLevel = contestLevel;
 	}
+	public ArrayList<String> getQuestionIds() {
+		return QuestionIds;
+	}
+	public void setQuestionIds(ArrayList<String> questionIds) {
+		QuestionIds = questionIds;
+	}
 	@Override
 	public String toString() {
 		return "Contest [contestId=" + contestId + ", contestName=" + contestName + ", contestDescription="
-				+ contestDescription + ", contestLevel=" + contestLevel + "]";
+				+ contestDescription + ", contestLevel=" + contestLevel + ", QuestionIds=" + QuestionIds + "]";
 	}
-
 	
 	
 }

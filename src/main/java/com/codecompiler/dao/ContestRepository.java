@@ -10,8 +10,8 @@ import com.codecompiler.entity.Question;
 
 public interface ContestRepository extends  MongoRepository<Contest,String>{
 
-	public Contest findByContestIdAndContestLevel(String contestid, String contestLevel);
-	
+//	public Contest findByContestIdAndContestLevel(String contestid, String contestLevel);
+//	
 	//public List<Contest> findByIdAndContestLevel(String id, String contestLevel);	
 	
 }

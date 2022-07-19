@@ -31,15 +31,12 @@ public class HomeController {
 	private ContestService contestService;
 	
 	public String contestId="";
-	public String contestLevel="";
-	
-	SampleTestCase sampleTestCase = new SampleTestCase();
-	
-	int questionID;
-	
-	Question q = new Question();
-	
-	List<Question> allQuestionsspecificcontest = new ArrayList<>();
+	public String contestLevel="";	
+	public String contestLevelForPage="";
+	SampleTestCase sampleTestCase = new SampleTestCase();	
+	int questionID;	
+	Question q = new Question();	
+	List<Question> allQuestionsSpecificContestLevel = new ArrayList<>();
 	
 	@RequestMapping("/adminhome")
 	public String adminHome(Model model){
@@ -49,71 +46,62 @@ public class HomeController {
 		return "adminHome";		
 	}
 	
-	@RequestMapping("/home")
-	public String home(Model model) {
-		List<Question> question = commonService.getQuestionFromDataBase("40");
-		Question localQuestion = new Question();
-		List <SampleTestCase> sampleTestCase = new ArrayList<>();
-		List<TestCases> testCasesList = new ArrayList<>();
-		for (Question q : question) {
-			sampleTestCase = q.getSampleTestCase();
-			testCasesList = q.getTestcases();
-			localQuestion = q;
-		}
-		SampleTestCase localSampleTestCase = new SampleTestCase();
-		
-		 for(SampleTestCase s : sampleTestCase) localSampleTestCase = s; 
-		 
-        System.out.println("Que. 1 => "+localQuestion);
-		System.out.println("Que. 2 => "+localSampleTestCase);
-
-		model.addAttribute("question",localQuestion);
-		model.addAttribute("stc",localSampleTestCase);
-		
-		return "compilerIDE";
-	}
-
-	@RequestMapping("/contest") 
-	private String addContest() {
-	    return "contest";
-	}
-		
-	@RequestMapping("/studenttestscreen") 
-	private String studentTestScreen() {
-	    return "studentTestScreen";
-	}
-
-	@RequestMapping("/contestlist") 
-	private String contestList(Model model) {
-		List<Contest> contestList = contestService.getAllContest();
-		model.addAttribute("contestList", contestList);		
-		return "listOfContest";
-	}
+//	@RequestMapping("/home")
+//	public String home(Model model) {
+//		List<Question> question = commonService.getQuestionFromDataBase("40");
+//		Question localQuestion = new Question();
+//		List <SampleTestCase> sampleTestCase = new ArrayList<>();
+//		List<TestCases> testCasesList = new ArrayList<>();
+//		for (Question q : question) {
+//			sampleTestCase = q.getSampleTestCase();
+//			testCasesList = q.getTestcases();
+//			localQuestion = q;
+//		}
+//		SampleTestCase localSampleTestCase = new SampleTestCase();
+//		
+//		 for(SampleTestCase s : sampleTestCase) localSampleTestCase = s; 
+//		 
+//        System.out.println("Que. 1 => "+localQuestion);
+//		System.out.println("Que. 2 => "+localSampleTestCase);
+//
+//		model.addAttribute("question",localQuestion);
+//		model.addAttribute("stc",localSampleTestCase);
+//		
+//		return "compilerIDE";
+//	}
+//
+//	@RequestMapping("/contest") 
+//	private String addContest() {
+//	    return "contest";
+//	}
+//		
+//	@RequestMapping("/studenttestscreen") 
+//	private String studentTestScreen() {
+//	    return "studentTestScreen";
+//	}
+//
+//	@RequestMapping("/contestlist") 
+//	private String contestList(Model model) {
+//		List<Contest> contestList = contestService.getAllContest();
+//		model.addAttribute("contestList", contestList);		
+//		return "listOfContest";
+//	}
 	
 	@RequestMapping("/findcontest") 
-	private ResponseEntity<Contest> findContest(@RequestBody Contest contest,Model model) {
+	private ResponseEntity<String> findContest(@RequestBody Contest contest,Model model) {
 		System.out.println(contest.getContestId());		
 		System.out.println(contest.getContestLevel());
-		Contest con=new Contest();
-		con = contestService.getContestBasedOnLevel(contest.getContestId(), contest.getContestLevel());		
-			System.out.println(con);
-			if(con!=null) {
-				contestId = con.getContestId();
-				contestLevel = con.getContestLevel();
-			}
-				return ResponseEntity.ok(con);
+		contestId = contest.getContestId();
+		contestLevel = contest.getContestLevel();	
+		return ResponseEntity.ok("valueSet");
 	}
 	
-	@RequestMapping("/returnquestionlistforspecificcontest")
+	@RequestMapping("/returnquestionlistforspecificcontestlevel")
 	public String QuestionsList(Model model) {				
-		ArrayList<Question> allQuestionsspecificcontest = new ArrayList<>();
-		System.out.println(">>>"+contestId+"   "+contestLevel);
-		//if(contestId.equals("") && contestLevel.equals(""))
-		  allQuestionsspecificcontest = commonService.findByContestIdAndContestLevel(contestId, contestLevel);
-		//System.out.println(">>>"+allQuestionsspecificcontest);
-		model.addAttribute("contestId",contestId);
-		model.addAttribute("contestLevel",contestLevel);
-		model.addAttribute("questions", allQuestionsspecificcontest);
+		allQuestionsSpecificContestLevel = commonService.findQuestionByContestLevel(contestLevel);
+		model.addAttribute("contestId", contestId);
+		model.addAttribute("contestLevel", contestLevel);
+		model.addAttribute("questions", allQuestionsSpecificContestLevel);
 		return "questionListAndAddNewQuestion";
 	}
 	
@@ -128,8 +116,7 @@ public class HomeController {
 		contestToSave.setContestDescription(contest.getContestDescription());
 		contestToSave.setContestLevel(contest.getContestLevel());
 		Contest con = contestService.saveContest(contest);
-		System.out.println("con : "+con);
-		//Contest allContest = 
+		System.out.println("con : "+con);		
 				return ResponseEntity.ok(con);
 	}
 	
@@ -143,8 +130,9 @@ public class HomeController {
         question.setQuestionId(UUID.randomUUID().toString());
         }
         //System.out.println(">>>"+commonService.getAllQuestionFromDataBase());
-        model.addAttribute("questions",commonService.getAllQuestionFromDataBase());
         commonService.saveUpdatedQuestion(question);
+        model.addAttribute("questions",commonService.getAllQuestionFromDataBase());
+        
 		return ResponseEntity.ok("");
 	}
 
@@ -170,74 +158,136 @@ public class HomeController {
 	}
 	
 	
-	@PostMapping("/add-test-cases-api") 
-	public ResponseEntity<Question> saveTestCases(@RequestBody ArrayList<TestCases> testCasesobject,Model model) {
-		//TestCases test = new TestCases();
-		List <TestCases> test = new ArrayList<>();
-		int testCaseId = 1;
-		for(TestCases testCase : testCasesobject) {
-			System.out.println("it is qid from FE : "+testCase.getId());
-			testCase.setId(testCaseId++);			
-			System.out.println(testCase.getInput());
-			System.out.println(testCase.getOutput());
-			test.add(testCase);
-		}
-		q.setTestcases(testCasesobject);
-		System.out.println(q);
-		 Question qsave=commonService.saveQuestion(q);		
-		return ResponseEntity.ok(qsave);
-	}
-	
-	@RequestMapping("/questions")
-	public String redirectToQuestionsList(Model model) {
-		List<Question> allQuestions = commonService.getAllQuestionFromDataBase();
-		model.addAttribute("question", allQuestions);
-		return "questions";
-	}
-	
-	@RequestMapping("/viewparticipators") 
-	private String viewParticipators() {
-	    return "participators";
-	}
-	
-	@RequestMapping("/participatordetail") 
-	private String participatorDetail() {
-	    return "participatorDetail";
-	}
-	
-	@RequestMapping("/compiler") 
-	private String IDECompiler() {
-	    return "IDECompiler";
-	}
+//	@PostMapping("/add-test-cases-api") 
+//	public ResponseEntity<Question> saveTestCases(@RequestBody ArrayList<TestCases> testCasesobject,Model model) {
+//		//TestCases test = new TestCases();
+//		List <TestCases> test = new ArrayList<>();
+//		int testCaseId = 1;
+//		for(TestCases testCase : testCasesobject) {
+//			System.out.println("it is qid from FE : "+testCase.getId());
+//			testCase.setId(testCaseId++);			
+//			System.out.println(testCase.getInput());
+//			System.out.println(testCase.getOutput());
+//			test.add(testCase);
+//		}
+//		q.setTestcases(testCasesobject);
+//		System.out.println(q);
+//		 Question qsave=commonService.saveQuestion(q);		
+//		return ResponseEntity.ok(qsave);
+//	}
+//	
+//	@RequestMapping("/questions")
+//	public String redirectToQuestionsList(Model model) {
+//		List<Question> allQuestions = commonService.getAllQuestionFromDataBase();
+//		model.addAttribute("question", allQuestions);
+//		return "questions";
+//	}
+//	
+//	@RequestMapping("/viewparticipators") 
+//	private String viewParticipators() {
+//	    return "participators";
+//	}
+//	
+//	@RequestMapping("/participatordetail") 
+//	private String participatorDetail() {
+//	    return "participatorDetail";
+//	}
+//	
+//	@RequestMapping("/compiler") 
+//	private String IDECompiler() {
+//	    return "IDECompiler";
+//	}
 	
 	@RequestMapping("/level1questions") 
-	private String level1Questions() {
+	private String level1Questions(Model model) {
+		ArrayList<Question> contestQuestions = new ArrayList<>();
+		contestQuestions = commonService.findQuestionByContestLevel("Level 1");			
+		model.addAttribute("questions", contestQuestions);
 	    return "level1Questions";
 	}
 	
 	@RequestMapping("/level2questions") 
-	private String level2Questions() {
+	private String level2Questions(Model model) {
+		ArrayList<Question> contestQuestions = new ArrayList<>();
+		contestQuestions = commonService.findQuestionByContestLevel("Level 2");		
+		model.addAttribute("questions", contestQuestions);	   
 	    return "level2Questions";
 	}
 	
 	@RequestMapping("/allquestions") 
-	private String allQuestions() {
-	    return "allQuestions";
+	private String allQuestions(Model model) {
+		ArrayList<Question> contestQuestions = new ArrayList<>();
+		ArrayList<Question> contestQuestionsTemp = new ArrayList<>();
+		contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 1");
+		for (Question q : contestQuestionsTemp) {
+			contestQuestions.add(q);
+		}
+		contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 2");
+		for (Question q : contestQuestionsTemp) {
+			contestQuestions.add(q);
+		}
+		model.addAttribute("questions", contestQuestions);		
+		return "allQuestions";
+	}
+	
+	@RequestMapping("/filterbasedonlevel") 
+	private ResponseEntity<String> filterBasedOnLevel(@RequestBody String level, Model model) {
+		System.out.println("L : "+level);
+		contestLevelForPage = level.subSequence(1, level.length()-1).toString();		
+		return ResponseEntity.ok("setData");		
+	}
+	
+	@RequestMapping("/returnpagebasedonfilter") 
+	private String returnPageBasedOnLevel(Model model) {
+		ArrayList<Question> contestQuestions = new ArrayList<>();
+		ArrayList<Question> contestQuestionsTemp = new ArrayList<>();		
+		if(contestLevelForPage.equals("Level 1")) {	
+			System.out.println("L1");			
+			contestQuestions = commonService.findQuestionByContestLevel("Level 1");									
+		}else if(contestLevelForPage.equals("Level 2")) {
+			System.out.println("L2");
+			contestQuestions = commonService.findQuestionByContestLevel("Level 2");		
+		}else {
+			System.out.println("both");
+			contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 1");
+			for (Question q : contestQuestionsTemp) {
+				contestQuestions.add(q);
+			}
+			contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 2");
+			for (Question q : contestQuestionsTemp) {
+				contestQuestions.add(q);
+			}
+		}	
+		model.addAttribute("questions", contestQuestions);		
+		return "allquestions";
 	}
 	
 	
-	@RequestMapping("/idforquestiondetail")
-	public ResponseEntity<Integer> idForQuestionDetail(@RequestBody int quesionId) {
-		System.out.println("idforquestiondetail BE"+quesionId);
-		questionID = quesionId;
-		return ResponseEntity.ok(questionID);
-	}
+//	@RequestMapping("/idforquestiondetail")
+//	public ResponseEntity<Integer> idForQuestionDetail(@RequestBody int quesionId) {
+//		System.out.println("idforquestiondetail BE"+quesionId);
+//		questionID = quesionId;
+//		return ResponseEntity.ok(questionID);
+//	}
+//	
+//	@RequestMapping("/deletecontest") 
+//	private void deleteContest(String contestId) {
+//		System.out.println("@@@@@@@@"+contestId);
+//		contestService.deleteContest(contestId);
+//	}
+
 	
-	@RequestMapping("/deletecontest") 
-	private void deleteContest(String contestId) {
-		System.out.println("@@@@@@@@"+contestId);
-		contestService.deleteContest(contestId);
-	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 //	IDECompiler.html
 //	@RequestMapping("/questiondetail")

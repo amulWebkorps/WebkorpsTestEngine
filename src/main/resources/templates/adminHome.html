@@ -58,13 +58,7 @@
 				</div>
 			</div>
 			<div class="container mx-auto">
-
-
-
-
-
-
-				<div id="carouselExampleControls" class="carousel slide"
+<div id="carouselExampleControls" class="carousel slide"
 					data-ride="carousel" data-interval="false">
 					<div class="carousel-inner">
 						<div class="carousel-item active">
@@ -169,23 +163,17 @@
 
 									<div class="click col mb-4" id="click">
 										<div>
-
 											<div class="card card_size ">
-
 												<a href="allquestions" class="text-decoration-none"> <img
 													src="https://source.unsplash.com/random/100x60?sig=1"
 													class="card-img-top card_size1" alt="..." />
 												</a>
-
 												<div class="card-body">
 													<h5 class=" text-dark card-title">
 														<a href="allquestions">All</a>
 													</h5>
-
 													<br />
-
-
-												</div>
+													</div>
 											</div>
 
 										</div>
@@ -311,9 +299,8 @@
 			$('#prev1').hide()
 		})
 		
-		
-		
-      $(document).ready(function() {
+   $(document).ready(function() {
+	   
 			var idToDeleteContest = "";
 			$(".save").on("click",function() {
 			var contestName = $(".contestname").val();
@@ -349,8 +336,8 @@
 															success : function(
 																	response) {
 																contestId = response.contestId;
-																console
-																		.log(response.contestId);
+																console.log(response.contestId);
+																window.location.href = "adminhome";
 
 															},
 
@@ -375,38 +362,29 @@
 								console.log("not now");
 							});
 
-							$(".continuetoseequestions")
-									.on(
-											"click",
-
-											function() {
-												level = $(
-														".leveltoseequestions")
-														.val();
+							$(".continuetoseequestions").on("click",function() {
+												level = $(".leveltoseequestions").val();
 												console.log(contestid);
 												console.log(level);
 												var Contest = {
 													"contestId" : contestid,
 													"contestLevel" : level
 												};
-												$
-														.ajax({
+												$.ajax({
 															url : "/findcontest",
 															contentType : "application/json; charset=utf-8",
 															dataType : "json",
 															method : "POST",
-															data : JSON
-																	.stringify(Contest),
-															success : function(
-																	response) {
-																console
-																		.log(response);
-																window.location.href = "returnquestionlistforspecificcontest";
-															},
-															error : function(
-																	error) {
-																console
-																		.log(error);
+															data : JSON.stringify(Contest),
+															success : function(response) {
+																//console.log(response);
+
+																window.location.href = "returnquestionlistforspecificcontestlevel";
+																},
+															error : function(error) {
+																window.location.href = "returnquestionlistforspecificcontestlevel";
+																
+																console.log(error);
 															},
 
 														});
@@ -414,21 +392,7 @@
 												//  console.log($(".leveltoseequestions").val());	  
 											});
 							
-							$(".xdata").click(function() {
-								console.log("u1234567890");								
-							});
 							
-							$(".click").on("click",function() {
-							  contestid = this.getElementsByTagName('input')[0].getAttribute('value');
-							});
-
-							$(".delete-btn").on("click",function() {
-										console.log("ujyhtgrfdsxdcfgh");
-										idToDeleteContest = this
-												.getElementsByTagName('i')[0]
-												.getAttribute('value');
-										console.log(idToDeleteContest);
-									});
      });
 	</script>
 </body>

@@ -1493,6 +1493,26 @@ accordion-header {
   box-shadow: 2px 9px 19px rgba(230, 230, 230, 0.37);
   border-radius: 18px 0px 0px 18px;
 }
+
+.question_size1{
+  max-width: 95%;
+ max-height :50px;
+ overflow-y: scroll;
+ -ms-overflow-style: none; 
+  scrollbar-width: none;
+}
+
+
+.question_size1::-webkit-scrollbar {
+  display: none; 
+}
+
+#question_box1{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 /* 
 #side-arrow {
   background-image: url('images/arrow.svg') !important;

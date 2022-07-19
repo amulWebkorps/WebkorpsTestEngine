@@ -235,7 +235,7 @@
         integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
         crossorigin="anonymous"></script>
     <script>
-    
+  //<![CDATA[
         var liId = 1;
         var updatedQuestionId="";
         $(".addMoreIO").on("click", function () {
@@ -307,19 +307,6 @@
 
         }) */
 
-        
-        
-        $(".addQuestionBtn").on("click", function () {
-        
-            $('.inputOutputList').append(data);
-            var testCaseValue = document.getElementsByName('dataOfIO');
-            testCaseValue.forEach(element => {
-                console.log(element.value);
-            });
-
-        });
-
-
         $(".addQuestionBtn").on("click", function () {
             var testCaseList = [];
             var data;
@@ -384,9 +371,7 @@
             	
             SampleTestCaseList.push(sampleTestCase);
             console.log(SampleTestCaseList);
-            var Question = {
-            SampleTestCaseList.push(sampleTestCase);
-            console.log(SampleTestCaseList);
+           
             var Question = {
             	"questionId":updatedQuestionId,
                 "contestId": $(".contestid").val(),
@@ -395,7 +380,7 @@
                 "sampleTestCase": SampleTestCaseList,
                 "testcases": testCaseList
             };
-
+console.log(Question);
             $.ajax({
                 url: "/savequestion",
                 contentType: "application/json; charset=utf-8",
@@ -412,24 +397,20 @@
                   $('.inputOutputList').remove();
                   
                     //window.location.href = "returnquestionlistforspecificcontest";
-                    window.location.href = "returnquestionlistforspecificcontest";
+                    window.location.href = "returnquestionlistforspecificcontestlevel";
                 },
                 error: function (error) {
+                	 window.location.href = "returnquestionlistforspecificcontestlevel";
                     console.log(error);
                 },
             });
 
-        });
+            });
+        
         function removeCurrentIOli(temp) {
             $("#" + temp).closest("li").remove();
         }
     
-        function deleteQuestion(divClass) {
-        	console.log("Hello...");
-        	console.log(divClass);
-            $(".divClass").remove();
-        }
-      //]]>
         function deleteQuestion(divId) {  
         	console.log("===>",divId);
         	var qid=divId;
@@ -456,6 +437,7 @@
 	//console.log($(this).closest("div").find("#hiddenQid").val());
 	 var qid=$(this).closest("div").find("#hiddenQid").val();
 	 console.log("===>",qid);
+	 
 	 $.ajax({
          url: "/getsavedquestion",
          contentType: "application/json; charset=utf-8",
@@ -475,6 +457,7 @@
             document.getElementById("aboutSampleInput").value = element.input.valueOf();
             document.getElementById("aboutSampleOutput").value = element.output.valueOf();
             });
+            	 
             t=response.testcases.valueOf();
             t.forEach(element => {
             	var data = '<li class="removeCurrentIOli1 listStyle">';
@@ -491,7 +474,7 @@
 	// document.getElementById("aboutQuestiondata").value = "My value";
  })
  
- 
+ //]]>
     </script>
 </body>
 

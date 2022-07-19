@@ -21,10 +21,10 @@ public class CommonService {
 	
 	@Autowired private MongoTemplate mongoTemplate;
 	//@Autowired private BinaryDataController binaryDataController;
-	public Question saveQuestion(Question question) {		
-		return questionRepository.save(question);		
-	}
-	
+//	public Question saveQuestion(Question question) {		
+//		return questionRepository.save(question);		
+//	}
+//	
 	public void saveUpdatedQuestion(Question question) {
 		System.out.println("Commaon service : "+question);
 		Query query=new Query();
@@ -34,11 +34,11 @@ public class CommonService {
 		System.out.println("**** >"+q);
 		
 	}
-	
-	public int numberOfQuestionsCount() {
-		return (int) questionRepository.count();
-		
-	}
+//	
+//	public int numberOfQuestionsCount() {
+//		return (int) questionRepository.count();
+//		
+//	}
 		
 	public List<Question> getQuestionFromDataBase(String questionId) {
 		List<Question> question= questionRepository.findByQuestionId(questionId);
@@ -49,42 +49,50 @@ public class CommonService {
 		List<Question> question = questionRepository.findAll();		
 		return question;
 	}
-
 	
-	public List<TestCases> getTestCase(String questionId){
-		List<Question>  question= getQuestionFromDataBase(questionId);	
-		List<TestCases> testCasesCollection = null;
-		for (Question q : question) {
-			//testCasesCollection.addAll(q.getTestcases());
-			testCasesCollection = q.getTestcases();
-			System.out.println(testCasesCollection);
-		}
-		return testCasesCollection;
-	}
-	public List<SampleTestCase> getSampleTestCase(String questionId){
-		List<Question>  question= getQuestionFromDataBase(questionId);	
-		
-		List<SampleTestCase> sampleTestCaseCollection = null;
-		for (Question q : question) {
-			sampleTestCaseCollection = q.getSampleTestCase();
-			System.out.println(sampleTestCaseCollection);
-		}
-		return sampleTestCaseCollection;
-	}
+//	public List<TestCases> getTestCase(String questionId){
+//		List<Question>  question= getQuestionFromDataBase(questionId);	
+//		List<TestCases> testCasesCollection = null;
+//		for (Question q : question) {
+//			//testCasesCollection.addAll(q.getTestcases());
+//			testCasesCollection = q.getTestcases();
+//			System.out.println(testCasesCollection);
+//		}
+//		return testCasesCollection;
+//	}
+//	public List<SampleTestCase> getSampleTestCase(String questionId){
+//		List<Question>  question= getQuestionFromDataBase(questionId);	
+//		
+//		List<SampleTestCase> sampleTestCaseCollection = null;
+//		for (Question q : question) {
+//			sampleTestCaseCollection = q.getSampleTestCase();
+//			System.out.println(sampleTestCaseCollection);
+//		}
+//		return sampleTestCaseCollection;
+//	}
+//	
+//	public ArrayList<Question> getQuestionByContestId(String contestId) {
+//		System.out.println("String  : "+contestId);
+//		ArrayList<Question> question = questionRepository.findByContestId(contestId);
+//        System.out.println("q   :    "+question);
+//		return question;
+//	}
+//	
+//	public ArrayList<Question>  findByContestIdAndContestLevel(String contestId, String contestLevel){
+//		System.out.println("CID  : "+contestId+"cLevel"+contestLevel);
+//		ArrayList<Question> question = questionRepository.findByContestIdAndContestLevel(contestId, contestLevel);
+//       // System.out.println("qList  :    "+question);        
+//		return question;
+//	}
 	
-	public ArrayList<Question> getQuestionByContestId(String contestId) {
-		System.out.println("String  : "+contestId);
-		ArrayList<Question> question = questionRepository.findByContestId(contestId);
-        System.out.println("q   :    "+question);
-		return question;
-	}
+	public ArrayList<Question>  findQuestionByContestLevel(String contestLevel){
+	System.out.println("cLevel"+contestLevel);
+	ArrayList<Question> question = questionRepository.findByContestLevel(contestLevel);
+   System.out.println("qList 22  :    "+question);        
+	return question;
+}
 	
-	public ArrayList<Question>  findByContestIdAndContestLevel(String contestId, String contestLevel){
-		System.out.println("CID  : "+contestId+"cLevel"+contestLevel);
-		ArrayList<Question> question = questionRepository.findByContestIdAndContestLevel(contestId, contestLevel);
-       // System.out.println("qList  :    "+question);        
-		return question;
-	}
+	
 	
 	public String deleteQuestion(String questionId){
 		questionId=questionId.subSequence(1, questionId.length()-1).toString();
@@ -93,27 +101,27 @@ public class CommonService {
 	}
 		
 	
-// Currently not using :-	
-//	public void storeFileToFolder(String studentId, String code) throws IOException {
-//		System.out.println("ID => :"+studentId);
-//		FileWriter fl = new FileWriter(
-//				"C:\\Users\\Public\\Montrix\\CodeCompiler\\src\\main\\resources\\temp\\" + studentId + "." + "txt");
-//		PrintWriter pr = new PrintWriter(fl);
-//		pr.write((String) code);
-//		
-//		System.out.println("id of file : => "+binaryDataController.saveFile(studentId));
-//		pr.flush();
-//		pr.close();
-//	//	deleteFileFromFolder(studentId);
-//	}
-	
-	
-//	public Boolean deleteFileFromFolder(String fileName) throws IOException {
-//		System.out.println("going to delete =>  ....");
-//		System.out.println(fileName.getClass());
-//		File f= new File("C:\\Users\\Public\\Montrix\\CodeCompiler\\src\\main\\resources\\temp\\"+fileName+".txt");		
-//		return f.delete(); 
-//	}
+//// Currently not using :-	
+////	public void storeFileToFolder(String studentId, String code) throws IOException {
+////		System.out.println("ID => :"+studentId);
+////		FileWriter fl = new FileWriter(
+////				"C:\\Users\\Public\\Montrix\\CodeCompiler\\src\\main\\resources\\temp\\" + studentId + "." + "txt");
+////		PrintWriter pr = new PrintWriter(fl);
+////		pr.write((String) code);
+////		
+////		System.out.println("id of file : => "+binaryDataController.saveFile(studentId));
+////		pr.flush();
+////		pr.close();
+////	//	deleteFileFromFolder(studentId);
+////	}
+//	
+//	
+////	public Boolean deleteFileFromFolder(String fileName) throws IOException {
+////		System.out.println("going to delete =>  ....");
+////		System.out.println(fileName.getClass());
+////		File f= new File("C:\\Users\\Public\\Montrix\\CodeCompiler\\src\\main\\resources\\temp\\"+fileName+".txt");		
+////		return f.delete(); 
+////	}
 	
 
 	

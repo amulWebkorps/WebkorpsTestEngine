@@ -43,10 +43,7 @@
                 <div class="container mx-auto">
                     <div class="card_scroll1">
                         <div class="d-flex justify-content-center mt-5">
-
-                   
-
-                            <div class="">
+                             <div class="">
                                 <div class="answer_level1">
                                     <h4 class="text-white text-center  fw-bold  problem_input1 question_size">
                                         <a href="viewparticipators" class="text-decoration-none text-white">Level 1 Questions</a>
@@ -60,13 +57,7 @@
                                 <div class="row">
                                     <div class="col-md-1 div_card_inner_blue"></div>
                                     <div class="col-md-7 second-div">
-                                        <div class="col">
-                                            <input type="hidden" th:id="${contestId}" class="contestid"
-                                                th:value="${contestId}"></input>
-                                                 <input type="hidden"
-                                                th:id="${contestLevel}" class="contestlevel"
-                                                th:value="${contestLevel}"></input>
-
+                                        <div class="col">                                            
                                             <p>
                                                 <label class="fw-bold  text-dark  problem_input1 ">Write
                                                     Problem statement</label>
@@ -124,11 +115,9 @@
                                         </div>
                                         <div class="    text-center text-white fw-bold pt-2 mx-5 d-flex justify-content-end ">
                                             <button class="addQuestionBtn question_btn_level1 btn btn-primary">Add
-                                                Question</button>
-                                                
+                                                Question</button>                                                
                                         </div>
                                     </div>
-
                                     <div class="col-md-4 border1 ">
                                         <div class="row row_div1">
                                             <div class="col third-div">
@@ -190,7 +179,6 @@
                                 <button
                                     class="contest_delete mt-4 text-center text-white fw-bold pt-2  btn btn-primary ">
                                     Delete</button>
-
                             </div>
                             <div>
                                 <div class="question_box">
@@ -198,7 +186,7 @@
                                 </div>
                                 <div class="added_questions overflow-y-scroll ">
                                 <div th:each="q:${questions}">
-                                <div th:class="${q.questionId}">
+                                  <div th:class="${q.questionId}">
                                     <div class="added_question_box row mx-4 mt-3"  >
                                         <div class="col-8">
                                             <p class="added_question_box_text">
@@ -206,6 +194,8 @@
                                             </p>
                                         </div>
                                         <div class="col-3 ">
+                                        <input type="hidden" id="hiddenContestLevel" class="contestLevel"
+                                                th:value="${q.contestLevel}"></input>
                                             <input type="hidden" id="hiddenQid" class="questionid"
                                                 th:value="${q.questionId}"></input>
                                             <p class="Edit_Question  mx-5">Edit Question</p>
@@ -290,9 +280,8 @@
             SampleTestCaseList.push(sampleTestCase);
             console.log(SampleTestCaseList);
             var Question = {
-            	"questionId":updatedQuestionId,
-                "contestId": $(".contestid").val(),
-                "contestLevel": $(".contestlevel").val(),
+            	"questionId":updatedQuestionId,               
+                "contestLevel": "Level 1",
                 "question": $(".aboutQuestion").val(),
                 "sampleTestCase": SampleTestCaseList,
                 "testcases": testCaseList
@@ -307,15 +296,17 @@
                 success: function (response) {
                     console.log(response);
                     var data = '';
-                    window.location.href = "returnquestionlistforspecificcontest";
+                    window.location.href = "level1questions";
                 },
                 error: function (error) {
+                	window.location.href = "level1questions";
                     console.log(error);
                 },
 
             });
 
         });
+        
         function removeCurrentIOli(temp) {
             $("#" + temp).closest("li").remove();
         }
@@ -342,10 +333,12 @@
         }
 
  $(".Edit_Question").on("click", function () {
-	 $(".removeCurrentIOli1").remove();
+	// $(".removeCurrentIOli1").remove();
 	//console.log($(this).closest("div").find("#hiddenQid").val());
+	updatedQuestionId = $(this).closest("div").find("#hiddenQid").val();
 	 var qid=$(this).closest("div").find("#hiddenQid").val();
 	 console.log("===>",qid);
+	 console.log("updatedQuestionId===>",updatedQuestionId);
 	 $.ajax({
          url: "/getsavedquestion",
          contentType: "application/json; charset=utf-8",
