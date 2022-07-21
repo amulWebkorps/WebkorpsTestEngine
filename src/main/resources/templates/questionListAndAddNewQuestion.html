@@ -59,8 +59,6 @@
 										class="text-decoration-none text-white">Questions</a>
 								</h4>
 							</div>
-
-
 							<div class="">
 								<div class="answer2">
 									<h4
@@ -78,10 +76,8 @@
 									<div class="col-md-1 div_card_inner_blue"></div>
 									<div class="col-md-7 second-div">
 										<div class="col">
-											<input type="hidden" th:id="${contestId}" class="contestid"
-												th:value="${contestId}"></input> <input type="hidden"
-												th:id="${contestLevel}" class="contestlevel"
-												th:value="${contestLevel}"></input>
+											<input type="hidden" id="contestId" class="contestid" th:value="${contestId}"></input>
+											<input type="hidden" id="contestLevel" class="contestlevel" th:value="${contestLevel}"></input>
 
 											<p>
 												<label class="fw-bold  text-dark  problem_input1 ">Write
@@ -145,8 +141,8 @@
 										</div>
 										<div class="    text-center text-white fw-bold pt-2 mx-5  ">
 											<button class="addQuestionBtn question_btn btn btn-primary">Add
-												Question</button>
-										</div>
+												Question</button>												
+												</div>
 									</div>
 
 									<div class="col-md-4 border1 ">
@@ -217,8 +213,13 @@
 
 							</div>
 							<div>
-								<div class="question_box">
+								<div class="question_box row">
+								<div class="col-6">
 									<h3 class="mx-4 pt-4 fw-bold text-dark">Added Questions</h3>
+									</div>
+									<div class="col-6">
+									<button class="addQuestionBtn question_btn4 btn btn-outline-primary ">Available Questions</button>                                      
+										</div>
 								</div>
 								<div class="added_questions overflow-y-scroll ">
 									<div th:each="q:${questions}">
@@ -275,7 +276,7 @@
             
             
             
-            debugger;
+           //debugger;
             var testCaseValue = document.getElementsByName('dataOfIO');
             var numberofElements= parseInt(testCaseValue.length);
             if(numberofElements == 0)
@@ -329,20 +330,17 @@
              },
 
         }) */
-
-        
-        
-     
-
-
-        $(".addQuestionBtn").on("click", function () {
+   $(".addQuestionBtn").on("click", function () {
             var testCaseList = [];
             var data;
             var SampleTestCaseList = [];
+           
             var sampleTestCase;
             var i = 1;
             var id = 1;
             var input, output;
+            var contestId = $("#contestId").val();
+            var contestLevel = $("#contestLevel").val();
             var testCaseValue = document.getElementsByName('dataOfIO');
             testCaseValue.forEach(element => {
                 if (i == 1) {
@@ -398,39 +396,64 @@
             	
             SampleTestCaseList.push(sampleTestCase);
             console.log(SampleTestCaseList);
+          
+            
             var Question = {
-            	"questionId":updatedQuestionId,
-                "contestId": $(".contestid").val(),
-                "contestLevel": $(".contestlevel").val(),
+            	"questionId":updatedQuestionId,            
+                "contestLevel": $(".contestlevel").val()+"@"+$(".contestid").val(),
                 "question": $(".aboutQuestion").val(),
                 "sampleTestCase": SampleTestCaseList,
                 "testcases": testCaseList
-            };
-
-         
-            $.ajax({
-                url: "/savequestion",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                method: "POST",
-                data: JSON.stringify(Question),
-                success: function (response) {
-                    console.log(response);
-                    var data = '';
-  //window.location.href = "returnquestionlistforspecificcontest";
-                    window.location.href = "returnquestionlistforspecificcontest";
-                },
-                error: function (error) {
-                	 window.location.href = "returnquestionlistforspecificcontestlevel";
-                    console.log(error);
-                },
-            });
+            }; 
+            if(updatedQuestionId==""){
+            	console.log("updatedQuestionId blank",updatedQuestionId);
+            	   $.ajax({
+                       url: "/savequestion",
+                       contentType: "application/json; charset=utf-8",
+                       dataType: "json",
+                       method: "POST",
+                       data: JSON.stringify(Question),
+                       success: function (response) {
+                           console.log(response);
+                           var data = '';
+                               window.location.href = "questionlistforspecificcontest";
+                       },
+                       error: function (error) {
+                       	 window.location.href = "questionlistforspecificcontest";
+                           console.log(error);
+                       },
+                   });
+            }
+            else{  
+            	console.log("updatedQuestionId fill ",updatedQuestionId);
+            	 $.ajax({
+                     url: "/saveupdatedquestion",
+                     contentType: "application/json; charset=utf-8",
+                     dataType: "json",
+                     method: "POST",
+                     data: JSON.stringify(Question),
+                     success: function (response) {
+                         console.log(response);
+                         var data = '';
+                             window.location.href = "questionlistforspecificcontest";
+                     },
+                     error: function (error) {
+                     	 window.location.href = "questionlistforspecificcontest";
+                         console.log(error);
+                     },
+                 });            
+            }
+      
+    
             $(".aboutQuestion").val(''); 
             $(".aboutConstraints").val(''); 
             $(".aboutSampleInput").val(''); 
             $(".aboutSampleOutput").val('');
             $('.inputOutputList').remove();
         });
+       
+       
+       
         function removeCurrentIOli(temp) {
             $("#" + temp).closest("li").remove();
         }

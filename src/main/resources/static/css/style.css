@@ -919,8 +919,9 @@ input.user_info_input {
   height: 89px;
   width: 1053px;
   background: #f9fafc;
-  margin-left: 42px;
+  margin-left: 42px !important;
   border-radius: 17px 17px 0px 0px;
+  
 }
 
 .question_btn{
@@ -951,6 +952,8 @@ input.user_info_input {
   border: 2px solid #0057ff !important;
   border-radius: 8px;
   background-color: white !important;
+  margin-top: 21px !important;
+  margin-left: 205px !important;
 }
 
 .test_case_result {
@@ -1511,6 +1514,22 @@ accordion-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.overflow_level1{
+  font-family: "Raleway";
+  font-style: normal;
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 28px;
+  padding-top: 15px;
+  overflow-y: scroll !important;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none;
+  height: 70px;
+}
+.overflow_level1::-webkit-scrollbar {
+  display: none ;
 }
 
 .error-msgQuestion{
