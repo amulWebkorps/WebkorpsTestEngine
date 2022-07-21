@@ -67,8 +67,9 @@
 						</div>
 						<div class=" d-flex ">
 							<div>
-								<select class=" form-select  option-dropdown2 mt-3 mx-5">
-									<option value="All">All</option>
+								<select class=" form-select  option-dropdown2 mt-3 mx-5" id="drop">
+								
+									<option value="All" selected="selected">All</option>
 									<option value="Level 1">Level 1</option>
 									<option value="Level 2">Level 2</option>
 								</select>
@@ -102,7 +103,16 @@
 		integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
 		crossorigin="anonymous"></script>
 	<script>
-        
+	$(document).ready(function() {
+		debugger;
+	console.log(sessionStorage.getItem("form-select"));
+	if(sessionStorage.getItem("form-select")!=null)
+		{
+	        $('.form-select').val(sessionStorage.getItem("form-select"));
+	        sessionStorage.removeItem("form-select");	
+		}
+	
+	});
         function deleteQuestion(divId) {  
         	console.log("===>",divId);
         	var qid=divId;
@@ -123,10 +133,13 @@
                  },
 
              });
+        	
         }
         
-        $('.form-select').change(function(){        	
-			var level = $(".form-select").val();		
+        $('.form-select').change(function(){
+        	
+			var level = $(".form-select").val();	
+			debugger;
 			console.log(level);
 			 $.ajax({
                  url: "/filterbasedonlevel",
@@ -142,12 +155,15 @@
                 	 window.location.href = "returnpagebasedonfilter";
                      console.log(error);
                  },
-
+                
              });
+			 debugger;
+			 sessionStorage.setItem("form-select", $(this).val());
 			
         });
-        
+    
         </script>
+       
 </body>
 
 </html>
