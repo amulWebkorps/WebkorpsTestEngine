@@ -274,35 +274,11 @@
             if(($(".testCaseInput").val())&&($(".testCaseOutput").val()))
             $('.inputOutputList').append(data);
             
-            
-            
-           //debugger;
             var testCaseValue = document.getElementsByName('dataOfIO');
             var numberofElements= parseInt(testCaseValue.length);
             if(numberofElements == 0)
             	{
-            	 if ((!$('.testCaseInput').val()) && (!$('.testCaseOutput').val())) {
-                     $("#validateTestInputOut").html("field is required").addClass("#validateTestInputOut")
-                     return ;
-                    }else{
-                    	
-                    	 $("#validateTestInputOut").html("").removeClass("#validateTestInputOut")
-                    } 
-            	 
-            	 if (!$('.testCaseInput').val()) {
-                     $(".validateTestInput").html("Input field is required").addClass(".validateTestInput")
-                     return ;
-                    }else{
-                    	
-                    	 $(".validateTestInput").html("").removeClass(".validateTestInput")
-                    } 
-             	 if (!$('.testCaseOutput').val()) {
-                     $(".validateTestOutput").html("output field is required").addClass(".validateTestOutput")
-                     return ;
-                    }else{
-                    	
-                    	 $(".validateTestOutput").html("").removeClass(".validateTestOutput")
-                    } 
+             
             	}
             else
             	{
@@ -317,7 +293,6 @@
         
             $('.testCaseInput').val('')
                $('.testCaseOutput').val('')
-  
             
         });
      
@@ -330,7 +305,7 @@
              },
 
         }) */
-   $(".addQuestionBtn").on("click", function () {
+        $(".addQuestionBtn").on("click", function () {
             var testCaseList = [];
             var data;
             var SampleTestCaseList = [];
@@ -393,7 +368,39 @@
                }else{
                	 $(".error-msgOutput").html("").removeClass(".error-msgOutput")
                } 
-            	
+            var numberofElements= parseInt(testCaseValue.length);
+            if(numberofElements == 0)
+        	{
+        	 if ((!$('.testCaseInput').val()) && (!$('.testCaseOutput').val())) {
+                 $("#validateTestInputOut").html("field is required").addClass("#validateTestInputOut")
+                 return ;
+                }else{
+                	
+                	 $("#validateTestInputOut").html("").removeClass("#validateTestInputOut")
+                } 
+        	 
+        	 if (!$('.testCaseInput').val()) {
+                 $(".validateTestInput").html("Input field is required").addClass(".validateTestInput")
+                 return ;
+                }else{
+                	
+                	 $(".validateTestInput").html("").removeClass(".validateTestInput")
+                } 
+         	 if (!$('.testCaseOutput').val()) {
+                 $(".validateTestOutput").html("output field is required").addClass(".validateTestOutput")
+                 return ;
+                }else{
+                	
+                	 $(".validateTestOutput").html("").removeClass(".validateTestOutput")
+                } 
+        	}
+        else
+        	{
+        	$(".validateTestInput").html("").removeClass(".validateTestInput")
+        	$("#validateTestInputOut").html("").removeClass("#validateTestInputOut")
+        	$(".validateTestOutput").html("").removeClass(".validateTestOutput")
+        	}
+	
             SampleTestCaseList.push(sampleTestCase);
             console.log(SampleTestCaseList);
           
