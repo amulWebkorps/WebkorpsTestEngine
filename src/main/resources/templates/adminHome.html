@@ -68,8 +68,8 @@
 								</div>
 								<div
 									class="multiplecontest row row-cols-1 row-cols-md-4 mx-5 mt-5 row_cards">
-									<div class="click col mb-4" th:each="q:${contest}" id="click">
-										<div class="click2" data-id="title_1">
+									<div class="click col mb-4" th:each="q:${contest}" >
+										<div class="click2" data-id="title_1" th:id="${q.contestId}" onclick="getContestIdForQuestionPage(this.id)">
 											<input type="hidden" th:id="${q.contestId}" class="contestid"
 												th:value="${q.contestId}"></input>
 											<div class="card card_size ">
@@ -77,7 +77,7 @@
 												<div class="delete-btn">
 													<i class="deleteContest fa-solid fa-circle-xmark fa-2x "
 														style="color: red" data-toggle="modal"
-														data-target="#exampleModalCenter4" id="contesttodelete" th:value="${q.contestId}"></i>
+														data-target="#exampleModalCenter4" id="${q.contestId}" th:value="${q.contestId}"></i>
 												</div>
 												<img src="https://source.unsplash.com/random/100x60?sig=1"
 													class="card-img-top card_size1" alt="..."
@@ -119,7 +119,7 @@
 								<div class="text-center background_contest_inner">
 									<h1 class="fw-bold">Available Question</h1>
 								</div>
-								<div class="multiplecontest row row-cols-1 row-cols-md-4 mx-5 mt-5 row_cards">
+								<div class="multiplecontest row row-cols-1 row-cols-md-4 mx-5 mt-5 row_cards justify-content-center">
 									<div class="click col mb-4" id="click">
 										<div>
 											<div class="card card_size ">
@@ -290,6 +290,9 @@
 		
 	<script>
 		
+	var contestIdForQuestionPage = "";
+	var contestid = '';
+	var level = '';
 		$('#next-btn').click(function() {
 			$('#next-btn').hide()
 			$('#prev1').show()
@@ -299,8 +302,14 @@
 			$('#prev1').hide()
 		})
 		
+		function getContestIdForQuestionPage(contestId){
+			console.log("got : ",contestId);
+			contestIdForQuestionPage = contestId;
+		}
+		
+		
    $(document).ready(function() {
-	   
+		  	   
 			var idToDeleteContest = "";
 			$(".save").on("click",function() {
 			var contestName = $(".contestname").val();
@@ -350,8 +359,7 @@
 														});
 											});
 
-							var contestid = '';
-							var level = '';
+							
 							$(".btn-close1").on("click", function() {
 								window.location.href = "adminhome";
 								console.log("close is working");
@@ -364,10 +372,11 @@
 
 							$(".continuetoseequestions").on("click",function() {
 												level = $(".leveltoseequestions").val();
-												console.log(contestid);
+												
+												console.log(contestIdForQuestionPage);
 												console.log(level);
 												var Contest = {
-													"contestId" : contestid,
+													"contestId" : contestIdForQuestionPage,
 													"contestLevel" : level
 												};
 												$.ajax({
@@ -379,10 +388,10 @@
 															success : function(response) {
 																//console.log(response);
 
-																window.location.href = "returnquestionlistforspecificcontestlevel";
+																window.location.href = "questionlistforspecificcontest";
 																},
 															error : function(error) {
-																window.location.href = "returnquestionlistforspecificcontestlevel";
+																window.location.href = "questionlistforspecificcontest";
 																
 																console.log(error);
 															},

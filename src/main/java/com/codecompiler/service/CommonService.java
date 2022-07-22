@@ -21,18 +21,18 @@ public class CommonService {
 	
 	@Autowired private MongoTemplate mongoTemplate;
 	//@Autowired private BinaryDataController binaryDataController;
-//	public Question saveQuestion(Question question) {		
-//		return questionRepository.save(question);		
-//	}
-//	
-	public void saveUpdatedQuestion(Question question) {
+	public Question saveQuestion(Question question) {		
+		return questionRepository.save(question);				
+	}
+	
+	public Question saveUpdatedQuestion(Question question) {
 		System.out.println("Commaon service : "+question);
 		Query query=new Query();
 		query.addCriteria(Criteria.where("_id").is(question.getQuestionId()));
 		Question q = mongoTemplate.findOne(query, Question.class);
 		mongoTemplate.save(question);
 		System.out.println("**** >"+q);
-		
+		return question;
 	}
 //	
 //	public int numberOfQuestionsCount() {
@@ -70,17 +70,18 @@ public class CommonService {
 //		}
 //		return sampleTestCaseCollection;
 //	}
-//	
+	
 //	public ArrayList<Question> getQuestionByContestId(String contestId) {
 //		System.out.println("String  : "+contestId);
-//		ArrayList<Question> question = questionRepository.findByContestId(contestId);
+	//	ArrayList<Question> question = questionRepository.findByContestId(contestId);
 //        System.out.println("q   :    "+question);
 //		return question;
 //	}
-//	
-//	public ArrayList<Question>  findByContestIdAndContestLevel(String contestId, String contestLevel){
+	
+//	public Question findByContestIdAndContestLevel(String contestId, String contestLevel){
 //		System.out.println("CID  : "+contestId+"cLevel"+contestLevel);
-//		ArrayList<Question> question = questionRepository.findByContestIdAndContestLevel(contestId, contestLevel);
+//		
+//		Question question = questionRepository.findByContestIdAndContestLevel(contestId, contestLevel);
 //       // System.out.println("qList  :    "+question);        
 //		return question;
 //	}

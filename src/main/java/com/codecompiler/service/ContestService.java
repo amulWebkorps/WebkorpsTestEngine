@@ -31,11 +31,11 @@ public class ContestService {
 		return contestList;
 	}
 	
-//	public Contest getContestBasedOnLevel(String cId, String clevel) {
-//		Contest contest = contestRepository.findByContestIdAndContestLevel(cId, clevel);	
-//		System.out.println("---->"+contest);
-//		return contest;
-//	}
+	public Contest getContestBasedOnContestIdAndLevel(String cId, String clevel) {
+		Contest contest = contestRepository.findByContestIdAndContestLevel(cId, clevel);	
+		System.out.println("---->"+contest);
+		return contest;
+	}
 //
 //	public void deleteContest(String contestId) {
 //		System.out.println("@@@@@@@@ 2"+contestId);

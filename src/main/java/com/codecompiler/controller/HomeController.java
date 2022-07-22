@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -46,8 +47,8 @@ public class HomeController {
 		return "adminHome";		
 	}
 	
-//	@RequestMapping("/home")
-//	public String home(Model model) {
+	@RequestMapping("/home")
+	public String home(Model model) {
 //		List<Question> question = commonService.getQuestionFromDataBase("40");
 //		Question localQuestion = new Question();
 //		List <SampleTestCase> sampleTestCase = new ArrayList<>();
@@ -67,8 +68,8 @@ public class HomeController {
 //		model.addAttribute("question",localQuestion);
 //		model.addAttribute("stc",localSampleTestCase);
 //		
-//		return "compilerIDE";
-//	}
+		return "IDECompiler";
+	}
 //
 //	@RequestMapping("/contest") 
 //	private String addContest() {
@@ -89,12 +90,50 @@ public class HomeController {
 	
 	@RequestMapping("/findcontest") 
 	private ResponseEntity<String> findContest(@RequestBody Contest contest,Model model) {
-		System.out.println(contest.getContestId());		
-		System.out.println(contest.getContestLevel());
+		System.out.println("ContestId : "+contest.getContestId());		
+		System.out.println("ContestLevel : "+contest.getContestLevel());
 		contestId = contest.getContestId();
 		contestLevel = contest.getContestLevel();	
 		return ResponseEntity.ok("valueSet");
 	}
+	
+	//question related to contest id and contest level return questionListAndAddNewQuestion
+	@RequestMapping("/questionlistforspecificcontest")
+	public String questionsListOfContest(Model model) {
+		List<Question> allQuestionsOfSpecificContestLevel = new ArrayList<>();
+		Contest contest = new Contest();
+
+		contest = contestService.getContestBasedOnContestIdAndLevel(contestId, contestLevel);
+		
+
+		allQuestionsOfSpecificContestLevel = commonService.findQuestionByContestLevel(contestLevel);
+
+		System.out.println("allQuestionsOfSpecificContestLevel : " + allQuestionsOfSpecificContestLevel);
+
+		List<Question> Qlist = new ArrayList<>();
+		
+		ArrayList<String> qidListOfContest = contest.getQuestionIds();
+	
+		 System.out.println("qidListOfContest "+qidListOfContest);
+		 
+		 for(String qidOfContest : qidListOfContest) {
+			 for(Question q : allQuestionsOfSpecificContestLevel) {
+				 if(qidOfContest.equals(q.getQuestionId())) {
+					 Qlist.add(q);
+					 break;
+				 }
+				}
+			}
+		
+       System.out.println("question list : " + Qlist);
+
+		model.addAttribute("questions", Qlist);
+		model.addAttribute("contestId", contestId);
+		model.addAttribute("contestLevel", contestLevel);
+		
+		return "questionListAndAddNewQuestion";
+	}
+	
 	
 	@RequestMapping("/returnquestionlistforspecificcontestlevel")
 	public String QuestionsList(Model model) {				
@@ -121,21 +160,58 @@ public class HomeController {
 	}
 	
 	@PostMapping("/savequestion")
-	public ResponseEntity<String> saveQuestion(@RequestBody Question question, Model model) throws IOException {
-        System.out.println("Obj : "+question);
+	public ResponseEntity<String> saveQuestion(@RequestBody Question question, Model model) throws IOException {		
+        System.out.println("savequestion Obj Prev : "+question);
+        
         System.out.println("Obj q id : "+question.getQuestionId());
+        String [] stringOfCidAndCl=new String[2];
+        stringOfCidAndCl = question.getContestLevel().split("@");
+        System.out.println("stringOfCidAndCl : "+stringOfCidAndCl[1]+"   "+stringOfCidAndCl[0]);
+       Contest contest = new Contest();		                                  // id, level
+		contest = contestService.getContestBasedOnContestIdAndLevel(stringOfCidAndCl[1], stringOfCidAndCl[0]);
+		question.setContestLevel(stringOfCidAndCl[0]);
+		System.out.println("Obj After: "+question); 
+		System.out.println("contest prev :  "+contest); 
+	         
         String tempQid = question.getQuestionId();
         if(tempQid == ("")) {
         	System.out.println(" inside if condition ");
-        question.setQuestionId(UUID.randomUUID().toString());
+        	tempQid = UUID.randomUUID().toString();
+        question.setQuestionId(tempQid);
+        System.out.println("tempQid -> "+tempQid);
         }
+        Question savedQuestion =  commonService.saveUpdatedQuestion(question);
+       System.out.println("........."+savedQuestion.getQuestionId()+"............");       
+       contest.getQuestionIds().add(savedQuestion.getQuestionId());
+       System.out.println("contest after :  "+contest); 
+       contestService.saveContest(contest);
+               
+		return ResponseEntity.ok("");
+	}
+	
+	@PostMapping("/saveupdatedquestion")
+	public ResponseEntity<String> saveUpdatedQuestion(@RequestBody Question question, Model model) throws IOException {
+        System.out.println("saveupdatedquestion Obj prev : "+question);
+        System.out.println("Obj q id : "+question.getQuestionId());
+        String [] stringOfCidAndCl=new String[2];
+        stringOfCidAndCl = question.getContestLevel().split("@");
+        System.out.println("stringOfCidAndCl : "+stringOfCidAndCl[1]+"   "+stringOfCidAndCl[0]);
+        question.setContestLevel(stringOfCidAndCl[0]);
+        System.out.println("Obj after : "+question);
+//        String tempQid = question.getQuestionId();
+//        if(tempQid == ("")) {
+//        	System.out.println(" inside if condition ");
+//        question.setQuestionId(UUID.randomUUID().toString());
+//        }
         //System.out.println(">>>"+commonService.getAllQuestionFromDataBase());
         commonService.saveUpdatedQuestion(question);
         model.addAttribute("questions",commonService.getAllQuestionFromDataBase());
         
 		return ResponseEntity.ok("");
 	}
-
+	
+	
+	
 	@RequestMapping("/deletequestion") 
 	private ResponseEntity<String> deleteQuestion(@RequestBody String questionId) {
 		System.out.println("delete.........."+questionId);
@@ -182,17 +258,17 @@ public class HomeController {
 //		model.addAttribute("question", allQuestions);
 //		return "questions";
 //	}
-//	
-//	@RequestMapping("/viewparticipators") 
-//	private String viewParticipators() {
-//	    return "participators";
-//	}
-//	
-//	@RequestMapping("/participatordetail") 
-//	private String participatorDetail() {
-//	    return "participatorDetail";
-//	}
-//	
+	
+	@RequestMapping("/viewparticipators") 
+	private String viewParticipators() {
+	    return "participators";
+	}
+	
+	@RequestMapping("/participatordetail") 
+	private String participatorDetail() {
+	    return "participatorDetail";
+	}
+	
 //	@RequestMapping("/compiler") 
 //	private String IDECompiler() {
 //	    return "IDECompiler";
@@ -241,14 +317,7 @@ public class HomeController {
 	private String returnPageBasedOnLevel(Model model) {
 		ArrayList<Question> contestQuestions = new ArrayList<>();
 		ArrayList<Question> contestQuestionsTemp = new ArrayList<>();		
-		if(contestLevelForPage.equals("Level 1")) {	
-			System.out.println("L1");			
-			contestQuestions = commonService.findQuestionByContestLevel("Level 1");									
-		}else if(contestLevelForPage.equals("Level 2")) {
-			System.out.println("L2");
-			contestQuestions = commonService.findQuestionByContestLevel("Level 2");		
-		}else {
-			System.out.println("both");
+		if(contestLevelForPage.equals("All")) {
 			contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 1");
 			for (Question q : contestQuestionsTemp) {
 				contestQuestions.add(q);
@@ -256,13 +325,31 @@ public class HomeController {
 			contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 2");
 			for (Question q : contestQuestionsTemp) {
 				contestQuestions.add(q);
-			}
-		}	
+			}			
+		}else {
+			contestQuestions = commonService.findQuestionByContestLevel(contestLevelForPage);
+		}
 		model.addAttribute("questions", contestQuestions);		
 		return "allquestions";
 	}
 	
+	@RequestMapping("/selectavailablequestion")
+	public String selectAvailableQuestion(Model model){	
+		ArrayList<Question> contestQuestions = new ArrayList<>();
+		ArrayList<Question> contestQuestionsTemp = new ArrayList<>();
+		contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 1");
+		for (Question q : contestQuestionsTemp) {
+			contestQuestions.add(q);
+		}
+		contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 2");
+		for (Question q : contestQuestionsTemp) {
+			contestQuestions.add(q);
+		}
+		model.addAttribute("questions", contestQuestions);	
+		return "selectAvailableQuestion";		
+	}
 	
+		
 //	@RequestMapping("/idforquestiondetail")
 //	public ResponseEntity<Integer> idForQuestionDetail(@RequestBody int quesionId) {
 //		System.out.println("idforquestiondetail BE"+quesionId);
@@ -312,13 +399,7 @@ public class HomeController {
 //		return "QuestionDetail";
 //	}
 //	
-//	@RequestMapping("/questionlistforspecificcontest")
-//	public ResponseEntity<List<Question>> questionsListOfContest(@RequestBody String contestId, Model model) {
-//		allQuestionsspecificcontest = commonService.getQuestionByContestId(contestId.substring(1, contestId.length()-1));
-//		System.out.println("question list : "+allQuestionsspecificcontest);
-//		model.addAttribute("question", allQuestionsspecificcontest);
-//		return ResponseEntity.ok(allQuestionsspecificcontest);
-//	}
+
 //	
 //	
 //	
