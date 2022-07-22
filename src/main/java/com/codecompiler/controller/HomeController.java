@@ -68,7 +68,7 @@ public class HomeController {
 //		model.addAttribute("question",localQuestion);
 //		model.addAttribute("stc",localSampleTestCase);
 //		
-		return "IDECompiler";
+		return "IDECompiler";		
 	}
 //
 //	@RequestMapping("/contest") 
@@ -153,10 +153,22 @@ public class HomeController {
 		Contest contestToSave = new Contest();
 		contestToSave.setContestName(contest.getContestName());
 		contestToSave.setContestDescription(contest.getContestDescription());
-		contestToSave.setContestLevel(contest.getContestLevel());
-		Contest con = contestService.saveContest(contest);
-		System.out.println("con : "+con);		
-				return ResponseEntity.ok(con);
+		contestToSave.setContestLevel("Level 1");
+		//contestToSave.setContestLevel(contest.getContestLevel());
+		Contest con1 = contestService.saveContest(contestToSave);
+		
+		Contest contestToSave2 = new Contest();
+		contestToSave2.setContestId(con1.getContestId());
+		contestToSave2.setContestName(contest.getContestName());
+		contestToSave2.setContestDescription(contest.getContestDescription());
+		contestToSave2.setContestLevel("Level 2");
+		//contestToSave.setContestLevel(contest.getContestLevel());
+		
+		Contest con2 = contestService.saveContest(contestToSave2);
+		
+		System.out.println("con : "+con1);
+		System.out.println("con : "+con2);
+				return ResponseEntity.ok(con1);
 	}
 	
 	@PostMapping("/savequestion")
@@ -181,8 +193,16 @@ public class HomeController {
         System.out.println("tempQid -> "+tempQid);
         }
         Question savedQuestion =  commonService.saveUpdatedQuestion(question);
-       System.out.println("........."+savedQuestion.getQuestionId()+"............");       
+        
+       System.out.println("........."+savedQuestion.getQuestionId()+"............");  
+       
        contest.getQuestionIds().add(savedQuestion.getQuestionId());
+       if(stringOfCidAndCl[0].equals("Level 1")) {
+    	   contest.getLevel1QuestionIds().add(savedQuestion.getQuestionId());
+       }else if(stringOfCidAndCl[0].equals("Level 2")) {
+    	   contest.getLevel2QuestionIds().add(savedQuestion.getQuestionId());
+       }
+       
        System.out.println("contest after :  "+contest); 
        contestService.saveContest(contest);
                

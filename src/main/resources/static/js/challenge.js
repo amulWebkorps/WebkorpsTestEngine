@@ -1,4 +1,6 @@
-
+/**
+ *
+ */
  let editor;
 
 	window.onload = function() {
