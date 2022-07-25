@@ -8,7 +8,7 @@ window.onload = function() {
 }
 
 function changeLanguage() {
-
+debugger
     let language = $("#languages").val(); 
     
   if(language=="python"){
@@ -168,5 +168,5 @@ function codeEditor(){
        printf("Hello World"); \n
       return 0;\n
 }`  
- editor.setValue(c)	
+ editorc.setValue(c)	
 }

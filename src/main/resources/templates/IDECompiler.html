@@ -117,29 +117,26 @@
 						</h1>
 					  </div>
 					  <div class="pt-3">
-						<select
-						  class="btn compiler_screen_upper_btn2 text-dark fw-bold  mx-2 "
-						  aria-label="Default select example  "
-						>
-						  <option value="1">C</option>
-						  <option value="2">C++</option>
-						  <option value="3">Java</option>
-						  <option value="4">Python</option>
+						<select id="languages"
+						  class="btn compiler_screen_upper_btn2 text-dark fw-bold mx-2 languages"
+						  aria-label="Default select example" onchange="changeLanguage()">
+						  	<option value="c">C</option>
+							<option value="cpp">C++</option>
+							<option value="java">Java</option>
+							<option value="python">Python</option>
 						</select>
 					  </div>
 					</div>
 				  </div>
 				  <div class="editor" id="editor"></div>
-				  
+		
 					<div class="d-flex justify-content-center button_compiler1 px-4">
 					  <button
-						class="compiler_screen_test btn btn-outline-primary text-light fw-bold"
-					  >
-						Test
+						class="compiler_screen_test btn btn-outline-primary text-light fw-bold" id="run"  value="run" onclick="runCode()">
+						Run
 					  </button>
 					  <button
-						class="compiler_screen_test btn btn-outline-primary text-light fw-bold mx-3"
-					  >
+						class="compiler_screen_test btn btn-outline-primary text-light fw-bold mx-3" id="submit"  value="submit" onclick="submitCode()">
 						Submit
 					  </button>
 					</div>
@@ -190,26 +187,27 @@
 
 <script src="js/lib/theme-monokai.js"></script>
 
-<script src="js/editor.js" ></script>
+<script src="js/texteditor.js" ></script>
 
-<script src="js/challenge.js" ></script>
+<!--<script src="js/challenge.js" ></script>-->
 
 <script type="text/javascript">
 
 function submitCode(){
+	debugger
 	var language = $("#languages").val();
 	var submit = $("#submit").val();
-	var code     = editor.getSession().getValue();
+	var code     = editorc.getSession().getValue();
 	var questionId = $("#questionId").val();
 	console.log(language);
 	console.log(code);
 
 	if(language == 'java'){
 
-	 var d = { 'language': language, 'code': editor.getSession().getValue(), questionId: parseInt(questionId), 'submit': submit };
+	 var d = { 'language': language, 'code': editorc.getSession().getValue(), questionId: parseInt(questionId), 'submit': submit };
 
 	 $.ajax({
-	        url: "/java-compiler-db-api",
+	        url: "/javacompiler",
 	        contentType: "application/json; charset=utf-8",
 	        dataType: "json",
 	        method: "POST",
@@ -228,10 +226,10 @@ function submitCode(){
 	    });
 	  }
   if(language == 'python') {
-	  var d = { 'language': language, 'code': editor.getSession().getValue(), questionId: parseInt(questionId) };
+	  var d = { 'language': language, 'code': editorc.getSession().getValue(), questionId: parseInt(questionId) };
 
  	 $.ajax({
- 	        url: "/python-compiler-db-api",
+ 	        url: "/pythoncompiler",
  	        contentType: "application/json; charset=utf-8",
  	        dataType: "json",
  	        method: "POST",
@@ -250,10 +248,10 @@ function submitCode(){
  	    });
  	  }
   if(language == 'cpp') {
-	  var d = { 'language': language, 'code': editor.getSession().getValue(), questionId: parseInt(questionId) };
+	  var d = { 'language': language, 'code': editorc.getSession().getValue(), questionId: parseInt(questionId) };
 
   	 $.ajax({
-  	        url: "/cpp-compiler-db-api",
+  	        url: "/cppcompiler",
   	        contentType: "application/json; charset=utf-8",
   	        dataType: "json",
   	        method: "POST",
@@ -272,10 +270,10 @@ function submitCode(){
   	    });
     }
   if(language == 'c') {
-	  var d = { 'language': language, 'code': editor.getSession().getValue(), questionId: parseInt(questionId) };
+	  var d = { 'language': language, 'code': editorc.getSession().getValue(), questionId: parseInt(questionId) };
 
   	 $.ajax({
-  	        url: "/c-compiler-db-api",
+  	        url: "/ccompiler",
   	        contentType: "application/json; charset=utf-8",
   	        dataType: "json",
   	        method: "POST",
@@ -305,7 +303,7 @@ function runCode(){
 
 	if(language == 'java'){
 
-	 var d = { 'language': language, 'code': editor.getSession().getValue(), questionId: parseInt(questionId), 'run': run };
+	 var d = { 'language': language, 'code': editorc.getSession().getValue(), questionId: parseInt(questionId), 'run': run };
 
 	 $.ajax({
 	        url: "/java-compiler-db-api",
@@ -327,7 +325,7 @@ function runCode(){
 	    });
 	  }
   if(language == 'python') {
-	  var d = { 'language': language, 'code': editor.getSession().getValue(), questionId: parseInt(questionId) };
+	  var d = { 'language': language, 'code': editorc.getSession().getValue(), questionId: parseInt(questionId) };
 
  	 $.ajax({
  	        url: "/python-compiler-db-api",
@@ -349,7 +347,7 @@ function runCode(){
  	    });
  	  }
   if(language == 'cpp') {
-	  var d = { 'language': language, 'code': editor.getSession().getValue(), questionId: parseInt(questionId) };
+	  var d = { 'language': language, 'code': editorc.getSession().getValue(), questionId: parseInt(questionId) };
 
   	 $.ajax({
   	        url: "/cpp-compiler-db-api",
@@ -371,7 +369,7 @@ function runCode(){
   	    });
     }
   if(language == 'c') {
-	  var d = { 'language': language, 'code': editor.getSession().getValue(), questionId: parseInt(questionId) };
+	  var d = { 'language': language, 'code': editorc.getSession().getValue(), questionId: parseInt(questionId) };
 
   	 $.ajax({
   	        url: "/c-compiler-db-api",

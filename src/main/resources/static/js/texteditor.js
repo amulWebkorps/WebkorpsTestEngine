@@ -1,14 +1,15 @@
-let editor;
+let editorc;
 let flag;
 window.onload = function() {
-	editor = ace.edit("editor");
-	editor.setTheme("ace/theme/monokai");
-	editor.session.setMode("ace/mode/c_cpp");
+	editorc = ace.edit("editor");
+	editorc.setTheme("ace/theme/monokai");
+	editorc.session.setMode("ace/mode/c_cpp");
 	codeEditor();
 }
 function codeEditor() {
 	jQuery.get('js/sampleCProgram.txt', function(txt) {
-		editor.setValue(txt)
+		var abc = txt;
+		editorc.setValue(abc)
 	});
 }
 
@@ -22,39 +23,39 @@ function setFlagForSubmit() {
 	executeCode()
 }
 function changeLanguage() {
-
+debugger
 	let language = $("#languages").val();
 	console.log(language);
 	if (language == "python") {
 		console.log("python");
 		jQuery.get('js/samplePythonProgram.txt', function(txt) {
-			editor.setValue(txt);
+			editorc.setValue(txt);
 
 		});
 	}
 	if (language == "java") {
 		console.log("java");
 		jQuery.get('js/sampleJavaProgram.txt', function(txt) {
-			editor.setValue(txt)
+			editorc.setValue(txt)
 
 		});
 	}
 	if (language == "cpp") {
 		console.log("CPP");
 		jQuery.get('js/sampleCPPProgram.txt', function(txt) {
-			editor.setValue(txt)
+			editorc.setValue(txt)
 		});
 	}
 	if ((language) == "c") {
 		console.log("C");
 		jQuery.get('js/sampleCProgram.txt', function(txt) {
-			editor.setValue(txt)
+			editorc.setValue(txt)
 		});
 	}
 
-	if (language == 'c' || language == 'cpp') editor.session.setMode("ace/mode/c_cpp");
-	else if (language == 'python') editor.session.setMode("ace/mode/python");
-	else if ((language) == 'java') editor.session.setMode("ace/mode/java");
+	if (language == 'c' || language == 'cpp') editorc.session.setMode("ace/mode/c_cpp");
+	else if (language == 'python') editorc.session.setMode("ace/mode/python");
+	else if ((language) == 'java') editorc.session.setMode("ace/mode/java");
 }
 
 function executeCode() {
@@ -75,9 +76,9 @@ function executeCode() {
 
 function executeCodeOfc() {
 	console.log($("#languages").val());
-	console.log(editor.getSession().getValue());
+	console.log(editorc.getSession().getValue());
 	var questionId = $("#questionId").val();
-	var d = { 'language': $("#languages").val(), 'code': editor.getSession().getValue(), 'questionId': questionId, 'flag': flag  };
+	var d = { 'language': $("#languages").val(), 'code': editorc.getSession().getValue(), 'questionId': questionId, 'flag': flag  };
 	$.ajax({
 		url: "/ccompiler",
 		contentType: "application/json; charset=utf-8",
@@ -97,9 +98,9 @@ function executeCodeOfc() {
 
 function executeCodeOfcpp() {
 	console.log($("#languages").val());
-	console.log(editor.getSession().getValue());
+	console.log(editorc.getSession().getValue());
 	var questionId = $("#questionId").val();
-	var d = { 'language': $("#languages").val(), 'code': editor.getSession().getValue(), 'questionId': questionId, 'flag': flag  };
+	var d = { 'language': $("#languages").val(), 'code': editorc.getSession().getValue(), 'questionId': questionId, 'flag': flag  };
 	$.ajax({
 		url: "/cppcompiler",
 		contentType: "application/json; charset=utf-8",
@@ -119,9 +120,9 @@ function executeCodeOfcpp() {
 
 function executeCodeOfjava() {
 	console.log($("#languages").val());
-	console.log(editor.getSession().getValue());
+	console.log(editorc.getSession().getValue());
 	var questionId = $("#questionId").val();
-	var d = { 'language': $("#languages").val(), 'code': editor.getSession().getValue(), 'questionId': questionId, 'flag': flag };
+	var d = { 'language': $("#languages").val(), 'code': editorc.getSession().getValue(), 'questionId': questionId, 'flag': flag };
 	$.ajax({
 		url: "/javacompiler",
 		contentType: "application/json; charset=utf-8",
@@ -142,8 +143,8 @@ function executeCodeOfjava() {
 function executeCodeofpython() {
 	console.log($("#languages").val());
 	var questionId = $("#questionId").val();
-	console.log(editor.getSession().getValue());
-	var d = { 'language': $("#languages").val(), 'code': editor.getSession().getValue(), 'questionId': questionId, 'flag': flag  };
+	console.log(editorc.getSession().getValue());
+	var d = { 'language': $("#languages").val(), 'code': editorc.getSession().getValue(), 'questionId': questionId, 'flag': flag  };
 	$.ajax({
 		url: "/pythoncompiler",
 		contentType: "application/json; charset=utf-8",

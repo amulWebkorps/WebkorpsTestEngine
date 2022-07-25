@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.gridfs.GridFSDBFile;
 
 @RestController
 public class BinaryDataController {
@@ -31,19 +30,21 @@ public class BinaryDataController {
 		DBObject metaData = new BasicDBObject();
 		metaData.put("organization", "Java Techie");
 		metaData.put("type", "data");
-		fileId = gridFsOperations.store(new FileInputStream("C:\\Users\\Public\\Montrix\\CodeCompiler\\src\\main\\resources\\temp\\"+fileName), fileNameInDB+".txt","text/plain", metaData).getId().toString();
+		fileId = gridFsOperations.store(new FileInputStream("C:\\Users\\Public\\Montrix\\CodeCompiler\\src\\main\\resources\\temp\\"+fileName), fileNameInDB+".txt","text/plain", metaData).get().toString();
 		System.out.println("File id stored : " + fileId);
 		
 		return "File stored successfully...";
 	}
 
-	@GetMapping("/retrive/text")
-	public String retriveTextFileFromDB(String participantId) throws IOException {
-		GridFSDBFile dbFile = gridFsOperations.findOne(new Query(Criteria.where("filename").is(participantId)));
-		dbFile.writeTo("C:\\Users\\Public\\Montrix\\CodeCompiler\\src\\main\\resources\\participantsData\\myData.txt");
-		System.out.println("File name : " + dbFile.getFilename());
-		return "Text File retrived with name : " + dbFile.getFilename();
-	}
+	/*
+	 * @GetMapping("/retrive/text") public String retriveTextFileFromDB(String
+	 * participantId) throws IOException { GridFSDBFile dbFile =
+	 * gridFsOperations.findOne(new
+	 * Query(Criteria.where("filename").is(participantId))); dbFile.writeTo(
+	 * "C:\\Users\\Public\\Montrix\\CodeCompiler\\src\\main\\resources\\participantsData\\myData.txt"
+	 * ); System.out.println("File name : " + dbFile.getFilename()); return
+	 * "Text File retrived with name : " + dbFile.getFilename(); }
+	 */
 
 
 	@DeleteMapping("/delete/text")
