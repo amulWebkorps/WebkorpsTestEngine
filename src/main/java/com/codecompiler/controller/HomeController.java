@@ -15,10 +15,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Question;
+import com.codecompiler.entity.ResponseToFE;
 import com.codecompiler.entity.SampleTestCase;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CommonService;
@@ -428,27 +431,13 @@ public class HomeController {
 //		return ResponseEntity.ok(testCasesCollection);		
 //	}
 	
-	@RequestMapping("/startContestPage")
-	public String contestPage(@RequestBody int contestId) {
+	@PostMapping("startContestPage")
+	public ModelAndView contestPage(@RequestParam(value="contestId", required=false) String contestId) {
 		System.out.println("contestId....."+contestId);
-		/*
-		 * List<Question> question = commonService.getAllQuestion(); Question
-		 * localQuestion = new Question(); List <SampleTestCase> sampleTestCase = new
-		 * ArrayList<>(); List<TestCases> testCasesList = new ArrayList<>(); for
-		 * (Question q : question) { sampleTestCase = q.getSampleTestCase();
-		 * testCasesList = q.getTestcases(); localQuestion = q; } SampleTestCase
-		 * localSampleTestCase = new SampleTestCase();
-		 * 
-		 * for(SampleTestCase s : sampleTestCase) localSampleTestCase = s;
-		 * 
-		 * System.out.println("Que. 1 => "+localQuestion);
-		 * System.out.println("Que. 2 => "+localSampleTestCase);
-		 * 
-		 * model.addAttribute("question",localQuestion);
-		 * model.addAttribute("stc",localSampleTestCase);
-		 */
-		
-		return "IDECompiler";		
+		Contest contest =  contestService.findByContestId(contestId);
+		List<Question> contestQuestions = commonService.getAllQuestion(contest.getQuestionIds());
+		ModelAndView  mv = new ModelAndView("IDECompiler","contestQuestions",contestQuestions.get(1));
+		return mv;		
 	}
 }
 

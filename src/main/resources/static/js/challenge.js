@@ -9,8 +9,10 @@ function startContest() {
 		data: JSON.stringify(contestId),
 
 		success: function(response) {
-			//console.log(response.status);
-			console.log(response.output);
+			console.log("response......"+response);
+			debugger
+			$("#problem1").text(response.question);
+			if(response === "no_errors") location.href = "startContest.html"
 		},
 
 		error: function(error) {

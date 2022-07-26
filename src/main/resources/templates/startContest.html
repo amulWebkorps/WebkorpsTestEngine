@@ -21,13 +21,14 @@
 </head>
 
 <body class="overla">
-	<div class="d-flex justify-content-center button_compiler1 px-4">
-		<button class="btn btn-outline-primary fw-bold mx-3" id="startContest" value="20"
-			onclick="startContest()">
-			Start Contest
-		</button>
-	</div>
-<script src="js/challenge.js" ></script>
+	<form action="/startContestPage" method="post">
+		<div class="d-flex justify-content-center button_compiler1 px-4">
+			<input type="hidden" id="contestId" name="contestId" value="62dfbce03466390d2f4e9ddc">
+			<button type="submit" class="btn btn-outline-primary fw-bold mx-3">
+				Start Contest
+			</button>
+		</div>
+	</form>
 </body>
 
 </html>

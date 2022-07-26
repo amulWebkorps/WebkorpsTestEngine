@@ -165,18 +165,9 @@ public class CommonService {
 	 * }
 	 */
 	
-	public List<Question> getAllQuestion() {
-		List<Question> question = questionRepository.findAll();	
-		List<Question> randomQuestions = new ArrayList<Question>();
-		Random rand = new Random();
-		int i = 0;
-		while (i < 4 ) {
-			int randomIndex = rand.nextInt();
-			Question randomQuestionIndex = question.get(randomIndex);
-			randomQuestions.add(randomQuestionIndex);
-			i++;
-		}
-		return randomQuestions;
+	public List<Question> getAllQuestion(List<String> QuestionId) {
+		List<Question> question = questionRepository.findByQuestionIdIn(QuestionId);
+		return question;
 	}
 }
 

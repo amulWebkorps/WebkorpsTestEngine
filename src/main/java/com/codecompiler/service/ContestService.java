@@ -46,9 +46,7 @@ public class ContestService {
 	}
 
 	public void deleteContest(String contestId) {
-		System.out.println("@@@@@@@@ "+contestId);
-		
-		 contestRepository.delete(contestId);			
-			}
+		contestRepository.deleteById(contestId);			
+	}
 	
 }
