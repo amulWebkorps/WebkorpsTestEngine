@@ -42,7 +42,7 @@ public class HomeController {
 	
 	@RequestMapping("/adminhome")
 	public String adminHome(Model model){
-		List<Contest> con=new ArrayList<>();
+		List<Contest> con = new ArrayList<>();
 		con = contestService.getAllContest();
 		model.addAttribute("contest",con);		
 		return "adminHome";		
@@ -85,8 +85,9 @@ public class HomeController {
 		List<Question> allQuestionsOfSpecificContestLevel = new ArrayList<>();
 		Contest contest = new Contest();
 
-		contest = contestService.getContestBasedOnContestIdAndLevel(contestId, contestLevel);
+		//contest = contestService.getContestBasedOnContestIdAndLevel(contestId, contestLevel);
 		
+		contest = contestService.findByContestId(contestId);
 
 		allQuestionsOfSpecificContestLevel = commonService.findQuestionByContestLevel(contestLevel);
 
@@ -134,23 +135,19 @@ public class HomeController {
 		System.out.println(contest.getContestLevel());
 		Contest contestToSave = new Contest();
 		contestToSave.setContestName(contest.getContestName());
-		contestToSave.setContestDescription(contest.getContestDescription());
-		contestToSave.setContestLevel("Level 1");
-		//contestToSave.setContestLevel(contest.getContestLevel());
-		Contest con1 = contestService.saveContest(contestToSave);
-		
-		Contest contestToSave2 = new Contest();
-		contestToSave2.setContestId(con1.getContestId());
-		contestToSave2.setContestName(contest.getContestName());
-		contestToSave2.setContestDescription(contest.getContestDescription());
-		contestToSave2.setContestLevel("Level 2");
-		//contestToSave.setContestLevel(contest.getContestLevel());
-		
-		Contest con2 = contestService.saveContest(contestToSave2);
-		
+		contestToSave.setContestDescription(contest.getContestDescription());		
+		contestToSave.setContestLevel(contest.getContestLevel());
+		Contest con1 = contestService.saveContest(contestToSave);	
 		System.out.println("con : "+con1);
-		System.out.println("con : "+con2);
 				return ResponseEntity.ok(con1);
+	}
+	
+	@RequestMapping("/deletecontest") 
+	private  ResponseEntity<String> deleteContest(@RequestBody String contestId) {
+		contestId = contestId.subSequence(1, contestId.length()-1).toString();
+		System.out.println("@@@@@@@@"+contestId);
+		contestService.deleteContest(contestId);
+		return ResponseEntity.ok("ok");
 	}
 	
 	@PostMapping("/savequestion")
@@ -160,13 +157,10 @@ public class HomeController {
         System.out.println("Obj q id : "+question.getQuestionId());
         String [] stringOfCidAndCl=new String[2];
         stringOfCidAndCl = question.getContestLevel().split("@");
-        System.out.println("stringOfCidAndCl : "+stringOfCidAndCl[1]+"   "+stringOfCidAndCl[0]);
-       Contest contest = new Contest();		                                  // id, level
-		contest = contestService.getContestBasedOnContestIdAndLevel(stringOfCidAndCl[1], stringOfCidAndCl[0]);
-		question.setContestLevel(stringOfCidAndCl[0]);
-		System.out.println("Obj After: "+question); 
-		System.out.println("contest prev :  "+contest); 
-	         
+        Contest contest = new Contest();		                                  // id, level
+	    contest = contestService.getContestBasedOnContestIdAndLevel(stringOfCidAndCl[1], stringOfCidAndCl[0]);
+     	question.setContestLevel(stringOfCidAndCl[0]);
+			         
         String tempQid = question.getQuestionId();
         if(tempQid == ("")) {
         	System.out.println(" inside if condition ");
@@ -175,50 +169,38 @@ public class HomeController {
         System.out.println("tempQid -> "+tempQid);
         }
         Question savedQuestion =  commonService.saveUpdatedQuestion(question);
-        
-       System.out.println("........."+savedQuestion.getQuestionId()+"............");  
-       
-       contest.getQuestionIds().add(savedQuestion.getQuestionId());
-       if(stringOfCidAndCl[0].equals("Level 1")) {
-    	   contest.getLevel1QuestionIds().add(savedQuestion.getQuestionId());
-       }else if(stringOfCidAndCl[0].equals("Level 2")) {
-    	   contest.getLevel2QuestionIds().add(savedQuestion.getQuestionId());
-       }
-       
+        contest.getQuestionIds().add(savedQuestion.getQuestionId());
+
        System.out.println("contest after :  "+contest); 
-       contestService.saveContest(contest);
-               
-		return ResponseEntity.ok("");
+       contestService.saveContest(contest);               
+	   return ResponseEntity.ok("");
 	}
 	
 	@PostMapping("/saveupdatedquestion")
 	public ResponseEntity<String> saveUpdatedQuestion(@RequestBody Question question, Model model) throws IOException {
         System.out.println("saveupdatedquestion Obj prev : "+question);
-        System.out.println("Obj q id : "+question.getQuestionId());
         String [] stringOfCidAndCl=new String[2];
         stringOfCidAndCl = question.getContestLevel().split("@");
-        System.out.println("stringOfCidAndCl : "+stringOfCidAndCl[1]+"   "+stringOfCidAndCl[0]);
         question.setContestLevel(stringOfCidAndCl[0]);
         System.out.println("Obj after : "+question);
-//        String tempQid = question.getQuestionId();
-//        if(tempQid == ("")) {
-//        	System.out.println(" inside if condition ");
-//        question.setQuestionId(UUID.randomUUID().toString());
-//        }
-        //System.out.println(">>>"+commonService.getAllQuestionFromDataBase());
         commonService.saveUpdatedQuestion(question);
-        model.addAttribute("questions",commonService.getAllQuestionFromDataBase());
-        
+        model.addAttribute("questions",commonService.getAllQuestionFromDataBase());        
 		return ResponseEntity.ok("");
 	}
 	
 	
 	
-	@RequestMapping("/deletequestion") 
-	private ResponseEntity<String> deleteQuestion(@RequestBody String questionId) {
-		System.out.println("delete.........."+questionId);
-		System.out.println(commonService.deleteQuestion(questionId));
-				return ResponseEntity.ok("Done");
+	@RequestMapping("/deletequestion") //qid, cid, level
+	private ResponseEntity<String> deleteQuestion(@RequestBody ArrayList<String> ids) {
+		System.out.println("cid.........."+ids.get(0));
+		System.out.println("qid.........."+ids.get(1));
+		System.out.println("level.........."+ids.get(2));
+		Contest contest = new Contest();		                  
+	    contest = contestService.findByContestId(ids.get(0));
+	    contest.getQuestionIds().remove(ids.get(1));	    
+	    contestService.saveContest(contest);
+		System.out.println(contest);
+		return ResponseEntity.ok("Done");
 	}
 	
 	@RequestMapping("/getsavedquestion") 
@@ -359,11 +341,7 @@ public class HomeController {
 //		return ResponseEntity.ok(questionID);
 //	}
 //	
-//	@RequestMapping("/deletecontest") 
-//	private void deleteContest(String contestId) {
-//		System.out.println("@@@@@@@@"+contestId);
-//		contestService.deleteContest(contestId);
-//	}
+
 
 	
 	

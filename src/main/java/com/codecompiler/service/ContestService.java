@@ -36,11 +36,19 @@ public class ContestService {
 		System.out.println("---->"+contest);
 		return contest;
 	}
-//
-//	public void deleteContest(String contestId) {
-//		System.out.println("@@@@@@@@ 2"+contestId);
-//		
-//		 contestRepository.delete(contestId);			
-//			}
+	
+	//findByContestId
+	
+	public Contest findByContestId(String cId) {
+		Contest contest = contestRepository.findByContestId(cId);	
+		System.out.println("---->"+contest);
+		return contest;
+	}
+
+	public void deleteContest(String contestId) {
+		System.out.println("@@@@@@@@ "+contestId);
+		
+		 contestRepository.delete(contestId);			
+			}
 	
 }
