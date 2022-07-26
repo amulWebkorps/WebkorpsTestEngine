@@ -74,10 +74,10 @@
 												th:value="${q.contestId}"></input>
 											<div class="card card_size ">
 
-												<div class="delete-btn">
+												<div class="delete-btn " th:id="${q.contestId}" onclick="deletefunction_2(id)" >
 													<i class="deleteContest fa-solid fa-circle-xmark fa-2x "
-														style="color: red" data-toggle="modal"
-														data-target="#exampleModalCenter4" id="${q.contestId}" th:value="${q.contestId}"></i>
+														style="color: rgb(64, 60, 60)" data-bs-toggle="modal" data-bs-target="#staticBackdrop" id="contesttodelete"
+														th:value="${q.contestId}" ></i>
 												</div>
 												<img src="https://source.unsplash.com/random/100x60?sig=1"
 													class="card-img-top card_size1" alt="..."
@@ -213,8 +213,12 @@
 										class="contestname form-control bg-light" /> <label
 										class="mb-2 mt-2">Add Description</label> <input type="text"
 										class="contestdescription form-control textarea_description bg-light"
-										name="contestdescription" /> 
-									
+										name="contestdescription" />
+									 <label class="mb-2 mt-2">Level</label><br /> 
+									 <select class="contestlevel form-select form_select_width ">
+										<option value="Level 1">Level 1</option>
+										<option value="Level 2">Level 2</option>
+									</select>
 								</div>
 								<div class="modal_footer_fresher1 px-1  ">
 									<button type="button"
@@ -257,22 +261,27 @@
 					</div>
 
 					<!-- Modal -->
-					<div class="modal fade" id="exampleModalCenter4" tabindex="-1"
-						role="dialog" aria-labelledby="exampleModalCenterTitle"
-						aria-hidden="true">
-						<div class="modal-dialog modal-dialog-centered" role="document">
-							<div class="modal-content1">
-								<div class="modal-header">
-									<h5 class="modal-title" id="exampleModalLongTitle">Are u sure to delete this contest</h5>
-								</div>
-								<div class="modal-body mx-1">
-									<button type="button" class="xdata btn btn-primary modal-btn px-3">YES</button>
-									<button type="button" class="no btn btn-success ">No</button>
-								</div>
-								<div class="modal-footer"></div>
+					<div class="modal fade" id="staticBackdrop"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+						<div class="modal-dialog">
+						  <div class="modal-content resize">
+							<div class="modal-header" >
+		                 	 
 							</div>
+							<div class="modal-body">
+								<h5 class="modal-title" id="exampleModalLongTitle">Are you sure to  delete this contest
+								</h5>
+							</div>
+							<div class="modal-footer justify-content-center">
+								<button type="button" class="btn btn-primary" onclick="myFunction( )" data-bs-dismiss="modal">yes</button>
+								<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+								no
+								  </button>
+							
+							 
+							</div>
+						  </div>
 						</div>
-					</div>
+					  </div>
 
 				</div>
 				<div>
@@ -290,6 +299,7 @@
 	var contestIdForQuestionPage = "";
 	var contestid = '';
 	var level = '';
+	var contestToDelete='';
 		$('#next-btn').click(function() {
 			$('#next-btn').hide()
 			$('#prev1').show()
@@ -304,34 +314,21 @@
 			contestIdForQuestionPage = contestId;
 		}
 		
-		
-   $(document).ready(function() {
-		  	   
-			var idToDeleteContest = "";
+var idToDeleteContest = "";
+			
 			$(".save").on("click",function() {
-			var contestName = $(".contestname").val();
-												var contestDescription = $(
-														".contestdescription")
-														.val();
-												var contestLevel = $(
-														".contestlevel").val();
-												var contestId;
-												var Contest = {
-													"contestName" : $(
-															".contestname")
-															.val(),
-													"contestDescription" : $(
-															".contestdescription")
-															.val(),
-													"contestLevel" : $(
-															".contestlevel")
-															.val(),
-												};
-												console.log("Contest : ",
-														Contest);
-
-												$
-														.ajax({
+				
+			//var contestName = $(".contestname").val();
+			//var contestDescription = $(".contestdescription").val();
+			//var contestLevel = $(".contestlevel").val();
+			//	var contestId;
+			var Contest = {
+					       "contestName" : $(".contestname").val(),
+						   "contestDescription" : $(".contestdescription").val(),
+						   "contestLevel" : $(".contestlevel").val(),
+						  };
+			console.log("Contest : ",Contest);
+			                                        $.ajax({
 															url : "/addcontest",
 															contentType : "application/json; charset=utf-8",
 															dataType : "json",
@@ -349,12 +346,10 @@
 
 															error : function(
 																	error) {
-																console
-																		.log(error);
+																console.log(error);
 															},
-
 														});
-											});
+			});
 
 							
 							$(".btn-close1").on("click", function() {
@@ -398,8 +393,33 @@
 												//  console.log($(".leveltoseequestions").val());	  
 											});
 							
-							
-     });
+							function myFunction() {								
+								const element = document.getElementById(contestToDelete);
+								$.ajax({
+									url : "/deletecontest",
+									contentType : "application/json; charset=utf-8",
+									dataType : "json",
+									method : "POST",
+									data : JSON.stringify(contestToDelete),
+									success : function(response) {
+										//console.log(response);
+										element.remove();
+										window.location.href = "adminhome";
+										},
+									error : function(error) {
+										console.log(error);
+										window.location.href = "adminhome";
+									},
+
+								});								
+								
+							}
+
+					    
+							function deletefunction_2(id){
+								contestToDelete = id;
+					         }
+   
 	</script>
 </body>
 

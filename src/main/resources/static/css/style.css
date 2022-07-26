@@ -433,10 +433,12 @@ input[type="checkbox"] {
 }
 .div_card_white {
   width: 1133px;
-  height: 1214px;
+ /* height: 1214px;*/
   background: #ffffff;
   box-shadow: 2px 9px 19px rgba(230, 230, 230, 0.37);
   border-radius: 18px;
+  padding-bottom: 100px;
+  margin-bottom: 10px;
 }
 .div_card_white1 {
   width: 1400px;
@@ -1564,6 +1566,14 @@ accordion-header {
 	color:red
 }
 
+#staticBackdrop {
+  margin-top: 300px !important;
+}
+
+.resize {
+  min-width: 281px !important;
+  min-height: 334px !important;
+}
 
 
 @media only screen and (max-width: 1280px) {
@@ -1807,3 +1817,11 @@ accordion-header {
    white-space: pre-line;
 }
 }
+
+.added_questions_all_question{
+	    overflow-y: scroll !important;
+    height: 382px  !important;
+    width: 1063px  !important;
+    
+}
+	
