@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Question;
@@ -48,27 +49,8 @@ public class HomeController {
 	}
 	
 	@RequestMapping("/home")
-	public String home(Model model) {
-//		List<Question> question = commonService.getQuestionFromDataBase("40");
-//		Question localQuestion = new Question();
-//		List <SampleTestCase> sampleTestCase = new ArrayList<>();
-//		List<TestCases> testCasesList = new ArrayList<>();
-//		for (Question q : question) {
-//			sampleTestCase = q.getSampleTestCase();
-//			testCasesList = q.getTestcases();
-//			localQuestion = q;
-//		}
-//		SampleTestCase localSampleTestCase = new SampleTestCase();
-//		
-//		 for(SampleTestCase s : sampleTestCase) localSampleTestCase = s; 
-//		 
-//        System.out.println("Que. 1 => "+localQuestion);
-//		System.out.println("Que. 2 => "+localSampleTestCase);
-//
-//		model.addAttribute("question",localQuestion);
-//		model.addAttribute("stc",localSampleTestCase);
-//		
-		return "IDECompiler";		
+	public String startContest(Model model) {
+		return "startContest";		
 	}
 //
 //	@RequestMapping("/contest") 
@@ -467,6 +449,29 @@ public class HomeController {
 //		}
 //		return ResponseEntity.ok(testCasesCollection);		
 //	}
+	
+	@RequestMapping("/startContestPage")
+	public String contestPage(@RequestBody int contestId) {
+		System.out.println("contestId....."+contestId);
+		/*
+		 * List<Question> question = commonService.getAllQuestion(); Question
+		 * localQuestion = new Question(); List <SampleTestCase> sampleTestCase = new
+		 * ArrayList<>(); List<TestCases> testCasesList = new ArrayList<>(); for
+		 * (Question q : question) { sampleTestCase = q.getSampleTestCase();
+		 * testCasesList = q.getTestcases(); localQuestion = q; } SampleTestCase
+		 * localSampleTestCase = new SampleTestCase();
+		 * 
+		 * for(SampleTestCase s : sampleTestCase) localSampleTestCase = s;
+		 * 
+		 * System.out.println("Que. 1 => "+localQuestion);
+		 * System.out.println("Que. 2 => "+localSampleTestCase);
+		 * 
+		 * model.addAttribute("question",localQuestion);
+		 * model.addAttribute("stc",localSampleTestCase);
+		 */
+		
+		return "IDECompiler";		
+	}
 }
 
 

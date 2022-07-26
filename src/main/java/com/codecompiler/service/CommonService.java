@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -163,5 +164,19 @@ public class CommonService {
 	 * 
 	 * }
 	 */
+	
+	public List<Question> getAllQuestion() {
+		List<Question> question = questionRepository.findAll();	
+		List<Question> randomQuestions = new ArrayList<Question>();
+		Random rand = new Random();
+		int i = 0;
+		while (i < 4 ) {
+			int randomIndex = rand.nextInt();
+			Question randomQuestionIndex = question.get(randomIndex);
+			randomQuestions.add(randomQuestionIndex);
+			i++;
+		}
+		return randomQuestions;
+	}
 }
 

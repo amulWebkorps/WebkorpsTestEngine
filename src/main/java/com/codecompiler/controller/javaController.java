@@ -48,7 +48,7 @@ public class javaController {
 		String uid = "Main.java";
 		String output = "";
 		String questionId = (String) data.get("questionId");
-		String flag = (String) data.get("flag");
+		String flag = (String) data.get("submit");
 		System.out.println("QuestionId:- " + questionId);
 		FileWriter fl = new FileWriter(
 				"src/main/resources/temp/" + uid );
@@ -101,7 +101,7 @@ public class javaController {
 						String input = testCase.getInput();
 						System.out.println("Input:-" + input);
 						pro = Runtime.getRuntime().exec("java.exe Main " + input, null,
-								new File("C:\\Users\\Public\\Montrix\\CodeCompiler\\src\\main\\resources\\temp"));
+								new File("src/main/resources/temp/"));
 						in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
 						while ((line = in.readLine()) != null) {
 							output = line;
