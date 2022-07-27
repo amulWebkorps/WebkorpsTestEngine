@@ -4,7 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
-import com.mongodb.MongoClient;
+
+import com.mongodb.client.MongoClient;
 
 public class MongoConfig<Mongo> extends AbstractMongoConfiguration {
 

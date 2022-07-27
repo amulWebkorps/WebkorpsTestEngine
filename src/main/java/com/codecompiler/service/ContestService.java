@@ -1,17 +1,13 @@
 package com.codecompiler.service;
 
-import java.util.Collection;
 import java.util.List;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.codecompiler.dao.ContestRepository;
 import com.codecompiler.dao.QuestionRepository;
 import com.codecompiler.entity.Contest;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
 @Service
 public class ContestService {
