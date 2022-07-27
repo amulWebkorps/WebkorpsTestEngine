@@ -22,7 +22,6 @@ import com.codecompiler.service.CommonService;
 import com.codecompiler.service.ContestService;
 
 @RestController
-@RequestMapping("/api")
 public class HomeController {
 	
 	@Autowired
