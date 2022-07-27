@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,7 +22,7 @@ import com.codecompiler.entity.SampleTestCase;
 import com.codecompiler.service.CommonService;
 import com.codecompiler.service.ContestService;
 
-@RestController
+@Controller
 public class HomeController {
 	
 	@Autowired
