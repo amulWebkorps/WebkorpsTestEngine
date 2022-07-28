@@ -10,6 +10,6 @@ import com.codecompiler.entity.Contest;
 public interface ContestRepository extends  MongoRepository<Contest,String>{
 
 	public Contest findByContestIdAndContestLevel(String contestid, String contestLevel);
-    public Contest findByContestId(String id);	
+	public Contest findByContestId(String id);
 	
 }

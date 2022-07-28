@@ -3,7 +3,6 @@ package com.codecompiler.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,6 +20,8 @@ public interface QuestionRepository extends MongoRepository<Question,Integer>{
 	 */
    public void deleteByQuestionId(String questionId);
    public ArrayList<Question> findByContestLevel(String contestLevel);
-
+   
+   public List<Question> findByQuestionIdIn(List<String> questionId);
+   
 }
 

@@ -41,6 +41,6 @@ public class ContestService {
 
 	public void deleteContest(String contestId) {
 		contestRepository.deleteById(contestId);			
-			}
+	}
 	
 }
