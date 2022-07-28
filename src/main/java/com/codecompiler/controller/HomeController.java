@@ -521,7 +521,17 @@ public class HomeController {
 	public ModelAndView contestPage(@RequestParam(value="contestId", required=false) String contestId) {
 		System.out.println("contestId....."+contestId);
 		Contest contest =  contestService.findByContestId(contestId);
-		List<Question> contestQuestions = commonService.getAllQuestion(contest.getQuestionIds());
+		//**************************************
+		ArrayList <QuestionStatus> qStatusList = new ArrayList<>();
+		qStatusList = contest.getQuestionStatus();		
+		ArrayList <String> qListStatusTrue = new ArrayList<>();
+		for(QuestionStatus questionStatus : qStatusList) {
+			if(questionStatus.getStatus()) {
+				qListStatusTrue.add(questionStatus.getQuestionId());
+			}
+		}
+		//*****************************
+		List<Question> contestQuestions = commonService.getAllQuestion(qListStatusTrue);
 		ModelAndView  mv = new ModelAndView("IDECompiler","contestQuestions",contestQuestions.get(1));
 		return mv;		
 	}
