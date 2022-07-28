@@ -1,16 +1,15 @@
 package com.codecompiler.dao;
 
-import java.util.List;
-
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
 import com.codecompiler.entity.Contest;
-import com.codecompiler.entity.Question;
 
+
+@Repository
 public interface ContestRepository extends  MongoRepository<Contest,String>{
 
 	public Contest findByContestIdAndContestLevel(String contestid, String contestLevel);
-public Contest findByContestId(String id);	
+    public Contest findByContestId(String id);	
 	
 }

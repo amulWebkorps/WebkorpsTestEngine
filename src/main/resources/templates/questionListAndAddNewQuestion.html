@@ -55,7 +55,7 @@
 							<div class="question2">
 								<h4
 									class="text-white text-center  fw-bold  problem_input1 question_size ">
-									<a href="returnquestionlistforspecificcontest"
+									<a href="questionlistforspecificcontest"
 										class="text-decoration-none text-white">Questions</a>
 								</h4>
 							</div>
@@ -139,10 +139,17 @@
 												</div>
 											</div>
 										</div>
-										<div class="    text-center text-white fw-bold pt-2 mx-5  ">
-											<button class="addQuestionBtn question_btn btn btn-primary">Add
-												Question</button>												
-												</div>
+										<div
+                                            class="text-center text-white fw-bold pt-2 mx-5 d-flex justify-content-end ">
+
+                                            <button class="addQuestionBtn question_btn_level1 btn btn-primary mx-4">Add
+                                                Question</button>
+                                            <button
+                                                class="question_btn_bulk_question   btn btn-outline-primary mx-4">bulk
+                                                Question
+                                            </button>
+
+                                        </div>
 									</div>
 
 									<div class="col-md-4 border1 ">
@@ -201,28 +208,14 @@
 								</div>
 							</div>
 
-							<div class="save_contest_upper ">
-								<div class=" ">
-									<button
-										class="save_contest mt-4 text-center text-white fw-bold mx-5 btn btn-primary">Save
-										Contest</button>
-								</div>
-								<button
-									class="contest_delete mt-4 text-center text-white fw-bold pt-2  btn btn-primary ">
-									Delete</button>
-
-							</div>
+							
 							<div>
 								<div class="question_box row">
 								<div class="col-6">
-									<h3 class="mx-4 pt-4 fw-bold text-dark">Added Questions</h3>
+									<h3 class="mx-4 pt-4 fw-bold text-dark">Contest contain following questions : </h3>
 									</div>
-									<div class="col-6">
-									
-									<button class="addQuestionBtn question_btn4 btn btn-outline-primary"
-                                                onclick="all_question_div7()">
-											<!--  	<a href="#all_question_div7" class="text-decoration-none"> Available Questions</a> -->
-                                            </button>                                   
+									<div class="col-6"><a href="#all_question_div7" class="text-decoration-none"><button class="addQuestionBtn question_btn4 btn btn-outline-primary"
+                                                onclick="all_question_div7()"> Available Questions </button></a>                                                                            
 									</div>
 								</div>
 								<div class="added_questions overflow-y-scroll ">
@@ -258,55 +251,51 @@
                                         <div class="col-5">
                                             <div class=" d-flex ">
                                                 <div> <select class=" form-select  option-dropdown2 mt-3">
-                                                        <option value="Level 1">All</option>
-                                                        <option value="Level 2">Level 1</option>
-                                                        <option value="Level 3">Level 2</option>
+                                                        <option value="All">All</option>
+                                                        <option value="Level 1">Level 1</option>
+                                                        <option value="Level 2">Level 2</option>
                                                     </select></div>
 
                                                 <div class="text-center text-white fw-bold pt-3 px-3 ">
-                                                    <button class="question_btn2 btn btn-primary" id="btn" >Add Question</button>
-                                                   
+                                                    <button class="question_btn2 btn btn-primary" id="btn" >Add Question</button>  
                                                 </div>
-                                                <i class="fa-solid fa-square-xmark  fa-xl  mt-4 " style="color:red;"  onclick="all_question_div7()"></i>
-                                             
-
+                                                <i class="fa-solid fa-square-xmark  fa-xl  cross_red_available " style="color:red;"  onclick="all_question_div7()"></i>
+                                             </div>
                                             </div>
+                                     <div class="added_questions_all_question overflow-y-scroll ">
+											<div class="availableglass" th:each="q:${totalQuestions}">
+												<div th:class="${q.questionId}">
+													<div class="added_question_box row mx-4 mt-3">
+														<div class="col-9">
+															<p class="overflow_level1 ">
+																<span class="" style="overflow-wrap: anywhere;"
+																	th:text="${q.question}"></span>
+															</p>
+														</div>
+														<div class="col-2 ">
+															<div>
+																<div class=" pt-3 mx-5">
+																	<div class="round">
+																		<input type="checkbox" th:id="${q.questionId}"
+																			name="color" th:value="${q.questionId}" /> <label
+																			th:for="${q.questionId}"></label>
+																	</div>
 
-                                        </div>
-                                      
-                                        <div class="added_questions_all_question overflow-y-scroll ">
-                                            <div th:each="q:${questions}">
-                                                <div th:class="${q.questionId}">
-                                                    <div class="added_question_box row mx-4 mt-3">
-                                                        <div class="col-9">
-                                                            <p class="overflow_level1 ">
-                                                                <span class="" style="overflow-wrap: anywhere;"
-                                                                    th:text="${q.question}">111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111</span>
-                                                            </p>
-                                                        </div>
-                                                        <div class="col-2 ">
-                                                            <div>
-                                                                <div class=" pt-3 mx-5">
-                                                                    <div class="round">
-                                                                        <input type="checkbox" id="checkbox1"  name="color" value="checkbox1"/>
-                                                                        <label for="checkbox1"></label>
-                                                                      </div>
-                                                                
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-1 mt-3 btn_img_cross" th:id="${q.questionId}"
-                                                            onclick="deleteQuestion(this.id)">
-                                                            <img src="images/crossbtn.svg" alt="logo" />
-                                                        </div>
-                                                    </div>
-                                                   
-                                                  
-                                                    
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+																</div>
+															</div>
+														</div>
+														<div class="col-1 mt-3 btn_img_cross"
+															th:id="${q.questionId}" onclick="deleteQuestion(this.id)">
+															<img src="images/crossbtn.svg" alt="logo" />
+														</div>
+													</div>
+
+
+
+												</div>
+											</div>
+										</div>
+									</div>
 
                                 </div>
 							</div>
@@ -529,13 +518,14 @@
         function removeCurrentIOli(temp) {
             $("#" + temp).closest("li").remove();
         }
-    
+   
+        /* 
         function deleteQuestion(divClass) {
         	console.log("Hello...");
         	console.log(divClass);
             $(".divClass").remove();
         }
-  
+      */
         function deleteQuestion(divId) {  
         	console.log("===>",divId);
         	var qIdAndContestId = []; 
@@ -601,26 +591,97 @@
          },
 
      });
-	// document.getElementById("aboutQuestiondata").value = "My value";
+	
  })
  
+  $('.form-select').change(function(){
+        	
+			var level = $(".form-select").val();
+			console.log("level",level);
+		
+			console.log(level);
+			 $.ajax({
+                 url: "/filteravailablequebasedonlevel",
+                 contentType: "application/json; charset=utf-8",
+                 dataType: "json",
+                 method: "POST",
+                 data: JSON.stringify(level),
+                 success: function (response) {
+                	
+                	 console.log(response);
+                	 
+                	  //**************************************
+                	  
+                    $(".availableglass").remove();
+                     var  t = response.valueOf();
+                    t.forEach(element => {
+                    	var data="";
+                      data += '<div class="availableglass"><div class="' + element.questionId.valueOf() +'"><div class="added_question_box row mx-4 mt-3"><div class="col-9"><p class="overflow_level1 "><span class="" style="overflow-wrap: anywhere;"> ' +element.question.valueOf()+ ' </span></p></div><div class="col-2 "><div><div class=" pt-3 mx-5"><div class="round"><input type="checkbox" id="' + element.questionId.valueOf() +'" name="color" value="' + element.questionId.valueOf() +'" /> <label for="' + element.questionId.valueOf() +'"></label></div></div></div></div> <div class="col-1 mt-3 btn_img_cross" id="' + element.questionId.valueOf() +'" onclick="deleteQuestion(this.id)"><img src="images/crossbtn.svg" alt="logo" /> </div></div></div></div> '
+                    	  $('.added_questions_all_question').append(data);
+                    });
+                    
+                      //*******************************************
+                	 
+                	
+                 },
+                 error: function (error) {  
+                	console.log(error);
+                 },
+                
+             });
+			 
+			 sessionStorage.setItem("form-select", $(this).val());
+		
+        });
  
         function all_question_div7() {
             var x = document.getElementById("all_question_div7");
+            sessionStorage.setItem("form-select", "All");
             if (x.style.display === "block") {
                 x.style.display = "none";
             } else {
                 x.style.display = "block";
             }
+           
         }
 
 
         const btn = document.querySelector('#btn');
         btn.addEventListener('click', (event) => {
             let checkboxes = document.querySelectorAll('input[name="color"]:checked');
+            console.log("checkboxes",checkboxes);
             let values = [];
+            values.push($(".contestid").val());
             checkboxes.forEach((checkbox) => {
                 values.push(checkbox.value);
+            });
+            $.ajax({
+                url: "/addselectedavailablequetocontest",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                method: "POST",
+                data: JSON.stringify(values),
+                success: function (response) {  
+                	
+                	//***************
+                	var  t = response.valueOf();
+                    t.forEach(element => {
+                    	console.log("t => ",element);
+                    	var data="";
+                	data += '<div> <div class="' + element.questionId.valueOf() +'"> <div class="added_question_box row mx-4 mt-3"> <div class="col-8"> <p class="added_question_box_text"> <span class="added_question_box_text" > ' +element.question.valueOf()+ ' </span> </p> </div> <div class="col-3 "> <input type="hidden" id="hiddenQid" class="questionid" value="' + element.questionId.valueOf() +'"></input><p class="Edit_Question  mx-5">Edit Question</p> </div> <div class="col-1 mt-3 btn_img_cross" id="' + element.questionId.valueOf() +'" onclick="deleteQuestion(this.id)"> <img src="images/crossbtn.svg" alt="logo" /> </div> </div> </div> </div>'									
+					$('.added_questions').append(data);
+                    });
+                	//***************
+                	
+                	
+                	
+                	
+                	
+                },
+                error: function (error) {
+                    console.log(error);
+                },
+
             });
             console.log(values);
         });

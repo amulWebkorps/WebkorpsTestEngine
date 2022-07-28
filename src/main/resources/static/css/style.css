@@ -252,6 +252,12 @@ input[type="checkbox"] {
   border-radius: 20px !important;
 }
 
+.card_size3 {
+  border-radius: 20px !important;
+  height: 232px !important;
+  width: 227px !important;
+}
+
 .card_size1 {
   border-radius: 20px 20px 0 0 !important;
 }
@@ -1567,7 +1573,7 @@ accordion-header {
 }
 
 #staticBackdrop {
-  margin-top: 300px !important;
+  margin-top: 100px !important;
 }
 
 .resize {
@@ -1822,6 +1828,145 @@ accordion-header {
 	    overflow-y: scroll !important;
     height: 382px  !important;
     width: 1063px  !important;
-    
 }
 	
+
+.cross_red_available{
+	margin-top : 27px;
+}	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+.div_card_white_email{
+    width: 1050px;
+    height: 1000px;
+    background: #ffffff;
+    box-shadow: 2px 9px 19px rgba(230, 230, 230, 0.37);
+    border-radius: 18px;
+    padding-bottom: 100px;
+    
+}
+
+
+
+.email_upper {
+  height:160px;
+  width: 1050px;
+  background: #f9fafc;
+  border-radius: 17px 17px 0px 0px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+
+.search{
+  position: relative;  
+  }
+
+  .search input{
+
+   height: 60px;
+   text-indent: 25px;
+   border: 2px solid #d6d4d4;
+  background-color: white !important;
+
+  }
+
+
+
+  .search .fa-search{
+    color: #555;
+   position: absolute;
+   top: 20px;
+   left: 16px;
+
+  }
+
+  .question_btn_email {
+    background: #0057ff !important;
+    border-radius: 8px;
+    height: 43px;
+    width: 200px;
+    font-weight: 700 !important;
+
+  }
+  
+  .added_questions_email {
+    width: 1008px;
+    height: 700px;
+    background: #f9fafc;
+    margin-left: 42px;
+    overflow-y: scroll;
+  
+    box-shadow: 2px 9px 19px rgba(230, 230, 230, 0.37);
+    border-radius: 0px 0px 17px 17px;
+  }
+
+  
+.added_question_box_email {
+  width: 939px;
+  height: 76px;
+
+  background: #ffffff;
+
+  box-shadow: 2px 9px 19px rgba(230, 230, 230, 0.37);
+  border-radius: 14px;
+}
+
+.question_btn_email_btn{
+  background: #0057ff !important;
+  border-radius: 8px;
+  height: 43px;
+  width: 100px;
+  font-weight: 700 !important;
+
+}
+
+.question_btn_sentemail{
+  background: #0057ff !important;
+  border-radius: 8px;
+  height: 43px;
+  width: 120px;
+  font-weight: 700 !important;
+
+}
+
+.email_dropdown1{
+  height: 65px !important;
+}
+
+
+.section_email{
+  height: 100%;
+  padding-bottom: 20px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(24, 135, 201, 0) 0%,
+    rgba(24, 135, 201, 0.224167) 40.42%,
+    rgba(24, 135, 201, 0.4) 100%
+  );
+}
+
+
+.email_modal_cross{
+  margin-left: 560px;
+  margin-top: -57px;
+}
+
+.question_btn_bulk_question {
+    width: 212px;
+  height: 39px;
+  color: #0057ff !important;
+  border: 2px solid #0057ff !important;
+  border-radius: 8px;
+  background-color: white !important;
+}

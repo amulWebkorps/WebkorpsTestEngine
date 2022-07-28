@@ -66,8 +66,7 @@
 								<div class="text-center background_contest_inner">
 									<h1 class="fw-bold">Contest Created</h1>
 								</div>
-								<div
-									class="multiplecontest row row-cols-1 row-cols-md-4 mx-5 mt-5 row_cards">
+								<div class="multiplecontest row row-cols-1 row-cols-md-4 mx-5 mt-5 row_cards">
 									<div class="click col mb-4" th:each="q:${contest}" >
 										<div class="click2" data-id="title_1" th:id="${q.contestId}" onclick="getContestIdForQuestionPage(this.id)">
 											<input type="hidden" th:id="${q.contestId}" class="contestid"
@@ -81,7 +80,7 @@
 												</div>
 												<img src="https://source.unsplash.com/random/100x60?sig=1"
 													class="card-img-top card_size1" alt="..."
-													data-bs-toggle="modal" data-bs-target="#exampleModal" />
+													 />
 												<div class="card-body">
 													<h5 class="h55 card-title" th:text="${q.contestName}"></h5>
 													<p class="card-text" th:text="${q.contestDescription}">
@@ -173,12 +172,26 @@
 														<a href="allquestions">All</a>
 													</h5>
 													<br />
-													</div>
+												</div>
 											</div>
 
 										</div>
 
 									</div>
+
+									<div class=" mx-1 mb-4 " id="click">
+										<div class="card card_size3 ">
+											<div class="card-body">
+												<h5 class=" text-dark  text-center mt-5">
+													<a href="uploadparticipatorandemail">Upload New Participators
+													</a>
+												</h5>
+												<br />
+											</div>
+										</div>
+									</div>
+									
+									
 								</div>
 							</div>
 						</div>
@@ -309,117 +322,138 @@
 			$('#prev1').hide()
 		})
 		
-		function getContestIdForQuestionPage(contestId){
-			console.log("got : ",contestId);
-			contestIdForQuestionPage = contestId;
-		}
 		
-var idToDeleteContest = "";
-			
-			$(".save").on("click",function() {
-				
+		function getContestIdForQuestionPage(contestId) {
+			console.log("got : ", contestId);
+			contestIdForQuestionPage = contestId;
+			level = "Level 1";
+
+			console.log(contestIdForQuestionPage);
+			console.log(level);
+			var Contest = {
+				"contestId" : contestIdForQuestionPage,
+				"contestLevel" : level
+			};
+			$.ajax({
+				url : "/findcontest",
+				contentType : "application/json; charset=utf-8",
+				dataType : "json",
+				method : "POST",
+				data : JSON.stringify(Contest),
+				success : function(response) {
+					//console.log(response);
+
+					window.location.href = "questionlistforspecificcontest";
+				},
+				error : function(error) {
+					window.location.href = "questionlistforspecificcontest";
+
+					console.log(error);
+				},
+
+			});
+		}
+
+		var idToDeleteContest = "";
+
+		$(".save").on("click", function() {
+
 			//var contestName = $(".contestname").val();
 			//var contestDescription = $(".contestdescription").val();
 			//var contestLevel = $(".contestlevel").val();
 			//	var contestId;
 			var Contest = {
-					       "contestName" : $(".contestname").val(),
-						   "contestDescription" : $(".contestdescription").val(),
-						   "contestLevel" : $(".contestlevel").val(),
-						  };
-			console.log("Contest : ",Contest);
-			                                        $.ajax({
-															url : "/addcontest",
-															contentType : "application/json; charset=utf-8",
-															dataType : "json",
-															method : "POST",
-															data : JSON
-																	.stringify(Contest),
+				"contestName" : $(".contestname").val(),
+				"contestDescription" : $(".contestdescription").val(),
+				"contestLevel" : $(".contestlevel").val(),
+			};
+			console.log("Contest : ", Contest);
+			$.ajax({
+				url : "/addcontest",
+				contentType : "application/json; charset=utf-8",
+				dataType : "json",
+				method : "POST",
+				data : JSON.stringify(Contest),
 
-															success : function(
-																	response) {
-																contestId = response.contestId;
-																console.log(response.contestId);
-																window.location.href = "adminhome";
+				success : function(response) {
+					contestId = response.contestId;
+					console.log(response.contestId);
+					window.location.href = "adminhome";
 
-															},
+				},
 
-															error : function(
-																	error) {
-																console.log(error);
-															},
-														});
+				error : function(error) {
+					console.log(error);
+				},
+			});
+		});
+
+		$(".btn-close1").on("click", function() {
+			window.location.href = "adminhome";
+			console.log("close is working");
+		});
+
+		$(".notnowbtn").on("click", function() {
+			window.location.href = "adminhome";
+			console.log("not now");
+		});
+
+		$(".continuetoseequestions").on("click", function() {
+			level = $(".leveltoseequestions").val();
+
+			console.log(contestIdForQuestionPage);
+			console.log(level);
+			var Contest = {
+				"contestId" : contestIdForQuestionPage,
+				"contestLevel" : level
+			};
+			$.ajax({
+				url : "/findcontest",
+				contentType : "application/json; charset=utf-8",
+				dataType : "json",
+				method : "POST",
+				data : JSON.stringify(Contest),
+				success : function(response) {
+					//console.log(response);
+
+					window.location.href = "questionlistforspecificcontest";
+				},
+				error : function(error) {
+					window.location.href = "questionlistforspecificcontest";
+
+					console.log(error);
+				},
+
 			});
 
-							
-							$(".btn-close1").on("click", function() {
-								window.location.href = "adminhome";
-								console.log("close is working");
-							});
+			//  console.log($(".leveltoseequestions").val());	  
+		});
 
-							$(".notnowbtn").on("click", function() {
-								window.location.href = "adminhome";
-								console.log("not now");
-							});
+		function myFunction() {
+			const element = document.getElementById(contestToDelete);
+			$.ajax({
+				url : "/deletecontest",
+				contentType : "application/json; charset=utf-8",
+				dataType : "json",
+				method : "POST",
+				data : JSON.stringify(contestToDelete),
+				success : function(response) {
+					//console.log(response);
+					element.remove();
+					window.location.href = "adminhome";
+				},
+				error : function(error) {
+					console.log(error);
+					window.location.href = "adminhome";
+				},
 
-							$(".continuetoseequestions").on("click",function() {
-												level = $(".leveltoseequestions").val();
-												
-												console.log(contestIdForQuestionPage);
-												console.log(level);
-												var Contest = {
-													"contestId" : contestIdForQuestionPage,
-													"contestLevel" : level
-												};
-												$.ajax({
-															url : "/findcontest",
-															contentType : "application/json; charset=utf-8",
-															dataType : "json",
-															method : "POST",
-															data : JSON.stringify(Contest),
-															success : function(response) {
-																//console.log(response);
+			});
 
-																window.location.href = "questionlistforspecificcontest";
-																},
-															error : function(error) {
-																window.location.href = "questionlistforspecificcontest";
-																
-																console.log(error);
-															},
+		}
 
-														});
-
-												//  console.log($(".leveltoseequestions").val());	  
-											});
-							
-							function myFunction() {								
-								const element = document.getElementById(contestToDelete);
-								$.ajax({
-									url : "/deletecontest",
-									contentType : "application/json; charset=utf-8",
-									dataType : "json",
-									method : "POST",
-									data : JSON.stringify(contestToDelete),
-									success : function(response) {
-										//console.log(response);
-										element.remove();
-										window.location.href = "adminhome";
-										},
-									error : function(error) {
-										console.log(error);
-										window.location.href = "adminhome";
-									},
-
-								});								
-								
-							}
-
-					    
-							function deletefunction_2(id){
-								contestToDelete = id;
-					         }
-   
+		function deletefunction_2(id) {
+			contestToDelete = id;
+		}
 	</script>
 </body>
 
