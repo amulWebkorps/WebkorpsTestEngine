@@ -286,7 +286,7 @@
 														</div>
 														<div class="col-1 mt-3 btn_img_cross"
 															th:id="${q.questionId}" onclick="deleteQuestion(this.id)">
-															<img src="images/crossbtn.svg" alt="logo" />
+															<!-- <img src="images/crossbtn.svg" alt="logo" /> -->
 														</div>
 													</div>
 
@@ -616,7 +616,7 @@
                      var  t = response.valueOf();
                     t.forEach(element => {
                     	var data="";
-                      data += '<div class="availableglass"><div class="' + element.questionId.valueOf() +'"><div class="added_question_box row mx-4 mt-3"><div class="col-9"><p class="overflow_level1 "><span class="" style="overflow-wrap: anywhere;"> ' +element.question.valueOf()+ ' </span></p></div><div class="col-2 "><div><div class=" pt-3 mx-5"><div class="round"><input type="checkbox" id="' + element.questionId.valueOf() +'" name="color" value="' + element.questionId.valueOf() +'" /> <label for="' + element.questionId.valueOf() +'"></label></div></div></div></div> <div class="col-1 mt-3 btn_img_cross" id="' + element.questionId.valueOf() +'" onclick="deleteQuestion(this.id)"><img src="images/crossbtn.svg" alt="logo" /> </div></div></div></div> '
+                      data += '<div class="availableglass"><div class="' + element.questionId.valueOf() +'"><div class="added_question_box row mx-4 mt-3"><div class="col-9"><p class="overflow_level1 "><span class="" style="overflow-wrap: anywhere;"> ' +element.question.valueOf()+ ' </span></p></div><div class="col-2 "><div><div class=" pt-3 mx-5"><div class="round"><input type="checkbox" id="' + element.questionId.valueOf() +'" name="color" value="' + element.questionId.valueOf() +'" /> <label for="' + element.questionId.valueOf() +'"></label></div></div></div></div> <div class="col-1 mt-3 btn_img_cross" id="' + element.questionId.valueOf() +'" onclick="deleteQuestion(this.id)"> </div></div></div></div> '
                     	  $('.added_questions_all_question').append(data);
                     });
                     

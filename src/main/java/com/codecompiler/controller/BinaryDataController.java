@@ -28,8 +28,7 @@ public class BinaryDataController {
 		metaData.put("organization", "Java Techie");
 		metaData.put("type", "data");
 		fileId = gridFsOperations.store(new FileInputStream("src/main/resources/temp/"+fileName), fileNameInDB+".txt","text/plain", metaData).get().toString();
-		System.out.println("File id stored : " + fileId);
-		
+		System.out.println("File id stored : " + fileId);		
 		return "File stored successfully...";
 	}
 
