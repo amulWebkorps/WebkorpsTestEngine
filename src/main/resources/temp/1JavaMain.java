@@ -1,6 +1,5 @@
 public class Main{
-    
-    static void decToBinary(int n)
+  static void decToBinary(int n)
     {
         // array to store binary number
         int[] binaryNum = new int[1000];

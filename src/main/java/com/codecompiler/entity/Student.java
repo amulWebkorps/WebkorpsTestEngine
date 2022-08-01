@@ -1,5 +1,7 @@
 package com.codecompiler.entity;
 
+import java.util.List;
+
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,6 +15,8 @@ public class Student {
 	int mobileNumber;
 	String password;
 	String contestLevel;
+	private String contestId;
+	private List<String> questionId;
 	
 	public String getContestLevel() {
 		return contestLevel;
@@ -49,6 +53,18 @@ public class Student {
 	}
 	public void setMobileNumber(int mobileNumber) {
 		this.mobileNumber = mobileNumber;
+	}
+	public String getContestId() {
+		return contestId;
+	}
+	public void setContestId(String contestId) {
+		this.contestId = contestId;
+	}
+	public List<String> getQuestionId() {
+		return questionId;
+	}
+	public void setQuestionId(List<String> questionIds) {
+		this.questionId = questionIds;
 	}
 	
 }

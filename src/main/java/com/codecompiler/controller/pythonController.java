@@ -129,7 +129,7 @@ public class pythonController {
 			e.printStackTrace();
 		}
 		System.out.println("End");		
-		responsef.setTotalSent(total);
+		responsef.setComplilationMessage(total);
 		return ResponseEntity.ok(responsef);
 	}
 }

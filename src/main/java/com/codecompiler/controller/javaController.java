@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.codecompiler.entity.ResponseToFE;
-import com.codecompiler.entity.SampleTestCase;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CommonService;
+import com.codecompiler.service.StudentService;
 
 @Controller
 public class javaController {
@@ -31,25 +31,26 @@ public class javaController {
 	private CommonService commonService;
 	@Autowired
 	private BinaryDataController binaryDataController;
-
+	@Autowired
+	private StudentService studentService;
+	
 	@PostMapping(value = "/javacompiler")
 	@ResponseBody
 	public ResponseEntity<ResponseToFE> getCompiler(@RequestBody Map<String, Object> data, Model model)
 			throws IOException {
 		ResponseToFE responsef = new ResponseToFE();
 		ArrayList<String> testCasesSuccess = new ArrayList<String>();
-		String studentId = UUID.randomUUID().toString();
+		String studentId = (String) data.get("studentId");
 		String complilationMessage = "";
 		Process pro = null;
 		BufferedReader in = null;
 		String line = null;
 		String language = (String) data.get("language");
-		String uid = "Main.java";
-		String output = "";
+		String fileNameInLocal = studentId+"JavaMain";
 		String questionId = (String) data.get("questionId");
 		String flag = (String) data.get("submit");
 		System.out.println("QuestionId:- " + questionId);
-		FileWriter fl = new FileWriter("src/main/resources/temp/" + uid);
+		FileWriter fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
 		PrintWriter pr = new PrintWriter(fl);
 		pr.write((String) data.get("code"));
 		pr.flush();
@@ -65,13 +66,14 @@ public class javaController {
 				responsef.setTestCasesSuccess(testCasesSuccess);
 				return ResponseEntity.ok(responsef);
 			}
-			binaryDataController.saveFile(studentId, uid);
+			binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
 			List<TestCases> testCases = commonService.getTestCase(questionId);
 			for (TestCases testCase : testCases) {
 				String input = testCase.getInput();
 				pro = Runtime.getRuntime().exec("java.exe Main " + input, null, new File("src/main/resources/temp/"));
 				in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
 				System.out.println("complilationMessage."+in.toString());
+				String output = "";
 				while ((line = in.readLine()) != null) {
 					output += line + "\n";					
 				}
@@ -86,6 +88,9 @@ public class javaController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		List<String> questionIds = new ArrayList<>();
+		questionIds.add(questionId);
+		studentService.updateStudentDetails(Integer.parseInt(studentId), (String) data.get("contestId"), questionIds);
 		responsef.setTestCasesSuccess(testCasesSuccess);
 		return ResponseEntity.ok(responsef);
 	}
