@@ -15,8 +15,7 @@ public class Question {
 	@org.springframework.data.annotation.Id
 	private String questionId;	
 	private String question;
-	private  String contestLevel;
-	
+	private  String contestLevel;	
 	private List<SampleTestCase> sampleTestCase;
 	private List<TestCases> testcases;
 

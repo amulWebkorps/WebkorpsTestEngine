@@ -1,13 +1,15 @@
 function submitCode(questionId) {
+	debugger
 	var language = $("#languages").val();
-	var submit = $(".submit").val();
+	var contestId = $("#qContestId").val();
+	var studentId = $("#studentId").val();
 	var code = editorc.getSession().getValue();
 	console.log(language);
 	console.log(code);
 
 	if (language == 'java') {
 
-		var d = { 'language': language, 'code': editorc.getSession().getValue(), 'questionId': questionId, 'submit': submit };
+		var d = { 'language': language, 'code': editorc.getSession().getValue(), 'questionId': questionId, 'contestId': contestId, 'studentId': studentId};
 
 		$.ajax({
 			url: "/javacompiler",
@@ -24,12 +26,12 @@ function submitCode(questionId) {
 				}
 				else {
 					$("#showResult").html("");
-					for (var i = 1; i <= response.testCasesSuccess.length; i++) {
-						if (response.testCasesSuccess[i] == "Pass") {
-							showTestCases = "<div> <h4 class='px-4'> Test Case " + i + "  <div class='success'></div></h4></div>"
+					for (var i = 0; i < response.testCasesSuccess.length; i++) {
+						if (response.testCasesSuccess[i] === "Pass") {
+							showTestCases = "<div> <h4 class='px-4'> Test Case " + (i + 1) + "  <div class='success'></div></h4></div>"
 							$("#showResult").append(showTestCases);
 						} else {
-							showTestCases = "<div> <h4 class='px-4'> Test Case " + i + "  <div class='fail'></div></h4></div>"
+							showTestCases = "<div> <h4 class='px-4'> Test Case " + (i + 1) + "  <div class='fail'></div></h4></div>"
 							$("#showResult").append(showTestCases);
 						}
 

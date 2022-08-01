@@ -40,9 +40,11 @@
 						<div class="div_card_inner_white_compiler1 bg-light">
 							<div class="row">
 								<div class="col-1 div_card_inner_blue1"></div>
-								<div class="col-11 second-div1">
+								<div class="col-11 second-div1">								
 									<div th:each="q:${contestQuestions}">
 										<div th:class="${q.questionId}">
+										<input type="hidden" id="qContestId" name="qContestId" th:value="${contestId}">
+										<input type="hidden" id="studentId" name="studentId" th:value="${studentId}">
 											<div class="col-2 compiler_heading">
 												<h1 class="compiler_heading_text pt-2">Question 1</h1>
 											</div>
@@ -178,27 +180,9 @@
 					  </div></div></div>
                     <div class="row"></div>
                   </div></div></div>
-				  
-				  <div class="d-flex justify-content-between">
-									<div class=" mt-2 "> <button
-											class="compiler_screen_test text-light fw-bold btn btn-outline-primary">
-											prev
-										</button></div>
-									<div class="mx-5"> <button
-											class="compiler_screen_test btn btn-outline-primary text-light fw-bold next_button_compiler">
-											Next
-										</button></div>
-								</div>
                 </div>
               </div>
             </div>
-            <div class="col-6">
-				<div class="compiler_screen_upper">
-					<div class="px-2">
-					  <h1 class="compiler_screen_upper_text">Code Compiler</h1>
-					</div>
-				</div>
-			</div>
 		</div>
 
 
@@ -214,8 +198,10 @@
 	<script src="js/lib/theme-monokai.js"></script>
 
 	<script src="js/texteditor.js"></script>
+	
+	<script src="js/challenge.js"></script>
 
-	<script type="text/javascript">
+	<!--<script type="text/javascript">
 
 		function submitCode(questionId) {
 			var language = $("#languages").val();
@@ -428,7 +414,7 @@
 				});
 			}
 		}
-	</script>
+	</script>-->
 </body>
 
 </html>

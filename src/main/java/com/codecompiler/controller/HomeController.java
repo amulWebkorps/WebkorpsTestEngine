@@ -388,7 +388,7 @@ public class HomeController {
 	}
 
 	@PostMapping("startContestPage")
-	public ModelAndView contestPage(@RequestParam(value="contestId", required=false) String contestId) {
+	public ModelAndView contestPage(@RequestParam(value="contestId", required=false) String contestId, @RequestParam(value="studentId", required=false) int studentId) {
 		System.out.println("contestId....."+contestId);
 		Contest contest =  contestService.findByContestId(contestId);
 		ArrayList <QuestionStatus> qStatusList = new ArrayList<>();
@@ -399,9 +399,10 @@ public class HomeController {
 				qListStatusTrue.add(questionStatus.getQuestionId());
 			}
 		}
-		
 		List<Question> contestQuestions = commonService.getAllQuestion(qListStatusTrue);
-		ModelAndView  mv = new ModelAndView("IDECompiler","contestQuestions",contestQuestions.get(1));
+		ModelAndView  mv = new ModelAndView("IDECompiler","contestQuestions",contestQuestions.get(0));
+		mv.addObject("contestId", contestId);
+		mv.addObject("studentId", studentId);
 		return mv;		
 	}
 
