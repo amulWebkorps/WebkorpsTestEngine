@@ -65,22 +65,23 @@
 							</div>
 						</div>
 						<div class="scroll_answer">
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
+							<div class="answers_field_div mx-auto pt-2 row mt-2" th:each="std:${student}">
 								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
+									<h3 class="user_no pt-3">										
+										<input type="hidden" id="hiddenQid" class="studentid" th:value="${std.id}"></input>
+										<span
+											class="user_name" th:text="${std.email}"></span>
 									</h3>
 								</div>
 								<div class="col-3 d-flex flex-row ">
 									<div>
-										<h3 class="user_details pt-3">View Details</h3>
+										<h3 class="user_details pt-3" id="${std.id}" onclick="gotoparticipatordetail(this.id)">View Details</h3>
 									</div>
-									<!-- <div class="col-1 mt-3 btn_img_cross" th:id="${q.questionId}" onclick="deleteQuestion(this.id)"><img src="images/crossbtn.svg" alt="logo" /></div> -->
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross" id="788"
+									<!-- <div class="col-1 mt-3 btn_img_cross"  th:id="${q.questionId}" onclick="deleteQuestion(this.id)"><img src="images/crossbtn.svg" alt="logo" /></div> -->
+									<!-- <div class="m-3">
+										<img src="images/crossbtn.svg" alt="cross" id="${std.id}"
 											onclick="deleteQuestion(this.id)" />
-									</div>
+									</div> -->
 								</div>
 							</div>
 						</div>
@@ -98,8 +99,8 @@
 		crossorigin="anonymous"></script>
 		
 		    <script>
-        function gotoparticipatordetail(){
-        	window.location.href ="participatordetail";
+        function gotoparticipatordetail(id){
+        	window.location.href ="studentsubmitedcontest";
         }
         
         function deleteQuestion(divId) {  

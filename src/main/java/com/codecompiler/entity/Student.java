@@ -14,6 +14,10 @@ public class Student {
 	String password;
 	String contestLevel;
 	
+public Student() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 	public String getContestLevel() {
 		return contestLevel;
 	}
@@ -50,5 +54,12 @@ public class Student {
 	public void setMobileNumber(int mobileNumber) {
 		this.mobileNumber = mobileNumber;
 	}
+	@Override
+	public String toString() {
+		return "Student [id=" + id + ", name=" + name + ", email=" + email + ", mobileNumber=" + mobileNumber
+				+ ", password=" + password + ", contestLevel=" + contestLevel + "]";
+	}
+	
+	
 	
 }

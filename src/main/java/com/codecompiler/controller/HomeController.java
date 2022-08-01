@@ -19,8 +19,10 @@ import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.QuestionStatus;
 import com.codecompiler.entity.SampleTestCase;
+import com.codecompiler.entity.Student;
 import com.codecompiler.service.CommonService;
 import com.codecompiler.service.ContestService;
+import com.codecompiler.service.StudentService;
 
 @Controller
 public class HomeController {
@@ -29,7 +31,8 @@ public class HomeController {
 	private CommonService commonService;	
 	@Autowired
 	private ContestService contestService;
-	
+	@Autowired
+	StudentService studentService;
 	public String contestId="";
 	public String contestLevel="";	
 	public String contestLevelForPage="";
@@ -59,8 +62,12 @@ public class HomeController {
 	
 	@RequestMapping("/viewparticipators") 
 	private String viewParticipators(Model model) {
-		Contest contest = contestService.findByContestId(contestId);		
+		Contest contest = contestService.findByContestId(contestId);
+		List<Student> student = new ArrayList<>();
+		student = studentService.getAllStudents();
+		System.out.println("student size:"+student.size());		
 		model.addAttribute("contestId", contestId);
+		model.addAttribute("student", student);
 	    return "participators";
 	}
 	
@@ -304,15 +311,6 @@ public class HomeController {
 		return ResponseEntity.ok(qdetails);
 	}
 
-	// @RequestMapping("/viewparticipators") 
-	// private String viewParticipators() {
-	//     return "participators";
-	// }
-	
-//	@RequestMapping("/participatordetail") 
-//	private String participatorDetail() {
-//	    return "participatorDetail";
-//	}
 
 	@RequestMapping("/level1questions") 
 	private String level1Questions(Model model) {
@@ -406,8 +404,25 @@ public class HomeController {
 		ModelAndView  mv = new ModelAndView("IDECompiler","contestQuestions",contestQuestions.get(1));
 		return mv;		
 	}
+
+	@RequestMapping("studentsubmitedcontest")
+    public ModelAndView studentSubmitedContest(Model model) {
+	System.out.println("contestId....."+contestId);
+	Contest contest =  contestService.findByContestId(contestId);
+	ArrayList <QuestionStatus> qStatusList = new ArrayList<>();
+	qStatusList = contest.getQuestionStatus();		
+	ArrayList <String> qListStatusTrue = new ArrayList<>();
+	for(QuestionStatus questionStatus : qStatusList) {
+		if(questionStatus.getStatus()) {
+			qListStatusTrue.add(questionStatus.getQuestionId());
+		}
+	}
+	
+	List<Question> contestQuestions = commonService.getAllQuestion(qListStatusTrue);
+	ModelAndView  mv = new ModelAndView("IDECompiler","contestQuestions",contestQuestions.get(1));
+	return mv;		
 }
 
-
+}
 	
 
