@@ -431,7 +431,7 @@ public class HomeController {
 		System.out.println("contestId....."+contestId);
 		Contest contest =  contestService.findByContestId(contestId);
 		List<Question> contestQuestions = commonService.getAllQuestion(contest.getQuestionIds());
-		ModelAndView  mv = new ModelAndView("IDECompiler","contestQuestions",contestQuestions.get(1));
+		ModelAndView  mv = new ModelAndView("IDECompiler","contestQuestions",contestQuestions.get(2));
 		return mv;		
 	}
 }

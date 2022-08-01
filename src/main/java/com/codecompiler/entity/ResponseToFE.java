@@ -1,19 +1,30 @@
 package com.codecompiler.entity;
 
-public class ResponseToFE {
-private String totalSent;
+import java.util.ArrayList;
 
-public String getTotalSent() {
-	return totalSent;
+public class ResponseToFE {
+private String complilationMessage;
+private ArrayList<String> testCasesSuccess;
+
+public String getComplilationMessage() {
+	return complilationMessage;
 }
 
-public void setTotalSent(String totalSent) {
-	this.totalSent = totalSent;
+public void setComplilationMessage(String complilationMessage) {
+	this.complilationMessage = complilationMessage;
+}
+
+public void setTestCasesSuccess(ArrayList<String> testCasesSuccess) {
+	this.testCasesSuccess = testCasesSuccess;
+}
+
+public ArrayList<String> getTestCasesSuccess() {
+	return testCasesSuccess;
 }
 
 @Override
 public String toString() {
-	return "ResponseToFE [totalSent=" + totalSent + "]";
+	return "ResponseToFE [complilationMessage=" + complilationMessage + ", testCasesSuccess=" + testCasesSuccess + "]";
 }
 
 public ResponseToFE() {

@@ -52,7 +52,7 @@ public class CommonService {
 	
 	public List<TestCases> getTestCase(String questionId){
 		List<Question>  question= getQuestionFromDataBase(questionId);	
-		List<TestCases> testCasesCollection = null;
+		List<TestCases> testCasesCollection = new ArrayList<>();
 		for (Question q : question) {
 			testCasesCollection.addAll(q.getTestcases());
 			testCasesCollection = q.getTestcases();
@@ -60,6 +60,7 @@ public class CommonService {
 		}
 		return testCasesCollection;
 	}
+	
 	public List<SampleTestCase> getSampleTestCase(String questionId){
 		List<Question>  question= getQuestionFromDataBase(questionId);	
 		
