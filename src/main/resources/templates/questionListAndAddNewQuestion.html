@@ -114,9 +114,10 @@
 										<div class="col third-div me-5 get_border_bottom">
 											<div class="col  ">
 												<label class="fw-bold  text-dark  problem_input1">Sample
-													Input</label> <input type="text"
+													Input</label>
+													 <textarea 
 													class="aboutSampleInput form-control problem_input1 bg-white"
-													placeholder="input here" id="aboutSampleInput" /> <small
+													placeholder="input here" id="aboutSampleInput" ></textarea> <small
 													class="error-msgInput"></small>
 												<div class="pen_img1">
 													<div class="">
@@ -127,9 +128,10 @@
 											<div class="col">
 												<div>
 													<label class="fw-bold  text-dark problem_input_label">Sample
-														Output </label> <input type="text"
+														Output </label>
+														 <textarea 
 														class="aboutSampleOutput f bg-white input_margin1 form-control"
-														placeholder="output here" id="aboutSampleOutput" /> <small
+														placeholder="output here" id="aboutSampleOutput" ></textarea> <small
 														class="error-msgOutput"></small>
 													<div class="pen_img3">
 														<div class="">
@@ -520,13 +522,6 @@
             $("#" + temp).closest("li").remove();
         }
    
-        /* 
-        function deleteQuestion(divClass) {
-        	console.log("Hello...");
-        	console.log(divClass);
-            $(".divClass").remove();
-        }
-      */
         function deleteQuestion(divId) {  
         	console.log("===>",divId);
         	var qIdAndContestId = []; 
@@ -554,7 +549,7 @@
         }
 
  $(".Edit_Question").on("click", function () {
-	 $(".removeCurrentIOli1").remove();
+	// $(".removeCurrentIOli1").remove();
 	//console.log($(this).closest("div").find("#hiddenQid").val());
 	 var qid=$(this).closest("div").find("#hiddenQid").val();
 	 console.log("===>",qid);

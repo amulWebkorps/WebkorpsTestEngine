@@ -51,6 +51,7 @@
                                 <h4 class="text-white text-center  fw-bold  question1_font question_size"><a
                                     href="viewparticipators" class="text-decoration-none text-white">Participators</a></h4> </div>
                         </div>
+                        <input type="hidden" id="contestId" class="contestid" th:value="${contestId}"></input>											
                     </div>
 					<div class="div_card_white mx-auto mt-5 ">
 						<div class="answersheet_upper ">
@@ -70,235 +71,18 @@
 										1.<span class="user_code ">(101)</span> <span
 											class="user_name">Ramesh Malhotra</span>
 									</h3>
-
-								</div>
-								<div class="col-3 d-flex flex-row ">
-									<div>
-										<h3 class="user_details pt-3"  onclick="gotoparticipatordetail()">View Details</h3>
-									</div>
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross"/>
-									</div>
-
-								</div>
-							</div>
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
-								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
-									</h3>
-
 								</div>
 								<div class="col-3 d-flex flex-row ">
 									<div>
 										<h3 class="user_details pt-3">View Details</h3>
 									</div>
+									<!-- <div class="col-1 mt-3 btn_img_cross" th:id="${q.questionId}" onclick="deleteQuestion(this.id)"><img src="images/crossbtn.svg" alt="logo" /></div> -->
 									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross"/>
+										<img src="images/crossbtn.svg" alt="cross" id="788"
+											onclick="deleteQuestion(this.id)" />
 									</div>
-
 								</div>
 							</div>
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
-								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
-									</h3>
-
-								</div>
-								<div class="col-3 d-flex flex-row ">
-									<div>
-										<h3 class="user_details pt-3">View Details</h3>
-									</div>
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross"/>
-									</div>
-
-								</div>
-							</div>
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
-								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
-									</h3>
-
-								</div>
-								<div class="col-3 d-flex flex-row ">
-									<div>
-										<h3 class="user_details pt-3">View Details</h3>
-									</div>
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross" />
-									</div>
-
-								</div>
-							</div>
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
-								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
-									</h3>
-
-								</div>
-								<div class="col-3 d-flex flex-row ">
-									<div>
-										<h3 class="user_details pt-3">View Details</h3>
-									</div>
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross" />
-									</div>
-
-								</div>
-							</div>
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
-								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
-									</h3>
-
-								</div>
-								<div class="col-3 d-flex flex-row ">
-									<div>
-										<h3 class="user_details pt-3">View Details</h3>
-									</div>
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross" />
-									</div>
-
-								</div>
-							</div>
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
-								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
-									</h3>
-
-								</div>
-								<div class="col-3 d-flex flex-row ">
-									<div>
-										<h3 class="user_details pt-3">View Details</h3>
-									</div>
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross" />
-									</div>
-
-								</div>
-							</div>
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
-								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
-									</h3>
-
-								</div>
-								<div class="col-3 d-flex flex-row ">
-									<div>
-										<h3 class="user_details pt-3">View Details</h3>
-									</div>
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross" />
-									</div>
-
-								</div>
-							</div>
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
-								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
-									</h3>
-
-								</div>
-								<div class="col-3 d-flex flex-row ">
-
-									<h3 class="user_details pt-3">View Details</h3>
-
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross" />
-									</div>
-
-								</div>
-							</div>
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
-								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
-									</h3>
-
-								</div>
-								<div class="col-3 d-flex flex-row ">
-									<div>
-										<h3 class="user_details pt-3">View Details</h3>
-									</div>
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross" />
-									</div>
-
-								</div>
-							</div>
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
-								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
-									</h3>
-
-								</div>
-								<div class="col-3 d-flex flex-row ">
-									<div>
-										<h3 class="user_details pt-3">View Details</h3>
-									</div>
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross" />
-									</div>
-
-								</div>
-							</div>
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
-								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
-									</h3>
-
-								</div>
-								<div class="col-3 d-flex flex-row ">
-									<div>
-										<h3 class="user_details pt-3">View Details</h3>
-									</div>
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross" />
-									</div>
-
-								</div>
-							</div>
-							<div class="answers_field_div mx-auto pt-2 row mt-2">
-								<div class="col-9">
-									<h3 class="user_no pt-3">
-										1.<span class="user_code ">(101)</span> <span
-											class="user_name">Ramesh Malhotra</span>
-									</h3>
-
-								</div>
-								<div class="col-3 d-flex flex-row ">
-									<div>
-										<h3 class="user_details pt-3">View Details</h3>
-									</div>
-									<div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross" />
-									</div>
-
-								</div>
-							</div>
-
 						</div>
 					</div>
 
@@ -317,6 +101,35 @@
         function gotoparticipatordetail(){
         	window.location.href ="participatordetail";
         }
+        
+        function deleteQuestion(divId) {  
+        	console.log("===>",divId);
+        	$("#"+divId).parent('div').parent('div').parent('div').remove();
+        	console.log("~~> ",$(".contestid").val());
+        	/* var qIdAndContestId = []; 
+        	
+        	qIdAndContestId.push($(".contestid").val());
+        	qIdAndContestId.push(divId);
+        	qIdAndContestId.push($("#contestLevel").val());
+        	var qid=divId; */
+        	/* var pDoc = document.getElementById(divId);
+        	pDoc.parentNode.remove(); */
+        	 /* $.ajax({
+                 url: "/deletequestion",
+                 contentType: "application/json; charset=utf-8",
+                 dataType: "json",
+                 method: "POST",
+                 data: JSON.stringify(qIdAndContestId),
+                 success: function (response) {
+                    
+                 },
+                 error: function (error) {
+                     console.log(error);
+                 },
+
+             }); */
+        }
+        
         </script>
 </body>
 

@@ -56,10 +56,23 @@ public class HomeController {
 	public String startContest(Model model) {
 		return "startContest";		
 	}
+	
+	@RequestMapping("/viewparticipators") 
+	private String viewParticipators(Model model) {
+		Contest contest = contestService.findByContestId(contestId);		
+		model.addAttribute("contestId", contestId);
+	    return "participators";
+	}
+	
+	
+	@RequestMapping("/participatordetail")
+	public String participatorDetailInIDE(Model model) {	
+       return "IDECompiler";		
+	}
 
 	@RequestMapping("/findcontest") 
 	private ResponseEntity<String> findContest(@RequestBody Contest contest,Model model) {
-		System.out.println("ContestId : "+contest.getContestId());		
+		//System.out.println("ContestId : "+contest.getContestId());		
 		contestId = contest.getContestId();		
 		return ResponseEntity.ok("valueSet");
 	}
@@ -290,16 +303,16 @@ public class HomeController {
         contestService.saveContest(con);
 		return ResponseEntity.ok(qdetails);
 	}
+
+	// @RequestMapping("/viewparticipators") 
+	// private String viewParticipators() {
+	//     return "participators";
+	// }
 	
-	@RequestMapping("/viewparticipators") 
-	private String viewParticipators() {
-	    return "participators";
-	}
-	
-	@RequestMapping("/participatordetail") 
-	private String participatorDetail() {
-	    return "participatorDetail";
-	}
+//	@RequestMapping("/participatordetail") 
+//	private String participatorDetail() {
+//	    return "participatorDetail";
+//	}
 
 	@RequestMapping("/level1questions") 
 	private String level1Questions(Model model) {
