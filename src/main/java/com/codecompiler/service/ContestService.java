@@ -14,6 +14,7 @@ public class ContestService {
 
 	@Autowired
 	ContestRepository contestRepository;
+	
 	@Autowired
 	QuestionRepository questionRepository;
 	
@@ -29,15 +30,12 @@ public class ContestService {
 	
 	public Contest getContestBasedOnContestIdAndLevel(String cId, String clevel) {
 		Contest contest = contestRepository.findByContestIdAndContestLevel(cId, clevel);	
-		System.out.println("---->"+contest);
 		return contest;
+		
 	}
 	
-	//findByContestId
-	
 	public Contest findByContestId(String cId) {
-		Contest contest = contestRepository.findByContestId(cId);	
-		System.out.println("---->"+contest);
+		Contest contest = contestRepository.findByContestId(cId);			
 		return contest;
 	}
 

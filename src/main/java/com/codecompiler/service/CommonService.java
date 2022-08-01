@@ -44,6 +44,8 @@ public class CommonService {
 		List<Question> question= questionRepository.findByQuestionId(questionId);
 		return question;
 	}
+	
+	
 
 	public List<Question> getAllQuestionFromDataBase() {
 		List<Question> question = questionRepository.findAll();		

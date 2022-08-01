@@ -17,10 +17,9 @@ public class Contest {
 	private  String contestName;
 	private  String contestDescription;
 	private  String contestLevel;
-	private ArrayList<String> QuestionIds = new ArrayList<>();
+		private ArrayList<QuestionStatus> questionStatus = new ArrayList<>();
 	public Contest() {
-		super();
-		// TODO Auto-generated constructor stub
+		super();		
 	}
 	public String getContestId() {
 		return contestId;
@@ -46,16 +45,16 @@ public class Contest {
 	public void setContestLevel(String contestLevel) {
 		this.contestLevel = contestLevel;
 	}
-	public ArrayList<String> getQuestionIds() {
-		return QuestionIds;
+	public ArrayList<QuestionStatus> getQuestionStatus() {
+		return questionStatus;
 	}
-	public void setQuestionIds(ArrayList<String> questionIds) {
-		QuestionIds = questionIds;
+	public void setQuestionStatus(ArrayList<QuestionStatus> questionStatus) {
+		this.questionStatus = questionStatus;
 	}
 	@Override
 	public String toString() {
 		return "Contest [contestId=" + contestId + ", contestName=" + contestName + ", contestDescription="
-				+ contestDescription + ", contestLevel=" + contestLevel + ", QuestionIds=" + QuestionIds + "]";
+				+ contestDescription + ", contestLevel=" + contestLevel + ", questionStatus=" + questionStatus + "]";
 	}
 	
 	
