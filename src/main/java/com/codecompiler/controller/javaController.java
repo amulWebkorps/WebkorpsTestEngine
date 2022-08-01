@@ -29,102 +29,65 @@ public class javaController {
 
 	@Autowired
 	private CommonService commonService;
-	@Autowired private BinaryDataController binaryDataController;
-		
+	@Autowired
+	private BinaryDataController binaryDataController;
+
 	@PostMapping(value = "/javacompiler")
 	@ResponseBody
 	public ResponseEntity<ResponseToFE> getCompiler(@RequestBody Map<String, Object> data, Model model)
 			throws IOException {
-		System.out.println("Welcome to java Controller =>");
 		ResponseToFE responsef = new ResponseToFE();
+		ArrayList<String> testCasesSuccess = new ArrayList<String>();
 		String studentId = UUID.randomUUID().toString();
-		String total = "";
+		String complilationMessage = "";
 		Process pro = null;
 		BufferedReader in = null;
 		String line = null;
 		String language = (String) data.get("language");
-		System.out.println("language" + language);
-		System.out.println("code" + data.get("code"));
 		String uid = "Main.java";
 		String output = "";
 		String questionId = (String) data.get("questionId");
 		String flag = (String) data.get("submit");
 		System.out.println("QuestionId:- " + questionId);
-		FileWriter fl = new FileWriter(
-				"src/main/resources/temp/" + uid );
+		FileWriter fl = new FileWriter("src/main/resources/temp/" + uid);
 		PrintWriter pr = new PrintWriter(fl);
 		pr.write((String) data.get("code"));
 		pr.flush();
 		pr.close();
 		try {
-			pro = Runtime.getRuntime().exec("javac.exe Main.java", null,
-					new File("src/main/resources/temp/"));
-			System.out.println("Compilation done");
+			pro = Runtime.getRuntime().exec("javac.exe Main.java", null, new File("src/main/resources/temp/"));
 			in = new BufferedReader(new InputStreamReader(pro.getErrorStream()));
-			// System.err.println("Error : " + in.readLine());
 			while ((line = in.readLine()) != null) {
-				System.out.println("line - " + line);
-				total += line + "\n";
+				complilationMessage += line;
+			}			
+			if (!complilationMessage.isEmpty()) {
+				responsef.setComplilationMessage(complilationMessage);
+				responsef.setTestCasesSuccess(testCasesSuccess);
+				return ResponseEntity.ok(responsef);
 			}
-			ArrayList<String> testCasesSuccess = new ArrayList<String>();
-
-			if (total == "") {
-				if (flag.equals("submit")) {
-					System.out.println("submit : ");
-					
-					//commonService.storeFileToFolder( studentId, data.get("code").toString());
-					System.out.println("studentId : "+studentId);
-					binaryDataController.saveFile(studentId,uid);
-					List<TestCases> testCases = commonService.getTestCase(questionId);
-					for (TestCases testCase : testCases) {
-						String input = testCase.getInput();
-						System.out.println("Input:-" + input);
-						pro = Runtime.getRuntime().exec("java.exe Main " + input, null,
-								new File("src/main/resources/temp/"));
-						in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
-						while ((line = in.readLine()) != null) {
-							output = line;
-							System.out.println("expected output:" + testCase.getOutput());
-							System.out.println("output:" + output);
-							if (output.contains(testCase.getOutput())) {								
-								testCasesSuccess.add("Pass");
-							} else {
-								testCasesSuccess.add("Fail");
-							}
-							total += line + "\n";
-						}
-					}
-						} else if (flag.equals("test")) {
-					System.out.println("test : ");
-					List<SampleTestCase> sampleTestCase = commonService.getSampleTestCase(questionId);
-					for (SampleTestCase testCase : sampleTestCase) {
-						String input = testCase.getInput();
-						System.out.println("Input:-" + input);
-						pro = Runtime.getRuntime().exec("java.exe Main " + input, null,
-								new File("src/main/resources/temp/"));
-						in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
-						while ((line = in.readLine()) != null) {
-							output = line;
-							System.out.println("expected output:" + testCase.getOutput());
-							System.out.println("output:" + output);
-							if (output.contains(testCase.getOutput())) {
-								// .equals(testCase.getOutput())
-								testCasesSuccess.add("Pass");
-							} else {
-								testCasesSuccess.add("Fail");
-							}
-							total += line + "\n";
-						}
-					}
+			binaryDataController.saveFile(studentId, uid);
+			List<TestCases> testCases = commonService.getTestCase(questionId);
+			for (TestCases testCase : testCases) {
+				String input = testCase.getInput();
+				pro = Runtime.getRuntime().exec("java.exe Main " + input, null, new File("src/main/resources/temp/"));
+				in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
+				System.out.println("complilationMessage."+in.toString());
+				while ((line = in.readLine()) != null) {
+					output += line + "\n";					
 				}
+				output = output.substring(0, output.length() - 1);
+				if (output.contains(testCase.getOutput()) || output.equals(testCase.getOutput())) {
+					testCasesSuccess.add("Pass");
+				} else {
+					testCasesSuccess.add("Fail");
+				}
+				complilationMessage += line + "\n";
 			}
-			System.out.println("testCasesSuccess = " + testCasesSuccess);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		responsef.setTotalSent(total);		
+		responsef.setTestCasesSuccess(testCasesSuccess);
 		return ResponseEntity.ok(responsef);
 	}
 
 }
-
