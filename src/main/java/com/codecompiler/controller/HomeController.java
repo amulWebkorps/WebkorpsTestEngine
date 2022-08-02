@@ -87,11 +87,7 @@ public class HomeController {
 	    return "participators";
 	}
 	
-	
-	@RequestMapping("/participatordetail")
-	public String participatorDetailInIDE(Model model) {	
-       return "IDECompiler";		
-	}
+
 
 	@RequestMapping("/participatordetail")
 	public String participatorDetailInIDE(Model model) {
