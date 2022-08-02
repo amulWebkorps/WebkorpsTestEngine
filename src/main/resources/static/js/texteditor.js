@@ -25,6 +25,7 @@ function setFlagForSubmit() {
 function changeLanguage() {
 debugger
 	let language = $("#languages").val();
+	$("#showResult").val("");
 	console.log(language);
 	if (language == "python") {
 		console.log("python");

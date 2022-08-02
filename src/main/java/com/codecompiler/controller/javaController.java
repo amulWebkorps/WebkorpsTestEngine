@@ -9,7 +9,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +32,7 @@ public class javaController {
 	private BinaryDataController binaryDataController;
 	@Autowired
 	private StudentService studentService;
-	
+
 	@PostMapping(value = "/javacompiler")
 	@ResponseBody
 	public ResponseEntity<ResponseToFE> getCompiler(@RequestBody Map<String, Object> data, Model model)
@@ -46,51 +45,182 @@ public class javaController {
 		BufferedReader in = null;
 		String line = null;
 		String language = (String) data.get("language");
-		String fileNameInLocal = studentId+"JavaMain";
 		String questionId = (String) data.get("questionId");
-		String flag = (String) data.get("submit");
-		System.out.println("QuestionId:- " + questionId);
-		FileWriter fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
-		PrintWriter pr = new PrintWriter(fl);
-		pr.write((String) data.get("code"));
-		pr.flush();
-		pr.close();
-		try {
-			pro = Runtime.getRuntime().exec("javac.exe Main.java", null, new File("src/main/resources/temp/"));
-			in = new BufferedReader(new InputStreamReader(pro.getErrorStream()));
-			while ((line = in.readLine()) != null) {
-				complilationMessage += line;
-			}			
-			if (!complilationMessage.isEmpty()) {
-				responsef.setComplilationMessage(complilationMessage);
-				responsef.setTestCasesSuccess(testCasesSuccess);
-				return ResponseEntity.ok(responsef);
-			}
-			binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
-			List<TestCases> testCases = commonService.getTestCase(questionId);
-			for (TestCases testCase : testCases) {
-				String input = testCase.getInput();
-				pro = Runtime.getRuntime().exec("java.exe Main " + input, null, new File("src/main/resources/temp/"));
-				in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
-				System.out.println("complilationMessage."+in.toString());
-				String output = "";
+		String flag = (String) data.get("flag");
+		if (language.equalsIgnoreCase("java")) {
+			String fileNameInLocal = studentId + "JavaMain";
+			FileWriter fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
+			PrintWriter pr = new PrintWriter(fl);
+			pr.write((String) data.get("code"));
+			pr.flush();
+			pr.close();
+			try {
+				pro = Runtime.getRuntime().exec("javac.exe Main.java", null, new File("src/main/resources/temp/"));
+				in = new BufferedReader(new InputStreamReader(pro.getErrorStream()));
 				while ((line = in.readLine()) != null) {
-					output += line + "\n";					
-				}				
-				output = output.substring(0, output.length() - 1);
-				if (output.contains(testCase.getOutput()) || output.equals(testCase.getOutput())) {
-					testCasesSuccess.add("Pass");
-				} else {
-					testCasesSuccess.add("Fail");
+					complilationMessage += line;
 				}
-				complilationMessage += line + "\n";
+				if (!complilationMessage.isEmpty() && flag.equalsIgnoreCase("run")) {
+					responsef.setComplilationMessage(complilationMessage);
+					responsef.setTestCasesSuccess(testCasesSuccess);
+					return ResponseEntity.ok(responsef);
+				}
+				binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
+				List<TestCases> testCases = commonService.getTestCase(questionId);
+				for (TestCases testCase : testCases) {
+					String input = testCase.getInput();
+					pro = Runtime.getRuntime().exec("java.exe Main " + input, null,
+							new File("src/main/resources/temp/"));
+					in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
+					System.out.println("complilationMessage." + in.toString());
+					String output = "";
+					while ((line = in.readLine()) != null) {
+						output += line + "\n";
+					}
+					output = output.substring(0, output.length() - 1);
+					if (output.contains(testCase.getOutput()) || output.equals(testCase.getOutput())) {
+						testCasesSuccess.add("Pass");
+					} else {
+						testCasesSuccess.add("Fail");
+					}
+					complilationMessage += line + "\n";
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		} else if (language.equalsIgnoreCase("python")) {
+			String fileNameInLocal = "HelloPython";
+			FileWriter fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "py");
+			PrintWriter pr = new PrintWriter(fl);
+			pr.write((String) data.get("code"));
+			pr.flush();
+			pr.close();
+			try {
+				pro = Runtime.getRuntime().exec("src/main/resources/temp/HelloPython.py");
+				System.out.println("Compilation done");
+				in = new BufferedReader(new InputStreamReader(pro.getErrorStream()));
+				while ((line = in.readLine()) != null) {
+					complilationMessage += line;
+				}
+				if (!complilationMessage.isEmpty() && flag.equalsIgnoreCase("run")) {
+					responsef.setComplilationMessage(complilationMessage);
+					responsef.setTestCasesSuccess(testCasesSuccess);
+					return ResponseEntity.ok(responsef);
+				}
+				binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
+				List<TestCases> testCases = commonService.getTestCase(questionId);
+				for (TestCases testCase : testCases) {
+					String input = testCase.getInput();
+					pro = Runtime.getRuntime().exec("py HelloPython.py " + input, null,
+							new File("src/main/resources/temp/"));
+					in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
+					System.out.println("complilationMessage." + in.toString());
+					String output = "";
+					while ((line = in.readLine()) != null) {
+						output += line + "\n";
+					}
+					output = output.substring(0, output.length() - 1);
+					if (output.contains(testCase.getOutput()) || output.equals(testCase.getOutput())) {
+						testCasesSuccess.add("Pass");
+					} else {
+						testCasesSuccess.add("Fail");
+					}
+					complilationMessage += line + "\n";
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else if (language.equalsIgnoreCase("cpp")) {
+			String fileNameInLocal = "HelloCPP";
+			FileWriter fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "cpp");
+			PrintWriter pr = new PrintWriter(fl);
+			pr.write((String) data.get("code"));
+			pr.flush();
+			pr.close();
+			try {
+				pro = Runtime.getRuntime().exec("g++.exe HelloCPP.cpp -o exeofCPP", null,
+						new File("src/main/resources/temp/"));
+				in = new BufferedReader(new InputStreamReader(pro.getErrorStream()));
+				while ((line = in.readLine()) != null) {
+					complilationMessage += line;
+				}
+				if (!complilationMessage.isEmpty() && flag.equalsIgnoreCase("run")) {
+					responsef.setComplilationMessage(complilationMessage);
+					responsef.setTestCasesSuccess(testCasesSuccess);
+					return ResponseEntity.ok(responsef);
+				}
+				binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
+				List<TestCases> testCases = commonService.getTestCase(questionId);
+				for (TestCases testCase : testCases) {
+					String input = testCase.getInput();
+					pro = Runtime.getRuntime().exec("src/main/resources/temp/" + "exeofCPP.exe " + input, null,
+							new File("src/main/resources/temp/"));
+					in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
+					System.out.println("complilationMessage." + in.toString());
+					String output = "";
+					while ((line = in.readLine()) != null) {
+						output += line + "\n";
+					}
+					output = output.substring(0, output.length() - 1);
+					if (output.contains(testCase.getOutput()) || output.equals(testCase.getOutput())) {
+						testCasesSuccess.add("Pass");
+					} else {
+						testCasesSuccess.add("Fail");
+					}
+					complilationMessage += line + "\n";
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else if (language.equalsIgnoreCase("c")) {
+			String fileNameInLocal = "HelloC";
+			FileWriter fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "c");
+			PrintWriter pr = new PrintWriter(fl);
+			pr.write((String) data.get("code"));
+			pr.flush();
+			pr.close();
+			try {
+				pro = Runtime.getRuntime().exec("gcc.exe HelloC.c -o exeofc", null,
+						new File("src/main/resources/temp/"));
+				in = new BufferedReader(new InputStreamReader(pro.getErrorStream()));
+				while ((line = in.readLine()) != null) {
+					complilationMessage += line;
+				}
+				if (!complilationMessage.isEmpty() && flag.equalsIgnoreCase("run")) {
+					responsef.setComplilationMessage(complilationMessage);
+					responsef.setTestCasesSuccess(testCasesSuccess);
+					return ResponseEntity.ok(responsef);
+				}
+				binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
+				List<TestCases> testCases = commonService.getTestCase(questionId);
+				for (TestCases testCase : testCases) {
+					String input = testCase.getInput();
+					pro = Runtime.getRuntime().exec("src/main/resources/temp/exeofc.exe "+input, null,
+							new File("src/main/resources/temp/"));
+					in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
+					System.out.println("complilationMessage." + in.toString());
+					String output = "";
+					while ((line = in.readLine()) != null) {
+						output += line + "\n";
+					}
+					output = output.substring(0, output.length() - 1);
+					if (output.contains(testCase.getOutput()) || output.equals(testCase.getOutput())) {
+						testCasesSuccess.add("Pass");
+					} else {
+						testCasesSuccess.add("Fail");
+					}
+					complilationMessage += line + "\n";
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		List<String> questionIds = new ArrayList<>();
-		questionIds.add(questionId);
-		studentService.updateStudentDetails(Integer.parseInt(studentId), (String) data.get("contestId"), questionIds);
+		if (flag.equalsIgnoreCase("submit")) {
+			List<String> questionIds = new ArrayList<>();
+			questionIds.add(questionId);
+			studentService.updateStudentDetails(Integer.parseInt(studentId), (String) data.get("contestId"),
+					questionIds, testCasesSuccess, complilationMessage);
+		}
 		responsef.setTestCasesSuccess(testCasesSuccess);
 		return ResponseEntity.ok(responsef);
 	}

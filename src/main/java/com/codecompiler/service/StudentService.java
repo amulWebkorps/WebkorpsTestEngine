@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.dao.StudentRepository;
 import com.codecompiler.entity.Student;
+import com.codecompiler.entity.TestCasesRecord;
 import com.codecompiler.helper.Helper;
 
 @Service
@@ -39,10 +40,15 @@ public class StudentService {
 	    	
 	    }
 
-	public Student updateStudentDetails(int studentId, String contestId, List<String> questionIds) {
+	public Student updateStudentDetails(int studentId, String contestId, List<String> questionIds, ArrayList<String> testCasesSuccess, String complilationMessage) {
+		TestCasesRecord testCasesRecord = new TestCasesRecord();
+		testCasesRecord.setQuestionId(questionIds);
+		testCasesRecord.setComplilationMessage(complilationMessage);
+		testCasesRecord.setTestCasesSuccess(testCasesSuccess);
 		Student existingRecord = studentRepository.findById(studentId);
 		existingRecord.setContestId(contestId);
 		existingRecord.setQuestionId(questionIds);
+		existingRecord.getTestCasesRecord().add(testCasesRecord);
 		return studentRepository.save(existingRecord);
 	}
 	
