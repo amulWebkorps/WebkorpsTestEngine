@@ -1,9 +1,11 @@
 package com.codecompiler.entity;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class ResponseToFE {
+public class TestCasesRecord {
 
+	private List<String> questionId;
 	private String complilationMessage;
 	private ArrayList<String> testCasesSuccess;
 
@@ -23,15 +25,18 @@ public class ResponseToFE {
 		return testCasesSuccess;
 	}
 
+	public List<String> getQuestionId() {
+		return questionId;
+	}
+
+	public void setQuestionId(List<String> questionIds) {
+		this.questionId = questionIds;
+	}
+
 	@Override
 	public String toString() {
-		return "ResponseToFE [complilationMessage=" + complilationMessage + ", testCasesSuccess=" + testCasesSuccess
-				+ "]";
+		return "TestCasesRecord [questionId=" + questionId + ", complilationMessage=" + complilationMessage
+				+ ", testCasesSuccess=" + testCasesSuccess + "]";
 	}
-
-	public ResponseToFE() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
+	
 }
