@@ -59,13 +59,13 @@
 					<div class="search mx-3 mt-3">
 						<i class="fa fa-search"></i> <input type="text"
 							class="form-control" placeholder="">
-
 						<div class="mt-3 mx-3">
 						<!-- 	<form name="vcfForm" class="vcfForm" id="vcfForm" method="post"
 								enctype="multipart/form-data" accept-charset="utf-8"> -->
-								<input type="file" class="file-class">
+							Upload Participent<input type="file" id="file-class"  class="question_btn_bulk_question   btn btn-outline-primary mx-4" >
+							<!-- 	
 								<button type="button" class="question_btn_email btn btn-primary">
-									Upload Participent</button>
+									Upload Participent</button> -->
 				<!-- 			</form> -->
 						</div>
 					</div>
@@ -76,26 +76,29 @@
 
 
 					<div class="added_question_box_email row mx-4 mt-3">
-						<div class="col-9">
-							<p class="overflow_level1 ">
-								<span class="" style="overflow-wrap: anywhere;">abcdefghijklmn12345@gmail.com</span>
-							</p>
-						</div>
-						<div class="col-2 ">
-							<div class=" pt-3 mx-5  ">
-								<div class="round">
-									<input type="checkbox" id="checkbox4" name="color"
-										value="checkbox4" /> <label for="checkbox4"></label>
-								</div>
-
-							</div>
-						</div>
-						<div class="col-1 mt-3 btn_img_cross">
-							<img src="images/crossbtn.svg" alt="logo" />
-						</div>
+					
+									<div th:each="q:${students}">
+										<div th:class="${q.email}">
+											<div class="added_question_box row mx-4 mt-3">
+												<div class="col-8">
+													<p class="added_question_box_text">
+														<span class="added_question_box_text"
+															th:text="${q.email}"></span>
+													</p>
+												</div>
+													<div class="col-3 ">
+														<input type="checkbox" id="listcheckbox" name="color"
+										value="${q.email}" /> <label for="listcheckbox"></label>
+													
+												</div>
+												<div class="col-1 mt-3 btn_img_cross">
+													
+													<img src="images/crossbtn.svg" alt="logo" />
+												</div>
+											</div>
+										</div>
+									</div>
 					</div>
-
-
 				</div>
 
 				<div class="mt-3 mx-5 float-end ">
@@ -227,9 +230,8 @@
 		crossorigin="anonymous"></script>
 	<script>
 
- $('.question_btn_email').on("click", function (e){	
-		      debugger;
-		       var file = $(".file-class")[0].files[0]; 
+	$('#file-class').change(function (e){	
+		       var file = $("#file-class")[0].files[0]; 
                e.preventDefault();
 		       var myformData = new FormData();
 		       myformData.append('file',file);
@@ -254,7 +256,39 @@
              });
 		
         });
+ $('.question_btn_sentemail').on("click", function (e){	
+     debugger;
+      var file = $("#checkbox4").val();
+    if ($("#").checked(true)) {
+                        alert("Check box in Checked");
+                    } else {
+                        alert("Check box is Unchecked");
+                    }
+	 $.ajax({
+        url: "/sendMail",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        method: "POST",
+        data: JSON.stringify(""),
+        success: function (response) {
+            console.log(response);
+            var data = '';
+                window.location.href = "questionlistforspecificcontest";
+        },
+        error: function (error) {
+        	 window.location.href = "questionlistforspecificcontest";
+            console.log(error);
+        },
+       
+    });
+
+});
  
+$(document).ready(function(){
+	$("listcheckbox").change(function(){
+		console.log("this",this);
+	})
+})
         </script>
 </body>
 

@@ -69,7 +69,7 @@ public class Helper {
 
 					switch (cid) {
 					case 0:
-						p.setId((int) cell.getNumericCellValue());
+						p.setId(UUID.randomUUID().toString());
 						break;
 					case 1:
 						if(cell.getCellType() == CellType.STRING)

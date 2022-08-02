@@ -8,14 +8,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EntityScan
 public class HrDetails {
 	@Id
-	int hId;
+	String hId;
 	String hName;
 	int hNumber;
-	String Email;
-	public int gethId() {
+	String email;
+	String password;
+
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	public String gethId() {
 		return hId;
 	}
-	public void sethId(int hId) {
+	public void sethId(String hId) {
 		this.hId = hId;
 	}
 	public String gethName() {
@@ -31,10 +39,10 @@ public class HrDetails {
 		this.hNumber = hNumber;
 	}
 	public String getEmail() {
-		return Email;
+		return email;
 	}
 	public void setEmail(String email) {
-		Email = email;
+		this.email = email;
 	}
 
 }

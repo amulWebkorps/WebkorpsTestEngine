@@ -51,10 +51,25 @@ public class HomeController {
 	}
 
 	@RequestMapping("/uploadparticipatorandemail")
-	public String uploadParticipatorAndEmail(Model model) {
-		return "uploadParticipatorAndEmail.html";
+	public String uploadParticipatorAndEmail(Model model){		
+		model.addAttribute("students", studentService.getAllStudents());
+	//	return "uploadParticipatorAndEmail";
+		return "uploadParticipatorAndEmail.html";		
 	}
-
+	@RequestMapping("/register")
+	public String register(Model model) {
+		return "Register";		
+	}
+	
+	@RequestMapping("/login")
+	public String login(Model model) {
+		return "Login.html";		
+	}
+	@RequestMapping("/hrlogin")
+	public String Hrlogin(Model model) {
+		return "HrLogin.html";		
+	}
+	
 	@RequestMapping("/home")
 	public String startContest(Model model) {
 		return "startContest";
@@ -62,13 +77,19 @@ public class HomeController {
 
 	@RequestMapping("/viewparticipators")
 	private String viewParticipators(Model model) {
-		Contest contest = contestService.findByContestId(contestId);
-		List<Student> student = new ArrayList<>();
-		student = studentService.getAllStudents();
-		System.out.println("student size:" + student.size());
+		//Contest contest = contestService.findByContestId(contestId);		
+		List<Student> studentTemp = new ArrayList<>();		
+		studentTemp = studentService.findByContestId(contestId);
+		System.out.println("student size:"+studentTemp.size());		
 		model.addAttribute("contestId", contestId);
-		model.addAttribute("student", student);
-		return "participators";
+		model.addAttribute("student", studentTemp);
+	    return "participators";
+	}
+	
+	
+	@RequestMapping("/participatordetail")
+	public String participatorDetailInIDE(Model model) {	
+       return "IDECompiler";		
 	}
 
 	@RequestMapping("/participatordetail")
@@ -430,21 +451,20 @@ public class HomeController {
 	}
 
 	@RequestMapping("studentsubmitedcontest")
-	public ModelAndView studentSubmitedContest(Model model) {
-		System.out.println("contestId....." + contestId);
-		Contest contest = contestService.findByContestId(contestId);
-		ArrayList<QuestionStatus> qStatusList = new ArrayList<>();
-		qStatusList = contest.getQuestionStatus();
-		ArrayList<String> qListStatusTrue = new ArrayList<>();
-		for (QuestionStatus questionStatus : qStatusList) {
-			if (questionStatus.getStatus()) {
-				qListStatusTrue.add(questionStatus.getQuestionId());
-			}
+    public ModelAndView studentSubmitedContest(@RequestBody Student student, Model model) {	
+	System.out.println("contestId....."+contestId);
+	Contest contest =  contestService.findByContestId(contestId);
+	ArrayList <QuestionStatus> qStatusList = new ArrayList<>();
+	qStatusList = contest.getQuestionStatus();		
+	ArrayList <String> qListStatusTrue = new ArrayList<>();
+	for(QuestionStatus questionStatus : qStatusList) {
+		if(questionStatus.getStatus()) {
+			qListStatusTrue.add(questionStatus.getQuestionId());
 		}
-
-		List<Question> contestQuestions = commonService.getAllQuestion(qListStatusTrue);
-		ModelAndView mv = new ModelAndView("IDECompiler", "contestQuestions", contestQuestions.get(1));
-		return mv;
-	}
+	}	
+	List<Question> contestQuestions = commonService.getAllQuestion(qListStatusTrue);
+	ModelAndView  mv = new ModelAndView("IDECompiler","contestQuestions",contestQuestions.get(1));
+	return mv;		
+}
 
 }

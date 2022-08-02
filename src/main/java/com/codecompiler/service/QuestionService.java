@@ -1,6 +1,7 @@
 package com.codecompiler.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,4 +29,16 @@ public class QuestionService {
 	        }
 
 	    }
+
+	public List<Question> getAllQuestion() {
+		List<Question> questions =questionRepository.findAll();
+        return questions;
+	
+	}
+	public ArrayList<Question>  findQuestionByContestLevel(String contestLevel){
+	System.out.println("cLevel"+contestLevel);
+	ArrayList<Question> question = questionRepository.findByContestLevel(contestLevel);
+   System.out.println("qList 22  :    "+question);        
+	return question;
+}
 }
