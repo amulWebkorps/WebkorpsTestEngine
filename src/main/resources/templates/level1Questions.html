@@ -134,10 +134,11 @@
 
                                             <button class="addQuestionBtn question_btn_level1 btn btn-primary mx-4">Add
                                                 Question</button>
-                                            <button
+                                                Bulk Question <input type="file" id="file-class"  class="question_btn_bulk_question   btn btn-outline-primary mx-4" >
+                                           <!--  <button
                                                 class="question_btn_bulk_question   btn btn-outline-primary mx-4">bulk
                                                 Question
-                                            </button>
+                                            </button> -->
 
                                         </div>
 									</div>
@@ -481,8 +482,38 @@
      });
 	// document.getElementById("aboutQuestiondata").value = "My value";
  })
- //]]>
  
+  $('#file-class').change(function (e){	
+     debugger;
+      var file = $("#file-class")[0].files[0]; 
+
+      e.preventDefault();
+      var myformData = new FormData();
+      myformData.append('file',file);
+      myformData.append('level',"Level 1");
+	 $.ajax({
+        url: "/question/upload",
+        method: 'POST',
+        processData: false,
+        contentType: false,
+        cache: false,
+        data: myformData ,
+        enctype: 'multipart/form-data',
+  
+        success: function (response) {	
+       	 console.log(response);
+       	 window.location.href = "questionuploaded";
+       	
+        },
+        error: function (error) {  
+       	console.log(error);
+        },
+       
+    });
+
+});
+ //]]>
+
     </script>
 </body>
 

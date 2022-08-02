@@ -166,3 +166,7 @@ function runCode(questionId) {
 
 	});
 }
+
+function nextQuestion(value) {
+	
+}
