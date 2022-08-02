@@ -93,11 +93,6 @@ public class HomeController {
        return "IDECompiler";		
 	}
 
-	@RequestMapping("/participatordetail")
-	public String participatorDetailInIDE(Model model) {
-		return "IDECompiler";
-	}
-
 	@RequestMapping("/findcontest")
 	private ResponseEntity<String> findContest(@RequestBody Contest contest, Model model) {
 		// System.out.println("ContestId : "+contest.getContestId());

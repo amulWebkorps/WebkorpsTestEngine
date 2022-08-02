@@ -6,7 +6,7 @@ public class ResponseToFE {
 
 	private String complilationMessage;
 	private ArrayList<String> testCasesSuccess;
-
+	private String successMessage;
 	public String getComplilationMessage() {
 		return complilationMessage;
 	}
@@ -23,10 +23,18 @@ public class ResponseToFE {
 		return testCasesSuccess;
 	}
 
+	public String getSuccessMessage() {
+		return successMessage;
+	}
+
+	public void setSuccessMessage(String successMessage) {
+		this.successMessage = successMessage;
+	}
+
 	@Override
 	public String toString() {
 		return "ResponseToFE [complilationMessage=" + complilationMessage + ", testCasesSuccess=" + testCasesSuccess
-				+ "]";
+				+ ", successMessage=" + successMessage + "]";
 	}
 
 	public ResponseToFE() {
