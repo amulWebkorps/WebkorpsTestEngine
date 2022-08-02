@@ -75,13 +75,9 @@
 								</div>
 								<div class="col-3 d-flex flex-row ">
 									<div>
-										<h3 class="user_details pt-3" id="${std.id}" onclick="gotoparticipatordetail(this.id)">View Details</h3>
+										<h3 class="user_details pt-3" th:id="${std.id}" onclick="gotoparticipatordetail(this.id)">View Details</h3>
 									</div>
-									<!-- <div class="col-1 mt-3 btn_img_cross"  th:id="${q.questionId}" onclick="deleteQuestion(this.id)"><img src="images/crossbtn.svg" alt="logo" /></div> -->
-									<!-- <div class="m-3">
-										<img src="images/crossbtn.svg" alt="cross" id="${std.id}"
-											onclick="deleteQuestion(this.id)" />
-									</div> -->
+									
 								</div>
 							</div>
 						</div>
@@ -100,10 +96,13 @@
 		
 		    <script>
         function gotoparticipatordetail(participatorId){
+        	console.log("participatorId : ",participatorId);
+        	console.log("contestid : ",$(".contestid").val());
         	var Student = {
         			"contestId" : $(".contestid").val(),
         			"id" : participatorId
         	}
+        	console.log("Student : ",Student);
         	 $.ajax({
                  url: "/studentsubmitedcontest",
                  contentType: "application/json; charset=utf-8",
@@ -111,10 +110,11 @@
                  method: "POST",
                  data: JSON.stringify(Student),
                  success: function (response) {
-                    
+                	 window.location.href ="studentsubmitedcontestresult";
                  },
                  error: function (error) {
                      console.log(error);
+                     window.location.href ="studentsubmitedcontestresult";
                  },
 
              });
@@ -122,7 +122,7 @@
         	
         	
         	
-        	window.location.href ="studentsubmitedcontest";
+        	
         }
         
         function deleteQuestion(divId) {  

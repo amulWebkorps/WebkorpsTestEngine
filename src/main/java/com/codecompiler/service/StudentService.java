@@ -52,6 +52,16 @@ public class StudentService {
 		return studentRepository.save(existingRecord);
 	}
 	
+	public Student saveStudent(Student std) {
+		Student s = studentRepository.save(std);
+		return s;
+	}
+	
+	public Student findById(int studentId){
+		Student students = studentRepository.findById(studentId);
+		return students;
+	}
+	
 	public ArrayList<Student> findByContestId(String contestId){
 		ArrayList<Student> students = studentRepository.findByContestId(contestId);
 		return students;

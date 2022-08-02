@@ -20,6 +20,7 @@ import com.codecompiler.entity.Question;
 import com.codecompiler.entity.QuestionStatus;
 import com.codecompiler.entity.SampleTestCase;
 import com.codecompiler.entity.Student;
+import com.codecompiler.entity.TestCasesRecord;
 import com.codecompiler.service.CommonService;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.StudentService;
@@ -406,28 +407,40 @@ public class HomeController {
 		return mv;		
 	}
 
+	Student stdTemp=null;
+	List<Question> contestQuestionsTemp2=null;
+	
 	@RequestMapping("studentsubmitedcontest")
-    public ModelAndView studentSubmitedContest(@RequestBody Student student, Model model) {
-		
-		
-		
-		
-		
-	System.out.println("contestId....."+contestId);
-	Contest contest =  contestService.findByContestId(contestId);
-	ArrayList <QuestionStatus> qStatusList = new ArrayList<>();
-	qStatusList = contest.getQuestionStatus();		
-	ArrayList <String> qListStatusTrue = new ArrayList<>();
-	for(QuestionStatus questionStatus : qStatusList) {
-		if(questionStatus.getStatus()) {
-			qListStatusTrue.add(questionStatus.getQuestionId());
-		}
-	}	
-	List<Question> contestQuestions = commonService.getAllQuestion(qListStatusTrue);
-	ModelAndView  mv = new ModelAndView("IDECompiler","contestQuestions",contestQuestions.get(1));
-	return mv;		
-}
+    public ResponseEntity<String> studentSubmitedContest(@RequestBody Student student, Model model) {
+		System.out.println("student.getId() result : "+student.getId());
+        stdTemp = studentService.findById(student.getId());
+		List<String> s = stdTemp.getQuestionId();
+		contestQuestionsTemp2 = commonService.getAllQuestion(s);
+		return ResponseEntity.ok("done");	
+   }
+	
+	@RequestMapping("studentsubmitedcontestresult")
+    public String studentSubmitedContestresult(Model model) {
+		List<TestCasesRecord> testCasesRecord = stdTemp.getTestCasesRecord();
+		System.out.println("stdTemp"+stdTemp);
+		System.out.println("contestQuestionsTemp2 => "+contestQuestionsTemp2);
+		System.out.println("testCasesRecord => "+testCasesRecord);
+		TestCasesRecord testCR = testCasesRecord.get(0);
+	    model.addAttribute("contestId", stdTemp.getContestId());
+		model.addAttribute("studentId", stdTemp.getId());
+		model.addAttribute("contestQuestions", contestQuestionsTemp2.get(0));
+		model.addAttribute("result", testCR.getTestCasesSuccess());
+		return "resultIDECompiler";		
+   }
+	
+	
 
+	@RequestMapping("/savestd")	
+	private ResponseEntity<String> savestd(@RequestBody Student std, Model model) {
+		Student s = studentService.saveStudent(std);
+		return ResponseEntity.ok("Done");	
+	} 
+	
 }
 	
 
