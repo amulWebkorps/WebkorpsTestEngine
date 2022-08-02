@@ -51,9 +51,23 @@ public class HomeController {
 
 	@RequestMapping("/uploadparticipatorandemail")
 	public String uploadParticipatorAndEmail(Model model){		
+		model.addAttribute("students", studentService.getAllStudents());
+	//	return "uploadParticipatorAndEmail";
 		return "uploadParticipatorAndEmail.html";		
 	}
+	@RequestMapping("/register")
+	public String register(Model model) {
+		return "Register";		
+	}
 	
+	@RequestMapping("/login")
+	public String login(Model model) {
+		return "Login.html";		
+	}
+	@RequestMapping("/hrlogin")
+	public String Hrlogin(Model model) {
+		return "HrLogin.html";		
+	}
 	
 	@RequestMapping("/home")
 	public String startContest(Model model) {

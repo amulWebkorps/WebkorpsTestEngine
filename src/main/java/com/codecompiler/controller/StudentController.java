@@ -26,71 +26,112 @@ import com.codecompiler.service.StudentService;
 public class StudentController {
 	@Autowired
 	private StudentService studentService;
-
+	Student s=null;
 	@Autowired
 	private JavaMailSender jvms;
 
-	// @RequestMapping("/student/upload")
+	
 	@RequestMapping(value = "/student/upload", headers = "content-type=multipart/*", method = RequestMethod.POST)
 	public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
 		if (Helper.checkExcelFormat(file)) {
-			// true
+			//true
 			try {
 				this.studentService.save(file);
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				e.printStackTrace();
 			}
 			return ResponseEntity.ok(Map.of("message", "File is uploaded and data is saved to db"));
 
+
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please upload excel file ");
 	}
-
 	@RequestMapping("/fileUploaded")
 	public String upload(Model model) {
+		List<Student> s=  studentService.getAllStudents();
+		model.addAttribute("students", studentService.getAllStudents());
 		return "uploadParticipatorAndEmail";
 	}
-
 	@RequestMapping("/student")
-	public List<Student> getAllStudents() {
-		return this.studentService.getAllStudents();
+	public  ResponseEntity<?> getAllStudents() {
+		return ResponseEntity.ok("valueSet");
+		
 	}
-
-	@RequestMapping("/login")
+	@RequestMapping("/getAllstudent")
+	public  String getAllStudents(Model model) {
+		List<Student> s=  studentService.getAllStudents();
+		model.addAttribute("students", studentService.getAllStudents());
+		return "uploadParticipatorAndEmail";
+		}
+	@RequestMapping("/dologin")
 	public ResponseEntity<?> doLogin(@RequestHeader String email, @RequestHeader String password) {
 
-		Student s = studentService.findByEmailAndPassword(email, password);
-		if (s == null) {
+	s= studentService.findByEmailAndPassword(email, password) ;
+		if(s==null)
+		{
 			System.out.println("email and password does not match");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("email and password does not match");
-		} else {
-			return ResponseEntity.ok(Map.of("message", s));
+		}
+		else {
+			return ResponseEntity.ok(s);
 		}
 
 	}
-
+	@RequestMapping("loginpage")
+	public String doLogin(Model model)
+	{
+		model.addAttribute("students", s);
+		return "startContest";
+		
+	}
 	@RequestMapping("/sendMail")
-	public ResponseEntity<Object> sendMail(@RequestBody Student student) {
+	public ResponseEntity<Object> sendMail(@RequestBody Student student)
+	{
 		try {
-			SimpleMailMessage sms = new SimpleMailMessage();
+			SimpleMailMessage sms= new SimpleMailMessage();
 			sms.setFrom("patilritika1995@gmail.com");
 			sms.setTo(student.getEmail());
 			sms.setSubject("application");
 			sms.setText("hello dear");
 			jvms.send(sms);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
-		return generateResponse("mail sent to" + student.getEmail(), HttpStatus.OK, student);
+		return generateResponse("mail sent to"+student.getEmail(), HttpStatus.OK, student);
 
 	}
-
-	public ResponseEntity<Object> generateResponse(String msg, HttpStatus st, Object response) {
-		Map<String, Object> mp = new HashedMap();
+	public ResponseEntity<Object> generateResponse(String msg,HttpStatus st,Object response)
+	{
+		Map<String, Object> mp= new HashedMap();
 		mp.put("message", msg);
 		mp.put("status", st);
 		mp.put("data", response);
-		return new ResponseEntity<Object>(mp, st);
+		return new ResponseEntity<Object>(mp,st);
 	}
+	
+	
+	@RequestMapping("/studentRegistration") 
+	private String addStudentDetails(@RequestBody Student student,Model model) {
+		try {
+		
+		Student std = new Student();
+		
+		std.setEmail(student.getEmail());
+		std.setName(student.getName());
+		std.setMobileNumber(student.getMobileNumber());
+		 std = studentService.saveStudentDetails(std);	
+		System.out.println("con : "+std);
+		}
+		catch (Exception e) {
+		e.printStackTrace();
+		}
+		return "";
+		
+	}
+
+	
+	
 
 }

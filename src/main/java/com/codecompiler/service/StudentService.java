@@ -18,7 +18,9 @@ public class StudentService {
 	    @Autowired
 	    private StudentRepository studentRepository;
 	 
-	  public void save(MultipartFile file) {
+
+
+	    public void save(MultipartFile file) {
 
 	        try {
 	            List<Student> students = Helper.convertExcelToListOfStudent(file.getInputStream());
@@ -30,16 +32,20 @@ public class StudentService {
 	    }
 
 	    public List<Student> getAllStudents() {
-	        return this.studentRepository.findAll();
+	    	List<Student> studentList =studentRepository.findAll();
+	        return studentList;
 	    }
-	    		    
 	    public Student findByEmailAndPassword(String email, String password)
 	    {
 	    Student s=	studentRepository.findByEmailAndPassword(email, password);
 			return s;
 	    	
 	    }
-
+		public Student saveStudentDetails(Student std) {
+			Student con = studentRepository.save(std);
+			return con;
+		}
+	    
 	public Student updateStudentDetails(int studentId, String contestId, List<String> questionIds, ArrayList<String> testCasesSuccess, String complilationMessage) {
 		TestCasesRecord testCasesRecord = new TestCasesRecord();
 		testCasesRecord.setQuestionId(questionIds);

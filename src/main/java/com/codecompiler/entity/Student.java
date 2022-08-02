@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EntityScan
 public class Student {
 	@Id
-	int id;
+	String id;
 	String name;
 	String email;
 	int mobileNumber;
@@ -40,12 +40,11 @@ public class Student {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
