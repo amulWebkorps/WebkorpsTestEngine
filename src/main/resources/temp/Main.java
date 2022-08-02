@@ -19,14 +19,12 @@ public class Main{
         for (int j = i - 1; j >= 0; j--)
             System.out.print(binaryNum[j]);
     }
-      
   public static void main(String args[]){
-    int n = Integer.parseInt(args[0]);
+    
+ int n = Integer.parseInt(args[0]);
           System.out.println("Decimal - " + n);
         System.out.print("Binary - ");
-          decToBinary(n);
-  
-   
+          decToBinary(n);   
     
   }
 }

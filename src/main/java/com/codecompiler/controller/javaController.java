@@ -48,7 +48,7 @@ public class javaController {
 		String questionId = (String) data.get("questionId");
 		String flag = (String) data.get("flag");
 		if (language.equalsIgnoreCase("java")) {
-			String fileNameInLocal = studentId + "JavaMain";
+			String fileNameInLocal = "Main.java";
 			FileWriter fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
 			PrintWriter pr = new PrintWriter(fl);
 			pr.write((String) data.get("code"));
@@ -65,7 +65,7 @@ public class javaController {
 					responsef.setTestCasesSuccess(testCasesSuccess);
 					return ResponseEntity.ok(responsef);
 				}
-				binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
+				binaryDataController.saveFile(studentId, fileNameInLocal);
 				List<TestCases> testCases = commonService.getTestCase(questionId);
 				for (TestCases testCase : testCases) {
 					String input = testCase.getInput();
@@ -107,7 +107,7 @@ public class javaController {
 					responsef.setTestCasesSuccess(testCasesSuccess);
 					return ResponseEntity.ok(responsef);
 				}
-				binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
+				//binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
 				List<TestCases> testCases = commonService.getTestCase(questionId);
 				for (TestCases testCase : testCases) {
 					String input = testCase.getInput();
@@ -149,7 +149,7 @@ public class javaController {
 					responsef.setTestCasesSuccess(testCasesSuccess);
 					return ResponseEntity.ok(responsef);
 				}
-				binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
+				//binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
 				List<TestCases> testCases = commonService.getTestCase(questionId);
 				for (TestCases testCase : testCases) {
 					String input = testCase.getInput();
@@ -191,7 +191,7 @@ public class javaController {
 					responsef.setTestCasesSuccess(testCasesSuccess);
 					return ResponseEntity.ok(responsef);
 				}
-				binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
+				//binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
 				List<TestCases> testCases = commonService.getTestCase(questionId);
 				for (TestCases testCase : testCases) {
 					String input = testCase.getInput();
