@@ -76,7 +76,7 @@ public class javaController {
 				String output = "";
 				while ((line = in.readLine()) != null) {
 					output += line + "\n";					
-				}
+				}				
 				output = output.substring(0, output.length() - 1);
 				if (output.contains(testCase.getOutput()) || output.equals(testCase.getOutput())) {
 					testCasesSuccess.add("Pass");

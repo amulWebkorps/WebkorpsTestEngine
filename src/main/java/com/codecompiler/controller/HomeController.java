@@ -62,12 +62,12 @@ public class HomeController {
 	
 	@RequestMapping("/viewparticipators") 
 	private String viewParticipators(Model model) {
-		Contest contest = contestService.findByContestId(contestId);
-		List<Student> student = new ArrayList<>();
-		student = studentService.getAllStudents();
-		System.out.println("student size:"+student.size());		
+		//Contest contest = contestService.findByContestId(contestId);		
+		List<Student> studentTemp = new ArrayList<>();		
+		studentTemp = studentService.findByContestId(contestId);
+		System.out.println("student size:"+studentTemp.size());		
 		model.addAttribute("contestId", contestId);
-		model.addAttribute("student", student);
+		model.addAttribute("student", studentTemp);
 	    return "participators";
 	}
 	
@@ -407,7 +407,12 @@ public class HomeController {
 	}
 
 	@RequestMapping("studentsubmitedcontest")
-    public ModelAndView studentSubmitedContest(Model model) {
+    public ModelAndView studentSubmitedContest(@RequestBody Student student, Model model) {
+		
+		
+		
+		
+		
 	System.out.println("contestId....."+contestId);
 	Contest contest =  contestService.findByContestId(contestId);
 	ArrayList <QuestionStatus> qStatusList = new ArrayList<>();
@@ -417,8 +422,7 @@ public class HomeController {
 		if(questionStatus.getStatus()) {
 			qListStatusTrue.add(questionStatus.getQuestionId());
 		}
-	}
-	
+	}	
 	List<Question> contestQuestions = commonService.getAllQuestion(qListStatusTrue);
 	ModelAndView  mv = new ModelAndView("IDECompiler","contestQuestions",contestQuestions.get(1));
 	return mv;		
