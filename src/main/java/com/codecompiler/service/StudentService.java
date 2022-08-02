@@ -46,7 +46,8 @@ public class StudentService {
 			return con;
 		}
 	    
-	public Student updateStudentDetails(int studentId, String contestId, List<String> questionIds, ArrayList<String> testCasesSuccess, String complilationMessage) {
+	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds, ArrayList<String> testCasesSuccess, String complilationMessage) {
+		
 		TestCasesRecord testCasesRecord = new TestCasesRecord();
 		testCasesRecord.setQuestionId(questionIds);
 		testCasesRecord.setComplilationMessage(complilationMessage);
@@ -63,7 +64,7 @@ public class StudentService {
 		return s;
 	}
 	
-	public Student findById(int studentId){
+	public Student findById(String studentId){
 		Student students = studentRepository.findById(studentId);
 		return students;
 	}

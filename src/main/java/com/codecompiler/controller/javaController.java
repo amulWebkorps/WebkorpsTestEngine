@@ -218,7 +218,7 @@ public class javaController {
 		if (flag.equalsIgnoreCase("submit")) {
 			List<String> questionIds = new ArrayList<>();
 			questionIds.add(questionId);
-			studentService.updateStudentDetails(Integer.parseInt(studentId), (String) data.get("contestId"),
+			studentService.updateStudentDetails(studentId, (String) data.get("contestId"),
 					questionIds, testCasesSuccess, complilationMessage);
 		}
 		responsef.setTestCasesSuccess(testCasesSuccess);
