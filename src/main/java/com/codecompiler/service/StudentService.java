@@ -64,9 +64,8 @@ public class StudentService {
 		return s;
 	}
 	
-	public Student findById(String studentId){
-		Student students = studentRepository.findById(studentId);
-		return students;
+	public Student findById(String studentId){		
+		return studentRepository.findById(studentId);
 	}
 	
 	public ArrayList<Student> findByContestId(String contestId){

@@ -1593,12 +1593,18 @@ accordion-header {
    height: 100%;
    white-space: pre-line;
 }
-}
+
 
 .added_questions_all_question{
 	    overflow-y: scroll !important;
     height: 382px  !important;
     width: 1063px  !important;
+}
+
+.added_questions_all_question2{
+	    overflow-y: scroll !important;
+    height: 383px !important ;
+    width: 1062px !important;
 }
 
 .success {

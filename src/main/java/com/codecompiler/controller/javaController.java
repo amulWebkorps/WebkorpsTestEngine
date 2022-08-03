@@ -65,7 +65,7 @@ public class javaController {
 					responsef.setTestCasesSuccess(testCasesSuccess);
 					return ResponseEntity.ok(responsef);
 				}
-				binaryDataController.saveFile(studentId, fileNameInLocal);
+				binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
 				List<TestCases> testCases = commonService.getTestCase(questionId);
 				for (TestCases testCase : testCases) {
 					String input = testCase.getInput();

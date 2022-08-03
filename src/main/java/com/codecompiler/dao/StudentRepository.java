@@ -9,6 +9,7 @@ import com.codecompiler.entity.Student;
 public interface StudentRepository extends  MongoRepository<Student,Integer> {
 Student findByEmailAndPassword(String email,String password); 
 Student findByEmail(String email);
-Student findById(String studentId);
+public Student findById(String studentId);
+
 ArrayList<Student> findByContestId(String contestId);
 }

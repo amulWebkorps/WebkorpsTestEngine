@@ -21,11 +21,12 @@ public class BinaryDataController {
 
 	String fileId = "";
 
-	public String saveFile(String fileNameInDB, String fileName) throws FileNotFoundException { // define metadata
+	public String saveFile(String studentId, String fileName, String questionId) throws FileNotFoundException { // define metadata
 		DBObject metaData = new BasicDBObject();																			// DBObject
 		metaData = new BasicDBObject();
 		metaData.put("organization", "Java Techie");
 		metaData.put("type", "data");
+		String fileNameInDB = questionId+"_"+studentId;
 		fileId = gridFsOperations.store(new FileInputStream("src/main/resources/temp/" + fileName),
 				fileNameInDB + ".txt", "text/plain", metaData).get().toString();
 		System.out.println("File id stored : " + fileId);

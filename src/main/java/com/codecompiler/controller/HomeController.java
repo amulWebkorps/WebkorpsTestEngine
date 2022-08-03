@@ -2,8 +2,9 @@ package com.codecompiler.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -449,13 +450,17 @@ public class HomeController {
 
 	Student stdTemp=null;
 	List<Question> contestQuestionsTemp2=null;
+	int qIndex = 0;
+	
 	
 	@RequestMapping("studentsubmitedcontest")
     public ResponseEntity<String> studentSubmitedContest(@RequestBody Student student, Model model) {
 		System.out.println("student.getId() result : "+student.getId());
-        stdTemp = studentService.findById(student.getId());
+        stdTemp = studentService.findById(student.getId());       
 		List<String> s = stdTemp.getQuestionId();
 		contestQuestionsTemp2 = commonService.getAllQuestion(s);
+		System.out.println(" 1 ====================> "+s.size()+"           "+contestQuestionsTemp2.size());
+		System.out.println(" 2 ====================> "+contestQuestionsTemp2.size()+"           "+stdTemp.getTestCasesRecord().size());		
 		return ResponseEntity.ok("done");	
    }
 	
@@ -465,14 +470,74 @@ public class HomeController {
 		System.out.println("stdTemp"+stdTemp);
 		System.out.println("contestQuestionsTemp2 => "+contestQuestionsTemp2);
 		System.out.println("testCasesRecord => "+testCasesRecord);
+		
 		TestCasesRecord testCR = testCasesRecord.get(0);
 	    model.addAttribute("contestId", stdTemp.getContestId());
 		model.addAttribute("studentId", stdTemp.getId());
 		model.addAttribute("contestQuestions", contestQuestionsTemp2.get(0));
+		model.addAttribute("index", "0");
+		model.addAttribute("sname", stdTemp.getName());
+		model.addAttribute("semail", stdTemp.getEmail());
 		model.addAttribute("result", testCR.getTestCasesSuccess());
+		qIndex = 0;
 		return "resultIDECompiler";		
    }
 	
+	@RequestMapping("setnextquestionsubmittedbystudent")
+    public ResponseEntity<Map<String, String>> setnextQuestionSubmittedByStudent(Model model) {
+		 Map<String, String> hm = new HashMap<String, String>();
+		if(contestQuestionsTemp2.size() > qIndex && qIndex != contestQuestionsTemp2.size()-1 ) {
+			qIndex++;	
+		
+		List<TestCasesRecord> testCasesRecord = stdTemp.getTestCasesRecord();
+		System.out.println("stdTemp"+stdTemp);
+		System.out.println("contestQuestionsTemp2 => "+contestQuestionsTemp2);
+		System.out.println("testCasesRecord => "+testCasesRecord);
+		
+		TestCasesRecord testCR = testCasesRecord.get(qIndex);
+		System.out.println("qIndex : "+qIndex);
+		
+		hm.put("contestId", stdTemp.getContestId());
+		hm.put("studentId", stdTemp.getId());
+		hm.put("contestQuestions", contestQuestionsTemp2.get(qIndex).getQuestion());
+		hm.put("constraint", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getConstraints());
+		hm.put("sampleInput", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getInput());
+		hm.put("sampleOutput", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getOutput());
+		hm.put("index", Integer.toString(qIndex));
+		hm.put("result", testCR.getTestCasesSuccess().toString());
+		hm.put("sname", stdTemp.getName());
+		hm.put("semail", stdTemp.getEmail());		
+		}
+		return ResponseEntity.ok(hm);		
+   }
+	
+	@RequestMapping("setprevquestionsubmittedbystudent")
+    public ResponseEntity<Map<String, String>> setPrevQuestionSubmittedByStudent(Model model) {
+		 Map<String, String> hm = new HashMap<String, String>();
+		 if(qIndex > 0) {
+			qIndex--;	
+		
+		List<TestCasesRecord> testCasesRecord = stdTemp.getTestCasesRecord();
+		System.out.println("stdTemp"+stdTemp);
+		System.out.println("contestQuestionsTemp2 => "+contestQuestionsTemp2);
+		System.out.println("testCasesRecord => "+testCasesRecord);
+		
+		TestCasesRecord testCR = testCasesRecord.get(qIndex);
+		System.out.println("qIndex : "+qIndex);
+		
+		hm.put("contestId", stdTemp.getContestId());
+		hm.put("studentId", stdTemp.getId());
+		hm.put("contestQuestions", contestQuestionsTemp2.get(qIndex).getQuestion());
+		hm.put("constraint", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getConstraints());
+		hm.put("sampleInput", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getInput());
+		hm.put("sampleOutput", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getOutput());
+		hm.put("index", Integer.toString(qIndex));
+		hm.put("result", testCR.getTestCasesSuccess().toString());
+		hm.put("sname", stdTemp.getName());
+		hm.put("semail", stdTemp.getEmail());		
+		}
+		return ResponseEntity.ok(hm);		
+   }
 	
 
 	@RequestMapping("/savestd")	
