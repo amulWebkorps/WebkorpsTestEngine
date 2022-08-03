@@ -63,7 +63,7 @@ public class HrController {
 	public String doLogin(Model model)
 	{
 		model.addAttribute("HrDetails", con1);
-		return "startContest";
+		return "adminHome";
 		
 	}
 	

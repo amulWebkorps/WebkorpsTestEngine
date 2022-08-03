@@ -69,24 +69,21 @@ public class Helper {
 
 					switch (cid) {
 					case 0:
-						p.setId(UUID.randomUUID().toString());
+						if(cell.getCellType() == CellType.STRING)
+							p.setName(cell.getStringCellValue());
 						break;
 					case 1:
 						if(cell.getCellType() == CellType.STRING)
-						p.setName(cell.getStringCellValue());
+							p.setEmail(cell.getStringCellValue());
 						break;
 					case 2:
-						if(cell.getCellType() == CellType.STRING)
-						p.setEmail(cell.getStringCellValue());
-						break;
-					case 3:
 						if(cell.getCellType() == CellType.NUMERIC)
-						p.setMobileNumber((int)cell.getNumericCellValue());
+							p.setMobileNumber((int)cell.getNumericCellValue());
 						break;
 
-					case 4:
+					case 3:
 						if(cell.getCellType() == CellType.STRING)
-						p.setContestLevel(cell.getStringCellValue());
+							p.setContestLevel(cell.getStringCellValue());
 						break;
 					default:
 						break;
@@ -94,6 +91,7 @@ public class Helper {
 					cid++;
 
 				}
+				p.setId(UUID.randomUUID().toString());
 				String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijk"
 						+"lmnopqrstuvwxyz!@#$%&";
 				Random rnd = new Random();
@@ -139,80 +137,80 @@ public class Helper {
 
 				Question p = new Question();
 				SampleTestCase  s=new SampleTestCase();
-				
+
 				List<SampleTestCase> sampleTestCase = new ArrayList();
 				List<TestCases> testCases = new ArrayList();
 				TestCases t=new TestCases();
 				String tempQid = UUID.randomUUID().toString();
-				
-		     
+
+
 				while (cells.hasNext()) {
 					Cell cell = cells.next();
-					
+
 					switch (cid) {
+
+
 					case 0:
-						p.setQuestionId(tempQid);
+						if(cell.getCellType() == CellType.STRING)
+							p.setQuestion(cell.getStringCellValue());
 						break;
 					case 1:
 						if(cell.getCellType() == CellType.STRING)
-						p.setQuestion(cell.getStringCellValue());
+							p.setContestLevel(cell.getStringCellValue());
 						break;
 					case 2:
 						if(cell.getCellType() == CellType.STRING)
-						p.setContestLevel(cell.getStringCellValue());
-						break;
-					case 3:
-						if(cell.getCellType() == CellType.STRING)
-						s.setInput(cell.getStringCellValue());
+							s.setInput(cell.getStringCellValue());
 						break;
 
+					case 3:
+						if(cell.getCellType() == CellType.STRING)
+							s.setOutput(cell.getStringCellValue());  
+						sampleTestCase.add(s);
+						break;
 					case 4:
 						if(cell.getCellType() == CellType.STRING)
-						s.setOutput(cell.getStringCellValue());  
-						sampleTestCase.add(s);
+							t.setInput(cell.getStringCellValue());
 						break;
 					case 5:
 						if(cell.getCellType() == CellType.STRING)
-						t.setInput(cell.getStringCellValue());
+							t.setOutput(cell.getStringCellValue());
+						testCases.add(t);
+						t=new TestCases();
 						break;
 					case 6:
 						if(cell.getCellType() == CellType.STRING)
-						t.setOutput(cell.getStringCellValue());
-						testCases.add(t);
-						t=new TestCases();
-						break;
-					case 7:
-						if(cell.getCellType() == CellType.STRING)
-						t.setInput(cell.getStringCellValue());
+							t.setInput(cell.getStringCellValue());
 						break;
 
-					case 8:
+					case 7:
 						if(cell.getCellType() == CellType.STRING)
-						t.setOutput(cell.getStringCellValue());
+							t.setOutput(cell.getStringCellValue());
 						testCases.add(t);
 						t=new TestCases();
 						break;	
-					case 9:
+					case 8:
 						if(cell.getCellType() == CellType.STRING)
-						t.setInput(cell.getStringCellValue());
+							t.setInput(cell.getStringCellValue());
 						break;
 
-					case 10:
+					case 9:
 						if(cell.getCellType() == CellType.STRING)
-						t.setOutput(cell.getStringCellValue());
+							t.setOutput(cell.getStringCellValue());
 						testCases.add(t);
 						break;	
 					default:
 						break;
 					}
 					cid++;
+					p.setQuestionId(UUID.randomUUID().toString());
+
 					p.setTestcases(testCases);
-				
+
 					p.setSampleTestCase(sampleTestCase);
-					
+
 				}
 				list.add(p);
-
 
 			}
 
