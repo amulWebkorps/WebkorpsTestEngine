@@ -35,6 +35,14 @@ function submitCode(questionId) {
 					}
 
 				}
+				if (response.successMessage !== "") {
+					setTimeout(
+						function() {
+							alert("My Pop Up");
+						}
+						, 10000 /// milliseconds = 10 seconds
+					);
+				}
 			}
 		},
 		error: function(error) {
@@ -168,5 +176,5 @@ function runCode(questionId) {
 }
 
 function nextQuestion(value) {
-	
+
 }

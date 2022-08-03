@@ -1347,10 +1347,14 @@ accordion-header {
 }
 
 /* admin home css */
+
+
 .delete-btn {
-  position: absolute;
-  right: 0;
-}
+    position: absolute;
+    right: 14px !important;
+    z-index: 1 !important;
+    }
+    
 
 .modal_div_color {
   width: 10px !important;

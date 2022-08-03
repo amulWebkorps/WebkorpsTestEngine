@@ -10,7 +10,7 @@ public class HrDetails {
 	@Id
 	String hId;
 	String hName;
-	int hNumber;
+	String hNumber;
 	String email;
 	String password;
 
@@ -32,10 +32,10 @@ public class HrDetails {
 	public void sethName(String hName) {
 		this.hName = hName;
 	}
-	public int gethNumber() {
+	public String gethNumber() {
 		return hNumber;
 	}
-	public void sethNumber(int hNumber) {
+	public void sethNumber(String hNumber) {
 		this.hNumber = hNumber;
 	}
 	public String getEmail() {

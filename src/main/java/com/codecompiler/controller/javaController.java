@@ -220,6 +220,7 @@ public class javaController {
 			questionIds.add(questionId);
 			studentService.updateStudentDetails(studentId, (String) data.get("contestId"),
 					questionIds, testCasesSuccess, complilationMessage);
+			responsef.setSuccessMessage("Code SUbmitted Successfully");
 		}
 		responsef.setTestCasesSuccess(testCasesSuccess);
 		return ResponseEntity.ok(responsef);
