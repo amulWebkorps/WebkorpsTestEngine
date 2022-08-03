@@ -1,5 +1,6 @@
 package com.codecompiler.controller;
 
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.codecompiler.entity.HrDetails;
 import com.codecompiler.service.HrService;
@@ -39,8 +41,8 @@ public class HrController {
 		model.addAttribute("hrdetails", con1);	
 		return "HrLogin.html";
 	}
-	@RequestMapping("/loginbyhr")
-	public ResponseEntity<?> doLogin(@RequestHeader String email, @RequestHeader String password) {
+	@RequestMapping("loginbyhr")
+	public ResponseEntity<?> doLogin(@RequestParam("email") String email, @RequestParam("password") String password) {
 		con1= hrService.findByEmailAndPassword(email, password) ;
 		if(con1==null)
 		{
@@ -51,7 +53,7 @@ public class HrController {
 			return ResponseEntity.ok(con1);
 		}
 	}
-	@RequestMapping("/hrloginpage")
+	@RequestMapping("hrloginpage")
 	public String doLogin(Model model)
 	{
 		model.addAttribute("HrDetails", con1);

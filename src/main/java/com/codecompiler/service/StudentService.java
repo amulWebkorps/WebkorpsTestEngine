@@ -47,13 +47,15 @@ public class StudentService {
 		}
 	    
 	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds, ArrayList<String> testCasesSuccess, String complilationMessage) {
-		
 		TestCasesRecord testCasesRecord = new TestCasesRecord();
 		testCasesRecord.setQuestionId(questionIds);
 		testCasesRecord.setComplilationMessage(complilationMessage);
 		testCasesRecord.setTestCasesSuccess(testCasesSuccess);
 		Student existingRecord = studentRepository.findById(studentId);
 		existingRecord.setContestId(contestId);
+		if (existingRecord.getQuestionId() != null) {
+			existingRecord.getQuestionId().addAll(existingRecord.getQuestionId());
+		}
 		existingRecord.setQuestionId(questionIds);
 		existingRecord.getTestCasesRecord().add(testCasesRecord);
 		return studentRepository.save(existingRecord);
