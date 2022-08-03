@@ -26,11 +26,11 @@ import com.codecompiler.service.StudentService;
 public class StudentController {
 	@Autowired
 	private StudentService studentService;
-	Student s=null;
+	Student std=null;
 	@Autowired
 	private JavaMailSender jvms;
 
-	
+
 	@RequestMapping(value = "/student/upload", headers = "content-type=multipart/*", method = RequestMethod.POST)
 	public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
 		if (Helper.checkExcelFormat(file)) {
@@ -49,41 +49,35 @@ public class StudentController {
 	}
 	@RequestMapping("/fileUploaded")
 	public String upload(Model model) {
-		List<Student> s=  studentService.getAllStudents();
-		model.addAttribute("students", studentService.getAllStudents());
+		model.addAttribute("students",studentService.getAllStudents());
 		return "uploadParticipatorAndEmail";
-	}
-	@RequestMapping("/student")
-	public  ResponseEntity<?> getAllStudents() {
-		return ResponseEntity.ok("valueSet");
-		
 	}
 	@RequestMapping("/getAllstudent")
 	public  String getAllStudents(Model model) {
-		List<Student> s=  studentService.getAllStudents();
+
 		model.addAttribute("students", studentService.getAllStudents());
 		return "uploadParticipatorAndEmail";
-		}
+	}
 	@RequestMapping("/dologin")
 	public ResponseEntity<?> doLogin(@RequestHeader String email, @RequestHeader String password) {
 
-	s= studentService.findByEmailAndPassword(email, password) ;
-		if(s==null)
+		std= studentService.findByEmailAndPassword(email, password) ;
+		if(std==null)
 		{
 			System.out.println("email and password does not match");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("email and password does not match");
 		}
 		else {
-			return ResponseEntity.ok(s);
+			return ResponseEntity.ok(std);
 		}
 
 	}
 	@RequestMapping("loginpage")
 	public String doLogin(Model model)
 	{
-		model.addAttribute("students", s);
+		model.addAttribute("students", std);
 		return "startContest";
-		
+
 	}
 	@RequestMapping("/sendMail")
 	public ResponseEntity<Object> sendMail(@RequestBody Student student)
@@ -110,28 +104,5 @@ public class StudentController {
 		mp.put("data", response);
 		return new ResponseEntity<Object>(mp,st);
 	}
-	
-	
-	@RequestMapping("/studentRegistration") 
-	private String addStudentDetails(@RequestBody Student student,Model model) {
-		try {
-		
-		Student std = new Student();
-		
-		std.setEmail(student.getEmail());
-		std.setName(student.getName());
-		std.setMobileNumber(student.getMobileNumber());
-		 std = studentService.saveStudentDetails(std);	
-		System.out.println("con : "+std);
-		}
-		catch (Exception e) {
-		e.printStackTrace();
-		}
-		return "";
-		
-	}
-
-	
-	
 
 }

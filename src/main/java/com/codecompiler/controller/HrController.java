@@ -20,35 +20,28 @@ public class HrController {
 	HrDetails con1= null;
 	@RequestMapping("/hrregistration") 
 	private ResponseEntity<?> addHrDetails(@RequestBody HrDetails hrDetails) {
-		try {
-		
-		
-		HrDetails hr = new HrDetails();
-		hr.sethId(UUID.randomUUID().toString());
-		hr.setEmail(hrDetails.getEmail());
-		hr.sethName(hrDetails.gethName());
-		hr.sethNumber(hrDetails.gethNumber());
-		hr.setPassword(hrDetails.getPassword());
-		 con1 = hrService.saveHrDetails(hr);
+		try {		
+			HrDetails hr = new HrDetails();
+			hr.sethId(UUID.randomUUID().toString());
+			hr.setEmail(hrDetails.getEmail());
+			hr.sethName(hrDetails.gethName());
+			hr.sethNumber(hrDetails.gethNumber());
+			hr.setPassword(hrDetails.getPassword());
+			con1 = hrService.saveHrDetails(hr);
 		}
 		catch (Exception e) {
-		e.printStackTrace();
+			e.printStackTrace();
 		}
 		return ResponseEntity.ok(con1);
-		
 	}
 	@RequestMapping("/hrregistrationpage") 
-	private String addHrDetails(Model model) {
-		
-		model.addAttribute("hrdetails", con1);
-		
+	private String addHrDetails(Model model) {	
+		model.addAttribute("hrdetails", con1);	
 		return "HrLogin.html";
-		
 	}
 	@RequestMapping("/loginbyhr")
 	public ResponseEntity<?> doLogin(@RequestHeader String email, @RequestHeader String password) {
-
-	 con1= hrService.findByEmailAndPassword(email, password) ;
+		con1= hrService.findByEmailAndPassword(email, password) ;
 		if(con1==null)
 		{
 			System.out.println("email and password does not match");
@@ -57,15 +50,13 @@ public class HrController {
 		else {
 			return ResponseEntity.ok(con1);
 		}
-
 	}
 	@RequestMapping("/hrloginpage")
 	public String doLogin(Model model)
 	{
 		model.addAttribute("HrDetails", con1);
 		return "adminHome";
-		
 	}
-	
-	
+
+
 }
