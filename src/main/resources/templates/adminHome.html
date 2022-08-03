@@ -54,16 +54,15 @@
 								</div>
 								<div class="multiplecontest row row-cols-1 row-cols-md-4 mx-5 mt-5 row_cards">
 									<div class="click col mb-4" th:each="q:${contest}" >
-										<div class="click2" data-id="title_1" th:id="${q.contestId}" onclick="getContestIdForQuestionPage(this.id)">
-											<input type="hidden" th:id="${q.contestId}" class="contestid"
-												th:value="${q.contestId}"></input>
-											<div class="card card_size ">
-
-												<div class="delete-btn " th:id="${q.contestId}" onclick="deletefunction_2(id)" >
+									<div class="delete-btn " th:id="${q.contestId}" onclick="deletefunction_2(id)" >
 													<i class="deleteContest fa-solid fa-circle-xmark fa-2x "
 														style="color: rgb(64, 60, 60)" data-bs-toggle="modal" data-bs-target="#staticBackdrop" id="contesttodelete"
 														th:value="${q.contestId}" ></i>
 												</div>
+										<div class="click2" data-id="title_1" th:id="${q.contestId}" onclick="getContestIdForQuestionPage(this.id)">
+											<input type="hidden" th:id="${q.contestId}" class="contestid"
+												th:value="${q.contestId}"></input>
+											<div class="card card_size ">												
 												<img src="images/webkorpslogo.svg"
 													class="card-img-top card_size1 mt-1" height="148px" alt="..."
 													 />

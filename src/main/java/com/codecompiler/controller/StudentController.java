@@ -59,7 +59,7 @@ public class StudentController {
 		return "uploadParticipatorAndEmail";
 	}
 	@RequestMapping("/dologin")
-	public ResponseEntity<?> doLogin(@RequestHeader String email, @RequestHeader String password) {
+	public ResponseEntity<?> doLogin(@RequestParam("email") String email, @RequestParam("password") String password) {
 
 		std= studentService.findByEmailAndPassword(email, password) ;
 		if(std==null)
@@ -70,7 +70,6 @@ public class StudentController {
 		else {
 			return ResponseEntity.ok(std);
 		}
-
 	}
 	@RequestMapping("loginpage")
 	public String doLogin(Model model)
