@@ -98,13 +98,13 @@
 									</div>
 								</div>
 								<div class="d-flex justify-content-between">
-									<form action="/startContestPage" method="post">
+									<form action="/showNextAndPrevQues" method="post">
 										<div class=" mt-3 ">
 										<input type="hidden" id="nextValue" name="nextValue"
 												th:value="${nextQuestion}">
 											<input type="hidden" id="contestId" name="contestId"
-												value="62dfbce03466390d2f4e9ddc">
-											<input type="hidden" id="studentId" name="studentId" value="10">
+												th:value="${contestId}">
+											<input type="hidden" id="studentId" name="studentId" th:value="${studentId}">
 											<input type="hidden" id="previous" name="previous" th:value="${previous}">
 											<button type="submit"
 												class="compiler_screen_test btn btn-outline-primary text-light fw-bold">
@@ -113,13 +113,13 @@
 										</div>
 
 									</form>
-									<form action="/startContestPage" method="post">
+									<form action="/showNextAndPrevQues" method="post">
 										<div class="mt-3">
 											<input type="hidden" id="nextValue" name="nextValue"
 												th:value="${nextQuestion}">
 											<input type="hidden" id="contestId" name="contestId"
-												value="62dfbce03466390d2f4e9ddc">
-											<input type="hidden" id="studentId" name="studentId" value="10">
+												th:value="${contestId}">
+											<input type="hidden" id="studentId" name="studentId" th:value="${studentId}">
 											<input type="hidden" id="next" name="next" th:value="${next}">
 											<button
 												class="compiler_screen_test btn btn-outline-primary text-light fw-bold next_button_compiler">

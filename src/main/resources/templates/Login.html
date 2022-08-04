@@ -61,8 +61,9 @@
 		function candidatelogin() {
 			var email = $("#exampleInputEmail").val();
 			var password = $("#exampleInputPassword").val();
-			$.get('/dologin', {email: email, password: password}, function (data) {
-				window.location.href = "loginpage";
+			var contestId = "62ebd83ce8ea163ed17928e8";
+			$.get('/dologin?contestId=' + contestId, {email: email, password: password}, function (data) {
+				window.location.href = "loginpage?id=" + data.id + "&contestId=" + data.contestId;;
 			});
 		}
 	</script
