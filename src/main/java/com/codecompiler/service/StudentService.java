@@ -15,38 +15,37 @@ import com.codecompiler.helper.Helper;
 
 @Service
 public class StudentService {
-	    @Autowired
-	    private StudentRepository studentRepository;
-	 
+	@Autowired
+	private StudentRepository studentRepository;
 
+	public void save(MultipartFile file) {
 
-	    public void save(MultipartFile file) {
-
-	        try {
-	            List<Student> students = Helper.convertExcelToListOfStudent(file.getInputStream());
-	            this.studentRepository.saveAll(students);
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-
-	    }
-
-	    public List<Student> getAllStudents() {
-	    	List<Student> studentList =studentRepository.findAll();
-	        return studentList;
-	    }
-	    public Student findByEmailAndPassword(String email, String password)
-	    {
-	    Student s=	studentRepository.findByEmailAndPassword(email, password);
-			return s;
-	    	
-	    }
-		public Student saveStudentDetails(Student std) {
-			Student con = studentRepository.save(std);
-			return con;
+		try {
+			List<Student> students = Helper.convertExcelToListOfStudent(file.getInputStream());
+			this.studentRepository.saveAll(students);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-	    
-	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds, ArrayList<String> testCasesSuccess, String complilationMessage) {
+
+	}
+
+	public List<Student> getAllStudents() {
+		List<Student> studentList = studentRepository.findAll();
+		return studentList;
+	}
+
+	public Student findByEmailAndPassword(String email, String password) {
+		return studentRepository.findByEmailAndPassword(email, password);
+
+	}
+
+	public Student saveStudentDetails(Student std) {
+		Student con = studentRepository.save(std);
+		return con;
+	}
+
+	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
+			ArrayList<String> testCasesSuccess, String complilationMessage) {
 		TestCasesRecord testCasesRecord = new TestCasesRecord();
 		testCasesRecord.setQuestionId(questionIds);
 		testCasesRecord.setComplilationMessage(complilationMessage);
@@ -60,18 +59,19 @@ public class StudentService {
 		existingRecord.getTestCasesRecord().add(testCasesRecord);
 		return studentRepository.save(existingRecord);
 	}
-	
+
 	public Student saveStudent(Student std) {
 		Student s = studentRepository.save(std);
 		return s;
 	}
-	
-	public Student findById(String studentId){		
+
+	public Student findById(String studentId) {
 		return studentRepository.findById(studentId);
 	}
-	
-	public ArrayList<Student> findByContestId(String contestId){
+
+	public ArrayList<Student> findByContestId(String contestId) {
 		ArrayList<Student> students = studentRepository.findByContestId(contestId);
 		return students;
 	}
+
 }

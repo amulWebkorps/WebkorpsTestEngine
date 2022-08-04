@@ -397,49 +397,24 @@ public class HomeController {
 
 	@PostMapping("startContestPage")
 	public ModelAndView contestPage(@RequestParam(value = "contestId", required = false) String contestId,
-			@RequestParam(value = "studentId", required = false) Integer studentId,
-			@RequestParam(value = "nextValue", required = false) Integer nextValue,
-			@RequestParam(value = "previous", required = false) boolean previous,
-			@RequestParam(value = "next", required = false) boolean next) {
+			@RequestParam(value = "studentId", required = false) String studentId) {
 		Contest contest = contestService.findByContestId(contestId);
 		ArrayList<QuestionStatus> qStatusList = new ArrayList<>();
 		qStatusList = contest.getQuestionStatus();
 		ArrayList<String> qListStatusTrue = new ArrayList<>();
-		ModelAndView mv = new ModelAndView();
-		if (nextValue == null) {
-			nextValue = 0;
-			next = true;
-		} else if (next) {
-			nextValue++;
-		} else {
-			nextValue--;
-			previous = false;
-			next = true;
-		}
+		ModelAndView mv = new ModelAndView();		
 		for (QuestionStatus questionStatus : qStatusList) {
 			if (questionStatus.getStatus()) {
 				qListStatusTrue.add(questionStatus.getQuestionId());
 			}
 		}
 		List<Question> contestQuestions = commonService.getAllQuestion(qListStatusTrue);
-		if ((contestQuestions.size()-1) >= nextValue && !nextValue.equals(-1)) {
-			mv = new ModelAndView("IDECompiler", "contestQuestions", contestQuestions.get(nextValue));
+			mv = new ModelAndView("IDECompiler", "contestQuestions", contestQuestions.get(0));
 			mv.addObject("contestId", contestId);
 			mv.addObject("studentId", studentId);
-			mv.addObject("nextQuestion", nextValue);
-			mv.addObject("previous", previous);
-			mv.addObject("next", next);
-		} else {
-			if(nextValue.equals(-1))
-				nextValue = nextValue+2;
-			mv = new ModelAndView("IDECompiler", "contestQuestions", contestQuestions.get(nextValue-1));
-			mv.addObject("errorMessage", "No Question on next");
-			mv.addObject("contestId", contestId);
-			mv.addObject("studentId", studentId);
-			mv.addObject("nextQuestion", nextValue);
-			mv.addObject("previous", previous);
-			mv.addObject("next", next);
-		}	
+			mv.addObject("nextQuestion", 0);
+			mv.addObject("previous", false);
+			mv.addObject("next", true);					
 		return mv;
 	}
 
@@ -541,4 +516,51 @@ public class HomeController {
 		return ResponseEntity.ok("Done");	
 	} 
 	
+	@PostMapping("showNextAndPrevQues")
+	public ModelAndView showNextAndPrevQues(@RequestParam(value = "contestId", required = false) String contestId,
+			@RequestParam(value = "studentId", required = false) String studentId,
+			@RequestParam(value = "nextValue", required = false) Integer nextValue,
+			@RequestParam(value = "previous", required = false) boolean previous,
+			@RequestParam(value = "next", required = false) boolean next) {
+		Contest contest = contestService.findByContestId(contestId);
+		ArrayList<QuestionStatus> qStatusList = new ArrayList<>();
+		qStatusList = contest.getQuestionStatus();
+		ArrayList<String> qListStatusTrue = new ArrayList<>();
+		ModelAndView mv = new ModelAndView();
+		if (nextValue == null) {
+			nextValue = 0;
+			next = true;
+		} else if (next) {
+			nextValue++;
+		} else {
+			nextValue--;
+			previous = false;
+			next = true;
+		}
+		for (QuestionStatus questionStatus : qStatusList) {
+			if (questionStatus.getStatus()) {
+				qListStatusTrue.add(questionStatus.getQuestionId());
+			}
+		}
+		List<Question> contestQuestions = commonService.getAllQuestion(qListStatusTrue);
+		if ((contestQuestions.size()) >= nextValue && !nextValue.equals(-1)) {
+			mv = new ModelAndView("IDECompiler", "contestQuestions", contestQuestions.get(nextValue));
+			mv.addObject("contestId", contestId);
+			mv.addObject("studentId", studentId);
+			mv.addObject("nextQuestion", nextValue);
+			mv.addObject("previous", previous);
+			mv.addObject("next", next);
+		} else {
+			if(nextValue.equals(-1))
+				nextValue = nextValue+2;
+			mv = new ModelAndView("IDECompiler", "contestQuestions", contestQuestions.get(nextValue-1));
+			mv.addObject("errorMessage", "No Question on next");
+			mv.addObject("contestId", contestId);
+			mv.addObject("studentId", studentId);
+			mv.addObject("nextQuestion", nextValue);
+			mv.addObject("previous", previous);
+			mv.addObject("next", next);
+		}	
+		return mv;
+	}
 }
