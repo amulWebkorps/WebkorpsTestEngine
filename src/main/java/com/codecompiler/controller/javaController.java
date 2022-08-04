@@ -36,7 +36,7 @@ public class javaController {
 	@PostMapping(value = "/javacompiler")
 	@ResponseBody
 	public ResponseEntity<ResponseToFE> getCompiler(@RequestBody Map<String, Object> data, Model model)
-			throws IOException {
+			throws Exception {
 		ResponseToFE responsef = new ResponseToFE();
 		ArrayList<String> testCasesSuccess = new ArrayList<String>();
 		String studentId = (String) data.get("studentId");
@@ -47,6 +47,7 @@ public class javaController {
 		String language = (String) data.get("language");
 		String questionId = (String) data.get("questionId");
 		String flag = (String) data.get("flag");
+		String SubmittedCodeFileName = questionId+"_"+studentId;
 		if (language.equalsIgnoreCase("java")) {
 			String fileNameInLocal = "Main.java";
 			FileWriter fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
@@ -65,7 +66,6 @@ public class javaController {
 					responsef.setTestCasesSuccess(testCasesSuccess);
 					return ResponseEntity.ok(responsef);
 				}
-				binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
 				List<TestCases> testCases = commonService.getTestCase(questionId);
 				for (TestCases testCase : testCases) {
 					String input = testCase.getInput();
@@ -107,7 +107,6 @@ public class javaController {
 					responsef.setTestCasesSuccess(testCasesSuccess);
 					return ResponseEntity.ok(responsef);
 				}
-				//binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
 				List<TestCases> testCases = commonService.getTestCase(questionId);
 				for (TestCases testCase : testCases) {
 					String input = testCase.getInput();
@@ -149,7 +148,6 @@ public class javaController {
 					responsef.setTestCasesSuccess(testCasesSuccess);
 					return ResponseEntity.ok(responsef);
 				}
-				//binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
 				List<TestCases> testCases = commonService.getTestCase(questionId);
 				for (TestCases testCase : testCases) {
 					String input = testCase.getInput();
@@ -191,7 +189,6 @@ public class javaController {
 					responsef.setTestCasesSuccess(testCasesSuccess);
 					return ResponseEntity.ok(responsef);
 				}
-				//binaryDataController.saveFile(studentId, fileNameInLocal, questionId);
 				List<TestCases> testCases = commonService.getTestCase(questionId);
 				for (TestCases testCase : testCases) {
 					String input = testCase.getInput();
@@ -218,9 +215,14 @@ public class javaController {
 		if (flag.equalsIgnoreCase("submit")) {
 			List<String> questionIds = new ArrayList<>();
 			questionIds.add(questionId);
+			FileWriter flSubmitted = new FileWriter("src/main/resources/CodeSubmittedByCandidate" + SubmittedCodeFileName);
+			PrintWriter prSubmitted = new PrintWriter(flSubmitted);
+			prSubmitted.write((String) data.get("code"));
 			studentService.updateStudentDetails(studentId, (String) data.get("contestId"),
 					questionIds, testCasesSuccess, complilationMessage);
 			responsef.setSuccessMessage("Code SUbmitted Successfully");
+			prSubmitted.flush();
+			prSubmitted.close();
 		}
 		responsef.setTestCasesSuccess(testCasesSuccess);
 		return ResponseEntity.ok(responsef);
