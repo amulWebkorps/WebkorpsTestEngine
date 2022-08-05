@@ -54,11 +54,16 @@ public class StudentService {
 		Student existingRecord = studentRepository.findById(studentId);
 		existingRecord.setContestId(contestId);
 		if (existingRecord.getQuestionId() != null) {
-			existingRecord.getQuestionId().addAll(existingRecord.getQuestionId());
+			existingRecord.getQuestionId().addAll(questionIds);
+		} else {
+			existingRecord.setQuestionId(questionIds);
 		}
-		existingRecord.setTestCasesRecord(testCasesRecord1); // need to remove in future
-		existingRecord.setQuestionId(questionIds);
-		existingRecord.getTestCasesRecord().add(testCasesRecord);
+		if (existingRecord.getTestCasesRecord() != null) {
+			existingRecord.getTestCasesRecord().add(testCasesRecord);
+		} else {
+			existingRecord.setTestCasesRecord(testCasesRecord1); // need to remove in future
+			existingRecord.getTestCasesRecord().add(testCasesRecord);
+		}		
 		return studentRepository.save(existingRecord);
 	}
 

@@ -65,7 +65,7 @@
 			var password = $("#exampleInputPassword").val();
 			var contestId = $("#studentcontestId").val();
 			$.get('/dologin?contestId=' + contestId, {email: email, password: password}, function (data) {
-				window.location.href = "loginpage?id=" + data.id + "&contestId=" + data.contestId;;
+				window.location.href = "loginpage?id=" + data.id + "&contestId=" + data.contestId;
 			});
 		}
 	</script
