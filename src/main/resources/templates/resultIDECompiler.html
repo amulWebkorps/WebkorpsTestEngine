@@ -323,13 +323,23 @@ function prev(){
            	data += '<div class="testCaseList"><span>'+element+'</span></div>'
            	  $('.compiler_test_code_scroll').append(data);
            });
+
+           $(".studentCode").remove();
+           var  temp = response.code;
+           console.log("temp 1 = > ",temp);
+           //temp = temp.substring(1,t.length-1);
+          // console.log("temp 2 = > ",temp);
+           temp = temp.split(",,");
+           console.log("temp 3= > ",temp);
            
-<<<<<<< HEAD
+           
+           temp.forEach(element => {          
+          	var data = "";
+          	data += '<div class="studentCode"><p>'+element+'</p></div>'
+          	  $('.compiler_test_code_scroll_result').append(data);
+          });
            
            
-           
-=======
->>>>>>> 80349e9a235cb2b7f23cb858572b97019a67b044
         	}
       },
         error: function (error) {
