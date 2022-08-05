@@ -1,5 +1,9 @@
 package com.codecompiler.controller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,8 +107,8 @@ public class HomeController {
 		Contest contest = new Contest();
 		contest = contestService.findByContestId(contestId);
 		contestLevel = contest.getContestLevel();
-		allQuestionsOfSpecificContestLevel = commonService.findQuestionByContestLevel(contest.getContestLevel());
-		System.out.println("allQuestionsOfSpecificContestLevel : " + allQuestionsOfSpecificContestLevel);
+//		allQuestionsOfSpecificContestLevel = commonService.findQuestionByContestLevel(contest.getContestLevel());
+//		System.out.println("allQuestionsOfSpecificContestLevel : " + allQuestionsOfSpecificContestLevel);
 		List<Question> Qlist = new ArrayList<>();
 		ArrayList<QuestionStatus> qStatusOfContest = contest.getQuestionStatus();
 		System.out.println("qStatusOfContest " + qStatusOfContest);
@@ -114,9 +118,9 @@ public class HomeController {
 				Qlist.add(commonService.getQuestionFromDataBase(qsid.getQuestionId()).get(0));
 			}
 		}
-		for (Question q : Qlist) {
-			System.out.println("question list : " + q);
-		}
+//		for (Question q : Qlist) {
+//			System.out.println("question list : " + q);
+//		}
 		ArrayList<Question> contestQuestions = new ArrayList<>();
 		ArrayList<Question> contestQuestionsTemp = new ArrayList<>();
 		contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 1");
@@ -435,16 +439,21 @@ public class HomeController {
    }
 	
 	@RequestMapping("studentsubmitedcontestresult")
-    public String studentSubmitedContestresult(Model model) {
+    public String studentSubmitedContestresult(Model model) throws IOException {
 		List<TestCasesRecord> testCasesRecord = stdTemp.getTestCasesRecord();
-		System.out.println("stdTemp"+stdTemp);
-		System.out.println("contestQuestionsTemp2 => "+contestQuestionsTemp2);
-		System.out.println("testCasesRecord => "+testCasesRecord);
-		
 		TestCasesRecord testCR = testCasesRecord.get(0);
-	    model.addAttribute("contestId", stdTemp.getContestId());
+		String SubmittedCodeFileName = contestQuestionsTemp2.get(qIndex).getQuestionId()+"_"+stdTemp.getId();
+		File file = new File("src/main/resources/CodeSubmittedByCandidate/"+SubmittedCodeFileName);
+	      BufferedReader br = new BufferedReader(new FileReader(file));
+		     ArrayList<String> st=new ArrayList<>();
+		     String t;
+		        while (( t = br.readLine()) != null) {
+		        	st.add(t);
+		        }
+		model.addAttribute("contestId", stdTemp.getContestId());
 		model.addAttribute("studentId", stdTemp.getId());
 		model.addAttribute("index", "0");
+		model.addAttribute("code", st);
 		model.addAttribute("qId", contestQuestionsTemp2.get(qIndex).getQuestionId());
 		model.addAttribute("contestQuestions", contestQuestionsTemp2.get(qIndex).getQuestion());
 		model.addAttribute("constraint", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getConstraints());
@@ -458,7 +467,7 @@ public class HomeController {
    }
 	
 	@RequestMapping("setnextquestionsubmittedbystudent")
-    public ResponseEntity<Map<String, String>> setnextQuestionSubmittedByStudent(Model model) {
+    public ResponseEntity<Map<String, String>> setnextQuestionSubmittedByStudent(Model model) throws IOException {
 		 Map<String, String> hm = new HashMap<String, String>();
 		if(contestQuestionsTemp2.size() > qIndex && qIndex != contestQuestionsTemp2.size()-1 ) {
 			qIndex++;	
@@ -470,9 +479,18 @@ public class HomeController {
 		
 		TestCasesRecord testCR = testCasesRecord.get(qIndex);
 		System.out.println("qIndex : "+qIndex);
-		
+		String SubmittedCodeFileName = contestQuestionsTemp2.get(qIndex).getQuestionId()+"_"+stdTemp.getId();
+		File file = new File("src/main/resources/CodeSubmittedByCandidate/"+SubmittedCodeFileName);
+	      BufferedReader br = new BufferedReader(new FileReader(file));
+		     ArrayList<String> st=new ArrayList<>();
+		     String t;
+		        while (( t = br.readLine()) != null) {
+		        	t = t +","; 
+		        	st.add(t);
+		        }
 		hm.put("contestId", stdTemp.getContestId());
 		hm.put("studentId", stdTemp.getId());
+		hm.put("code", st.toString());
 		hm.put("questionId", contestQuestionsTemp2.get(qIndex).getQuestionId());		
 		hm.put("contestQuestions", contestQuestionsTemp2.get(qIndex).getQuestion());
 		hm.put("constraint", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getConstraints());
@@ -487,7 +505,7 @@ public class HomeController {
    }
 	
 	@RequestMapping("setprevquestionsubmittedbystudent")
-    public ResponseEntity<Map<String, String>> setPrevQuestionSubmittedByStudent(Model model) {
+    public ResponseEntity<Map<String, String>> setPrevQuestionSubmittedByStudent(Model model) throws IOException {
 		 Map<String, String> hm = new HashMap<String, String>();
 		 if(qIndex > 0) {
 			qIndex--;	
@@ -499,9 +517,18 @@ public class HomeController {
 		
 		TestCasesRecord testCR = testCasesRecord.get(qIndex);
 		System.out.println("qIndex : "+qIndex);
-		
+		String SubmittedCodeFileName = contestQuestionsTemp2.get(qIndex).getQuestionId()+"_"+stdTemp.getId();
+		File file = new File("src/main/resources/CodeSubmittedByCandidate/"+SubmittedCodeFileName);
+        BufferedReader br = new BufferedReader(new FileReader(file));
+		     ArrayList<String> st=new ArrayList<>();
+		     String t;
+		        while (( t = br.readLine()) != null) {
+		        	
+		        	st.add(t);
+		        }
 		hm.put("contestId", stdTemp.getContestId());
 		hm.put("studentId", stdTemp.getId());
+		hm.put("code", st.toString());
 		hm.put("questionId", contestQuestionsTemp2.get(qIndex).getQuestionId());
 		hm.put("contestQuestions", contestQuestionsTemp2.get(qIndex).getQuestion());
 		hm.put("constraint", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getConstraints());
@@ -515,7 +542,8 @@ public class HomeController {
 		return ResponseEntity.ok(hm);		
    }
 	
-
+	
+	
 	@RequestMapping("/savestd")	
 	private ResponseEntity<String> savestd(@RequestBody Student std, Model model) {
 		Student s = studentService.saveStudent(std);

@@ -59,8 +59,8 @@
 													th:text="${contestQuestions}"
 													placeholder="Write a Program to Reserve a String?"></textarea>
 											</div>
-											<div th:each="qe:${contestQuestions.sampleTestCase}">
-												<div th:class="${contestQuestions}">
+											<div >
+												<div>
 													<div class="col">
 														<label class="fw-bold text-dark problem_input1 mt-2">
 															<p>Constraints</p>
@@ -150,7 +150,11 @@
 								</div>
 							</div>
 						</div>
-						<div class="editor" id="editor"></div>
+						<div class="compiler_test_code_scroll_result">
+						<div class="studentCode" th:each="CODE:${code}">
+								<p th:text="${CODE}" >    </p>
+						</div>
+						</div>
 						<div th:each="q:${contestQuestions}">
 							<div th:class="${qId}">
 								<div class="d-flex justify-content-center button_compiler1 px-4">
@@ -250,8 +254,20 @@ function next(){
            });
          
         	 
-        	 
-        	 
+            $(".studentCode").remove();
+            var  temp = response.code;
+            console.log("temp 1 = > ",temp);
+            //temp = temp.substring(1,t.length-1);
+           // console.log("temp 2 = > ",temp);
+            temp = temp.split(",,");
+            console.log("temp 3= > ",temp);
+            
+            
+            temp.forEach(element => {          
+           	var data = "";
+           	data += '<div class="studentCode"><p>'+element+'</p></div>'
+           	  $('.compiler_test_code_scroll_result').append(data);
+           });
         
         	 
         	}
@@ -307,6 +323,9 @@ function prev(){
            	data += '<div class="testCaseList"><span>'+element+'</span></div>'
            	  $('.compiler_test_code_scroll').append(data);
            });
+           
+           
+           
            
         	}
       },

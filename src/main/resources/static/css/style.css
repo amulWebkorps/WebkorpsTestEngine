@@ -1179,6 +1179,10 @@ input.user_info_input {
   overflow-y: scroll;
   height: 137px;
 }
+
+
+
+
 .test_code_heading_text {
   width: 114px;
   height: 28px;
@@ -1572,6 +1576,7 @@ accordion-header {
 	    height:530px !important;
 }
 
+
 .button-container {
     text-align: center;
     padding: 4px;
@@ -1843,4 +1848,12 @@ textarea:focus {
   border: 2px solid #0057ff !important;
   border-radius: 8px;
   background-color: white !important;
+}
+
+
+.compiler_test_code_scroll_result {
+  overflow-y: scroll;
+  height:530px !important;
+	  
+	    background: white;
 }
