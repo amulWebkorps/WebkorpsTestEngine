@@ -47,14 +47,16 @@ public class StudentService {
 	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
 			ArrayList<String> testCasesSuccess, String complilationMessage) {
 		TestCasesRecord testCasesRecord = new TestCasesRecord();
+		List<TestCasesRecord> testCasesRecord1 = new ArrayList<>(); // need to remove in future
 		testCasesRecord.setQuestionId(questionIds);
 		testCasesRecord.setComplilationMessage(complilationMessage);
-		testCasesRecord.setTestCasesSuccess(testCasesSuccess);
+		testCasesRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testcasesrecord and save that pass id in get method
 		Student existingRecord = studentRepository.findById(studentId);
 		existingRecord.setContestId(contestId);
 		if (existingRecord.getQuestionId() != null) {
 			existingRecord.getQuestionId().addAll(existingRecord.getQuestionId());
 		}
+		existingRecord.setTestCasesRecord(testCasesRecord1); // need to remove in future
 		existingRecord.setQuestionId(questionIds);
 		existingRecord.getTestCasesRecord().add(testCasesRecord);
 		return studentRepository.save(existingRecord);
