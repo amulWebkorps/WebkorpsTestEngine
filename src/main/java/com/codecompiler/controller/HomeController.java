@@ -68,7 +68,8 @@ public class HomeController {
 	}
 	
 	@RequestMapping("/login")
-	public String login(Model model) {
+	public String login(@RequestParam("contestId") String contestId, Model model) {
+		model.addAttribute("contestId", contestId);
 		return "Login.html";		
 	}
 	@RequestMapping("/hrlogin")

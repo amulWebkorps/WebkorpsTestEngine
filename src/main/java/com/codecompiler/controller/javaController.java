@@ -215,7 +215,7 @@ public class javaController {
 		if (flag.equalsIgnoreCase("submit")) {
 			List<String> questionIds = new ArrayList<>();
 			questionIds.add(questionId);
-			FileWriter flSubmitted = new FileWriter("src/main/resources/CodeSubmittedByCandidate" + SubmittedCodeFileName);
+			FileWriter flSubmitted = new FileWriter("src/main/resources/CodeSubmittedByCandidate/" + SubmittedCodeFileName);
 			PrintWriter prSubmitted = new PrintWriter(flSubmitted);
 			prSubmitted.write((String) data.get("code"));
 			studentService.updateStudentDetails(studentId, (String) data.get("contestId"),

@@ -38,9 +38,9 @@ function submitCode(questionId) {
 				if (response.successMessage !== "") {
 					setTimeout(
 						function() {
-							alert("My Pop Up");
+							alert("Question submitted");
 						}
-						, 10000 /// milliseconds = 10 seconds
+						, 100 /// milliseconds = 10 seconds
 					);
 				}
 			}
