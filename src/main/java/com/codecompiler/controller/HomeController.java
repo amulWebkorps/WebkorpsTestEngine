@@ -444,8 +444,12 @@ public class HomeController {
 		TestCasesRecord testCR = testCasesRecord.get(0);
 	    model.addAttribute("contestId", stdTemp.getContestId());
 		model.addAttribute("studentId", stdTemp.getId());
-		model.addAttribute("contestQuestions", contestQuestionsTemp2.get(0));
 		model.addAttribute("index", "0");
+		model.addAttribute("qId", contestQuestionsTemp2.get(qIndex).getQuestionId());
+		model.addAttribute("contestQuestions", contestQuestionsTemp2.get(qIndex).getQuestion());
+		model.addAttribute("constraint", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getConstraints());
+		model.addAttribute("sampleInput", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getInput());
+		model.addAttribute("sampleOutput", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getOutput());		
 		model.addAttribute("sname", stdTemp.getName());
 		model.addAttribute("semail", stdTemp.getEmail());
 		model.addAttribute("result", testCR.getTestCasesSuccess());
@@ -469,6 +473,7 @@ public class HomeController {
 		
 		hm.put("contestId", stdTemp.getContestId());
 		hm.put("studentId", stdTemp.getId());
+		hm.put("questionId", contestQuestionsTemp2.get(qIndex).getQuestionId());		
 		hm.put("contestQuestions", contestQuestionsTemp2.get(qIndex).getQuestion());
 		hm.put("constraint", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getConstraints());
 		hm.put("sampleInput", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getInput());
@@ -497,6 +502,7 @@ public class HomeController {
 		
 		hm.put("contestId", stdTemp.getContestId());
 		hm.put("studentId", stdTemp.getId());
+		hm.put("questionId", contestQuestionsTemp2.get(qIndex).getQuestionId());
 		hm.put("contestQuestions", contestQuestionsTemp2.get(qIndex).getQuestion());
 		hm.put("constraint", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getConstraints());
 		hm.put("sampleInput", contestQuestionsTemp2.get(qIndex).getSampleTestCase().get(0).getInput());

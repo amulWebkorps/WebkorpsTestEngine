@@ -41,12 +41,12 @@
 							<div class="row">
 								<div class="col-1 div_card_inner_blue1"></div>
 								<div class="col-11 second-div1">								
-									<div th:each="q:${contestQuestions}">
-										<div th:class="${q.questionId}">
+									<div>
+										<div th:class="${qId}">
 										<input type="hidden" id="qContestId" name="qContestId" th:value="${contestId}">
 										<input type="hidden" id="studentId" name="studentId" th:value="${studentId}">
 										<input type="hidden" id="qIndex" name="qIndex" th:value="${index}">
-										
+										<input type="hidden" id="qId" name="qId" th:value="${qId}">
 											<div class="col-2 compiler_heading">
 												<h1 class="compiler_heading_text pt-2">Question 1</h1>
 											</div>
@@ -56,18 +56,18 @@
 												</label><br />
 												<textarea readonly="readonly" id="questionid"
 													class="form-control testcase_problem_input2 bg-white"
-													th:text="${q.question}"
+													th:text="${contestQuestions}"
 													placeholder="Write a Program to Reserve a String?"></textarea>
 											</div>
 											<div th:each="qe:${contestQuestions.sampleTestCase}">
-												<div th:class="${q.questionId}">
+												<div th:class="${contestQuestions}">
 													<div class="col">
 														<label class="fw-bold text-dark problem_input1 mt-2">
 															<p>Constraints</p>
 														</label>
 														<textarea readonly="readonly" id="questionConstraints"
 															class="form-control testcase_problem_input2 bg-white"
-															th:text="${qe.constraints}"
+															th:text="${constraint}"
 															placeholder="String ! = null"></textarea>
 													</div>
 													<div class="col third-div">
@@ -75,7 +75,7 @@
 															<label class="fw-bold text-dark mt-2">Sample Input</label>
 															<textarea readonly="readonly" id="qSampleInput"
 																class="form-control testcase_problem_input5 bg-white"
-																th:text="${qe.input}"
+																th:text="${sampleInput}"
 																placeholder="input here"></textarea>
 														</div>
 														<div class="col">
@@ -85,7 +85,7 @@
 
 																<textarea readonly="readonly" id="qSampleOutput"
 																	class="form-control bg-white testcase_problem_input3"
-																	th:text="${qe.output}"
+																	th:text="${sampleOutput}"
 																	placeholder="output here"></textarea>
 															</div>
 														</div>
@@ -152,15 +152,15 @@
 						</div>
 						<div class="editor" id="editor"></div>
 						<div th:each="q:${contestQuestions}">
-							<div th:class="${q.questionId}">
+							<div th:class="${qId}">
 								<div class="d-flex justify-content-center button_compiler1 px-4">
 									<button class="compiler_screen_test btn btn-outline-primary text-light fw-bold run"
-										th:id="${q.questionId}" value="run" onclick="runCode(this.id)">
+										th:id="${qId}" value="run" onclick="runCode(this.id)">
 										Run
 									</button>
 									<button
 										class="compiler_screen_test btn btn-outline-primary text-light fw-bold mx-3 submit"
-										th:id="${q.questionId}" value="submit" onclick="submitCode(this.id)">
+										th:id="${qId}" value="submit" onclick="submitCode(this.id)">
 										Submit
 									</button>
 								</div>
@@ -175,12 +175,12 @@
 											Test Code
 										</h1>
 									</div>
-									<div class="compiler_test_code_scroll" id="showResult">
-									<div id="testCaseList">
-									<div id="testCaseList2" th:each="q:${result}">
+									<div class="compiler_test_code_scroll ">
+								
+									<div class="testCaseList" th:each="q:${result}">
 									<span th:text="${q}"></span>
 									</div>
-									</div>
+								
 									</div>
 								</div>
 							</div>
@@ -211,8 +211,6 @@
 		
  <script>		    
 function next(){
-	$(".testCaseList").remove();
-	
 	
 	var Student = "ggg";
 	$.ajax({
@@ -225,41 +223,44 @@ function next(){
         	console.log(response);
         	console.log("size ", Object.keys(response).length);
         	if(Object.keys(response).length != 0){
-        		$(".testCaseList").remove();
+        		
         	document.getElementById("qContestId").value = response.contestId;
         	document.getElementById("studentId").value = response.studentId;
         	document.getElementById("qIndex").value = response.index;
+        	document.getElementById("qId").value = response.questionId;       	
         	document.getElementById("sname").value = response.sname;
-        	document.getElementById("semail").value = response.semail;
-        	
+        	document.getElementById("semail").value = response.semail;        	      	
         	document.getElementById("questionid").value = response.contestQuestions;
         	document.getElementById("questionConstraints").value = response.constraint;
         	document.getElementById("qSampleInput").value = response.sampleInput;
         	document.getElementById("qSampleOutput").value = response.sampleOutput;
         	
-        	 $(".testCaseList").remove();
+        	$(".testCaseList").remove();
+        	
             var  t = response.result;
             t = t.substring(1,t.length-1);
             t = t.split(",");
             console.log("t : ",t);
-             $(".testCaseList").remove();
-             $('#showResult').append('<div id="testCaseList">');
+            
+            
            t.forEach(element => {          
-           	var data = '<div><span>'+element+'</span></div>'
-           	  $('#showResult').append(data);
+           	var data = "";
+           	data += '<div class="testCaseList"><span>'+element+'</span></div>'
+           	  $('.compiler_test_code_scroll').append(data);
            });
-           $('#showResult').append('</div>');
+         
+        	 
+        	 
+        	 
+        
+        	 
         	}
         	
-        	
-          
-
-       //	 window.location.href ="studentsubmitedcontestresult";
+    
         },
         error: function (error) {
             console.log(error);
-          //  window.location.href ="studentsubmitedcontestresult";
-        },
+           },
 
     });
 }
@@ -279,10 +280,11 @@ function prev(){
         	console.log(response);
         	console.log("size ", Object.keys(response).length);
         	if(Object.keys(response).length != 0){
-        		$(".testCaseList").remove();
+        		
         	document.getElementById("qContestId").value = response.contestId;
         	document.getElementById("studentId").value = response.studentId;
         	document.getElementById("qIndex").value = response.index;
+        	document.getElementById("qId").value = response.questionId;
         	document.getElementById("sname").value = response.sname;
         	document.getElementById("semail").value = response.semail;
         	
@@ -291,18 +293,21 @@ function prev(){
         	document.getElementById("qSampleInput").value = response.sampleInput;
         	document.getElementById("qSampleOutput").value = response.sampleOutput;
         	
-        	 $(".testCaseList").remove();
+        	
+        	$(".testCaseList").remove();
+        	
             var  t = response.result;
             t = t.substring(1,t.length-1);
             t = t.split(",");
             console.log("t : ",t);
-             $(".testCaseList").remove();
-             $('#showResult').append('<div id="testCaseList">');
+            
+            
            t.forEach(element => {          
-           	var data = '<div><span>'+element+'</span></div>'
-           	  $('#showResult').append(data);
+           	var data = "";
+           	data += '<div class="testCaseList"><span>'+element+'</span></div>'
+           	  $('.compiler_test_code_scroll').append(data);
            });
-           $('#showResult').append('</div>');
+           
         	}
       },
         error: function (error) {
