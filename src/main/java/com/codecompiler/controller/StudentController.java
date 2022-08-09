@@ -2,12 +2,11 @@ package com.codecompiler.controller;
 
 import java.util.Map;
 
+import com.codecompiler.service.EmailService;
 import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,8 +24,9 @@ import com.codecompiler.service.StudentService;
 public class StudentController {
 	@Autowired
 	private StudentService studentService;
+
 	@Autowired
-	private JavaMailSender jvms;
+	private EmailService emailService;
 
 	@RequestMapping(value = "/student/upload", headers = "content-type=multipart/*", method = RequestMethod.POST)
 	public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
@@ -38,7 +38,6 @@ public class StudentController {
 				e.printStackTrace();
 			}
 			return ResponseEntity.ok(Map.of("message", "File is uploaded and data is saved to db"));
-
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please upload excel file ");
 	}
@@ -80,12 +79,8 @@ public class StudentController {
 	@RequestMapping("/sendMail")
 	public ResponseEntity<Object> sendMail(@RequestBody Student student) {
 		try {
-			SimpleMailMessage sms = new SimpleMailMessage();
-			sms.setFrom("patilritika1995@gmail.com");
-			sms.setTo(student.getEmail());
-			sms.setSubject("application");
-			sms.setText("hello dear");
-			jvms.send(sms);
+
+			this.emailService.sendMail(student.getEmail(),"Code Assesments Credentials","Username : "+student.getEmail()+"\nPassword : "+student.getPassword());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
