@@ -1,4 +1,4 @@
-package com.codecompiler.binary.api.config;
+package com.codecompiler.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
