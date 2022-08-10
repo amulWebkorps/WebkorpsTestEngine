@@ -1,4 +1,4 @@
-package com.codecompiler.binary.api.config;
+package com.codecompiler.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
@@ -28,22 +28,4 @@ public class MongoConfig<Mongo> extends AbstractMongoClientConfiguration {
         
         return MongoClients.create(mongoClientSettings);
     }
- 
-//    @Override
-//    public Collection getMappingBasePackages() {
-//        return Collections.singleton("com.baeldung");
-//    }
-	
-//	@Override
-//	public MongoClient mongo() throws Exception {
-//		return new MongoClient(host);
-//	}
-
-//
-//	@Bean
-//	public GridFsTemplate gridFsTemplate() throws Exception {
-//		return new GridFsTemplate(mongoDbFactory(), mappingMongoConverter());
-//	}
-//	
-
 }
