@@ -22,6 +22,7 @@ import com.codecompiler.service.StudentService;
 
 @Controller
 public class StudentController {
+	
 	@Autowired
 	private StudentService studentService;
 
@@ -79,8 +80,7 @@ public class StudentController {
 	@RequestMapping("/sendMail")
 	public ResponseEntity<Object> sendMail(@RequestBody Student student) {
 		try {
-
-			this.emailService.sendMail(student.getEmail(),"Code Assesments Credentials","Username : "+student.getEmail()+"\nPassword : "+student.getPassword());
+			this.emailService.sendMail(student.getContestId(), student.getName(), student.getEmail(),"Webkorps Code Assesment Credentials", student.getPassword());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
