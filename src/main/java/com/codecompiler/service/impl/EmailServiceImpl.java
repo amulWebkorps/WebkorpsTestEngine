@@ -1,6 +1,9 @@
 package com.codecompiler.service.impl;
 
 import com.codecompiler.service.EmailService;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -12,6 +15,8 @@ public class EmailServiceImpl implements EmailService {
 	
 	@Value("${application.base-url}")
     private String baseUrl;
+	
+	Logger logger = LogManager.getLogger(EmailServiceImpl.class);
 	
 	private static final String CANDIDATE_EMAIL_TEMPLATE = "Hello \"%s\",%nGreeting of the day!!!%n%n"
 			+ "Please find your test link and credentials "
@@ -27,13 +32,14 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendMail(String contestId, String name, String to, String subject, String password) {
+    	logger.info("Mail Sending Start");
     	String content = String.format(CANDIDATE_EMAIL_TEMPLATE, name, getLink(contestId), to, password);
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject(subject);
         message.setText(content);
-        System.out.println("Candidate mail - " +message);
         emailSender.send(message);
+        logger.info("Mail Sending end");
     }
     
     private String getLink(String contestId) {
