@@ -97,40 +97,45 @@ public class HomeController {
 
 	@RequestMapping("/findcontest")
 	private ResponseEntity<String> findContest(@RequestBody Contest contest, Model model) {
-		// System.out.println("ContestId : "+contest.getContestId());
+		
+		System.out.println("ContestId : "+contest.getContestId());
 		contestId = contest.getContestId();
 		return ResponseEntity.ok("valueSet");
 	}
 
 	@RequestMapping("/questionlistforspecificcontest")
 	public String questionsListOfContest(Model model) {
-		List<Question> allQuestionsOfSpecificContestLevel = new ArrayList<>();
 		Contest contest = new Contest();
 		contest = contestService.findByContestId(contestId);
+		System.out.println("Contest : "+contest);
 		contestLevel = contest.getContestLevel();
-//		allQuestionsOfSpecificContestLevel = commonService.findQuestionByContestLevel(contest.getContestLevel());
-//		System.out.println("allQuestionsOfSpecificContestLevel : " + allQuestionsOfSpecificContestLevel);
-		List<Question> Qlist = new ArrayList<>();
+        List<Question> Qlist = new ArrayList<>();
 		ArrayList<QuestionStatus> qStatusOfContest = contest.getQuestionStatus();
 		System.out.println("qStatusOfContest " + qStatusOfContest);
-
+    int i=0;
 		for (QuestionStatus qsid : qStatusOfContest) {
-			if (qsid.getStatus()) {
+			if (qsid.getStatus()) {			
+				System.out.println("i => "+i);
+				i++;
+				System.out.println("commonService.getQuestionFromDataBase(qsid.getQuestionId()).get(0) "+commonService.getQuestionFromDataBase(qsid.getQuestionId()));
 				Qlist.add(commonService.getQuestionFromDataBase(qsid.getQuestionId()).get(0));
 			}
 		}
-//		for (Question q : Qlist) {
-//			System.out.println("question list : " + q);
-//		}
-		ArrayList<Question> contestQuestions = new ArrayList<>();
+        ArrayList<Question> contestQuestions = new ArrayList<>();
 		ArrayList<Question> contestQuestionsTemp = new ArrayList<>();
 		contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 1");
 		for (Question q : contestQuestionsTemp) {
-			contestQuestions.add(q);
+			if(q.getQuestionStatus() != null ) {  //temporary
+				if(q.getQuestionStatus().equals("true") )			
+			          contestQuestions.add(q);
+			}
 		}
 		contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 2");
 		for (Question q : contestQuestionsTemp) {
-			contestQuestions.add(q);
+			if(q.getQuestionStatus() != null ) {    //temporary
+			if(q.getQuestionStatus().equals("true"))
+			    contestQuestions.add(q);
+			}
 		}
 		model.addAttribute("totalQuestions", contestQuestions);
 
@@ -184,11 +189,10 @@ public class HomeController {
 		question.setContestLevel(stringOfCidAndCl[0]);
 
 		String tempQid = question.getQuestionId();
-		if (tempQid == ("")) {
-			System.out.println(" inside if condition ");
+		if (tempQid == ("")) {			
 			tempQid = UUID.randomUUID().toString();
 			question.setQuestionId(tempQid);
-			System.out.println("tempQid -> " + tempQid);
+			question.setQuestionStatus("true");
 		}
 
 		Question savedQuestion = commonService.saveUpdatedQuestion(question);
@@ -214,27 +218,37 @@ public class HomeController {
 		return ResponseEntity.ok("");
 	}
 
+	
+	
+	
 	@RequestMapping("/deletequestion") // cid, qid, level
 	private ResponseEntity<String> deleteQuestion(@RequestBody ArrayList<String> ids) {
 		System.out.println("cid.........." + ids.get(0));
 		System.out.println("qid.........." + ids.get(1));
 		System.out.println("level.........." + ids.get(2));
-		Contest contest = new Contest();
-		contest = contestService.findByContestId(ids.get(0));
-		System.out.println("contest * => 1 " + contest);
-		// contest.getQuestionIds().remove(ids.get(1));
-		int index = 0;
-		for (QuestionStatus qs : contest.getQuestionStatus()) {
-			System.out.println("qs" + qs);
-			if (qs.getQuestionId().equals(ids.get(1))) {
-				System.out.println("index " + index);
-				contest.getQuestionStatus().get(index).setStatus(false);
+		if(ids.get(0).equals("questionForLevel")) {			
+			Question questionStatusChange = commonService.getQuestionFromDataBase(ids.get(1)).get(0);			
+			questionStatusChange.setQuestionStatus("false");			
+			commonService.saveQuestion(questionStatusChange);
+		}else {
+			Contest contest = new Contest();
+			contest = contestService.findByContestId(ids.get(0));
+			System.out.println("contest * => 1 " + contest);			
+			int index = 0;
+			for (QuestionStatus qs : contest.getQuestionStatus()) {
+				System.out.println("qs" + qs);
+				if (qs.getQuestionId().equals(ids.get(1))) {
+					System.out.println("index " + index);
+					contest.getQuestionStatus().get(index).setStatus(false);
+				}
+				index++;
 			}
-			index++;
+			System.out.println("contest * => 2 " + contest);
+			contestService.saveContest(contest);
+			System.out.println(contest);
 		}
-		System.out.println("contest * => 2 " + contest);
-		contestService.saveContest(contest);
-		System.out.println(contest);
+		
+
 		return ResponseEntity.ok("Done");
 	}
 
@@ -267,15 +281,36 @@ public class HomeController {
 		ArrayList<Question> contestQuestionsTemp = new ArrayList<>();
 		if (contestLevelForPage.equals("All")) {
 			contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 1");
+			System.out.println("contestQuestionsTemp 1 =>"+ contestQuestionsTemp.size() +contestQuestionsTemp);
 			for (Question q : contestQuestionsTemp) {
-				contestQuestions.add(q);
+				if (q.getQuestionStatus() != null) { // temporary
+					if (q.getQuestionStatus().equals("true"))
+				          contestQuestions.add(q);
+				}
 			}
+			System.out.println("contestQuestions 1=>"+ contestQuestions.size() +contestQuestions);
+			
 			contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 2");
+			System.out.println("contestQuestionsTemp 2 =>"+ contestQuestionsTemp.size() +contestQuestionsTemp);
+			
 			for (Question q : contestQuestionsTemp) {
-				contestQuestions.add(q);
+				if (q.getQuestionStatus() != null) { // temporary
+					if (q.getQuestionStatus().equals("true"))
+				        contestQuestions.add(q);
+				}
 			}
+			System.out.println("contestQuestions 2=>"+ contestQuestions.size() +contestQuestions);
 		} else {
-			contestQuestions = commonService.findQuestionByContestLevel(contestLevelForPage);
+			contestQuestionsTemp = commonService.findQuestionByContestLevel(contestLevelForPage);
+			System.out.println("contestQuestionsTemp 3 =>"+ contestQuestionsTemp.size() +contestQuestionsTemp);
+			for (Question q : contestQuestionsTemp) {
+				if (q.getQuestionStatus() != null) { // temporary
+					if (q.getQuestionStatus().equals("true"))
+				        contestQuestions.add(q);
+				}
+			}
+			System.out.println("contestQuestions 3 =>"+ contestQuestions.size() +contestQuestions);
+			
 		}
 		return contestQuestions;
 	}
@@ -302,7 +337,6 @@ public class HomeController {
 			for (QuestionStatus qs : idWithstatus) {
 				if (idToChangeStatus.equals(qs.getQuestionId())) {
 					if (qs.getStatus() == false) {
-
 						con.getQuestionStatus().get(index).setStatus(true);
 						flag = true;
 					} else if (qs.getStatus() == true) {
@@ -328,16 +362,30 @@ public class HomeController {
 	@RequestMapping("/level1questions")
 	private String level1Questions(Model model) {
 		ArrayList<Question> contestQuestions = new ArrayList<>();
+		ArrayList<Question> contestQuestionsTemp = new ArrayList<>();
 		contestQuestions = commonService.findQuestionByContestLevel("Level 1");
-		model.addAttribute("questions", contestQuestions);
+		for(Question q : contestQuestions) {
+			if(q.getQuestionStatus() != null ) {  //temporary
+				if(q.getQuestionStatus().equals("true"))
+					contestQuestionsTemp.add(q);
+			}		
+		}
+		model.addAttribute("questions", contestQuestionsTemp);
 		return "level1Questions";
 	}
 
 	@RequestMapping("/level2questions")
 	private String level2Questions(Model model) {
 		ArrayList<Question> contestQuestions = new ArrayList<>();
+		ArrayList<Question> contestQuestionsTemp = new ArrayList<>();
 		contestQuestions = commonService.findQuestionByContestLevel("Level 2");
-		model.addAttribute("questions", contestQuestions);
+		for(Question q : contestQuestions) {
+			if(q.getQuestionStatus() != null ) {  //temporary
+				if(q.getQuestionStatus().equals("true"))
+					contestQuestionsTemp.add(q);
+			}		
+		}
+		model.addAttribute("questions", contestQuestionsTemp);		
 		return "level2Questions";
 	}
 
@@ -347,11 +395,17 @@ public class HomeController {
 		ArrayList<Question> contestQuestionsTemp = new ArrayList<>();
 		contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 1");
 		for (Question q : contestQuestionsTemp) {
-			contestQuestions.add(q);
+			if (q.getQuestionStatus() != null) { // temporary
+				if (q.getQuestionStatus().equals("true"))
+					contestQuestions.add(q);
+			}
 		}
 		contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 2");
 		for (Question q : contestQuestionsTemp) {
-			contestQuestions.add(q);
+			if (q.getQuestionStatus() != null) { // temporary
+				if (q.getQuestionStatus().equals("true"))
+					contestQuestions.add(q);
+			}
 		}
 		model.addAttribute("questions", contestQuestions);
 		return "allQuestions";
@@ -366,19 +420,41 @@ public class HomeController {
 
 	@RequestMapping("/returnpagebasedonfilter")
 	private String returnPageBasedOnLevel(Model model) {
+		System.out.println("contestLevelForPage=> "+contestLevelForPage);
 		ArrayList<Question> contestQuestions = new ArrayList<>();
 		ArrayList<Question> contestQuestionsTemp = new ArrayList<>();
 		if (contestLevelForPage.equals("All")) {
 			contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 1");
+			System.out.println("contestQuestionsTemp 1 =>"+ contestQuestionsTemp.size() +contestQuestionsTemp);
 			for (Question q : contestQuestionsTemp) {
-				contestQuestions.add(q);
+				if (q.getQuestionStatus() != null) { // temporary
+					if (q.getQuestionStatus().equals("true"))
+				          contestQuestions.add(q);
+				}
 			}
+			System.out.println("contestQuestions 1=>"+ contestQuestions.size() +contestQuestions);
+			
 			contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 2");
+			System.out.println("contestQuestionsTemp 2 =>"+ contestQuestionsTemp.size() +contestQuestionsTemp);
+			
 			for (Question q : contestQuestionsTemp) {
-				contestQuestions.add(q);
+				if (q.getQuestionStatus() != null) { // temporary
+					if (q.getQuestionStatus().equals("true"))
+				        contestQuestions.add(q);
+				}
 			}
+			System.out.println("contestQuestions 2=>"+ contestQuestions.size() +contestQuestions);
 		} else {
-			contestQuestions = commonService.findQuestionByContestLevel(contestLevelForPage);
+			contestQuestionsTemp = commonService.findQuestionByContestLevel(contestLevelForPage);
+			System.out.println("contestQuestionsTemp 3 =>"+ contestQuestionsTemp.size() +contestQuestionsTemp);
+			for (Question q : contestQuestionsTemp) {
+				if (q.getQuestionStatus() != null) { // temporary
+					if (q.getQuestionStatus().equals("true"))
+				        contestQuestions.add(q);
+				}
+			}
+			System.out.println("contestQuestions 3 =>"+ contestQuestions.size() +contestQuestions);
+			
 		}
 		model.addAttribute("questions", contestQuestions);
 		return "allquestions";
@@ -390,11 +466,17 @@ public class HomeController {
 		ArrayList<Question> contestQuestionsTemp = new ArrayList<>();
 		contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 1");
 		for (Question q : contestQuestionsTemp) {
-			contestQuestions.add(q);
+			if (q.getQuestionStatus() != null) { // temporary
+				if (q.getQuestionStatus().equals("true"))
+			          contestQuestions.add(q);
+			}
 		}
 		contestQuestionsTemp = commonService.findQuestionByContestLevel("Level 2");
 		for (Question q : contestQuestionsTemp) {
+			if (q.getQuestionStatus() != null) { // temporary
+				if (q.getQuestionStatus().equals("true"))			
 			contestQuestions.add(q);
+			}
 		}
 		model.addAttribute("questions", contestQuestions);
 		return "selectAvailableQuestion";

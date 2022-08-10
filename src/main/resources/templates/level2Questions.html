@@ -367,7 +367,7 @@
             console.log(SampleTestCaseList);
             var Question = {
             	"questionId":updatedQuestionId,               
-                "contestLevel": "Level 2",
+                "contestLevel": $(".contestlevel").val()+"@"+$(".contestid").val(),
                 "question": $(".aboutQuestion").val(),
                 "sampleTestCase": SampleTestCaseList,
                 "testcases": testCaseList
@@ -403,15 +403,19 @@
     
         function deleteQuestion(divId) {  
         	console.log("===>",divId);
+        	var qIdAndLevel = [];
+        	qIdAndLevel.push("questionForLevel");
+        	qIdAndLevel.push(divId);
+        	qIdAndLevel.push("Level 1");
         	var qid=divId;
         	var pDoc = document.getElementById(divId);
         	pDoc.parentNode.remove();
-        	 $.ajax({
+        	  $.ajax({
                  url: "/deletequestion",
                  contentType: "application/json; charset=utf-8",
                  dataType: "json",
                  method: "POST",
-                 data: JSON.stringify(qid),
+                 data: JSON.stringify(qIdAndLevel),
                  success: function (response) {
                     
                  },

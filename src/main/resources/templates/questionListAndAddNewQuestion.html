@@ -596,16 +596,18 @@
                  data: JSON.stringify(level),
                  success: function (response) {
                 	
-                	 console.log(response);
+                	 console.log("=> 1 ",response);
                 	 
                 	  //**************************************
                 	  
                     $(".availableglass").remove();
                      var  t = response.valueOf();
+                     console.log("=> 2 ",t);
                     t.forEach(element => {
+                    	 console.log("=> 3 ",element);
                     	var data="";
                       data += '<div class="availableglass"><div class="' + element.questionId.valueOf() +'"><div class="added_question_box row mx-4 mt-3"><div class="col-9"><p class="overflow_level1 "><span class="" style="overflow-wrap: anywhere;"> ' +element.question.valueOf()+ ' </span></p></div><div class="col-2 "><div><div class=" pt-3 mx-5"><div class="round"><input type="checkbox" id="' + element.questionId.valueOf() +'" name="color" value="' + element.questionId.valueOf() +'" /> <label for="' + element.questionId.valueOf() +'"></label></div></div></div></div> <div class="col-1 mt-3 btn_img_cross" id="' + element.questionId.valueOf() +'" onclick="deleteQuestion(this.id)"> </div></div></div></div> '
-                    	  $('.added_questions_all_question').append(data);
+                    	  $('.added_questions_all_question2').append(data);
                     });
                     
                       //*******************************************
