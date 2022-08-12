@@ -24,7 +24,7 @@ public class SwaggerConfig {
     }
 
 	private ApiInfoBuilder apiInfo() {
-		return new ApiInfoBuilder().title("Tes Engine Api")
+		return new ApiInfoBuilder().title("Test Engine Api")
 				.description("Test Engine API Documentation");
 	}
 }

@@ -82,23 +82,19 @@ public class StudentController {
 		return mv;
 	}
 
-	@PostMapping("/sendMail")
-	public ResponseEntity<Object> sendMail(@RequestBody Student student) {
-		try {
-			this.emailService.sendMail(student.getContestId(), student.getName(), student.getEmail(),"Webkorps Code Assesment Credentials", student.getPassword());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return generateResponse("mail sent to" + student.getEmail(), HttpStatus.OK, student);
-
-	}
-
-	public ResponseEntity<Object> generateResponse(String msg, HttpStatus st, Object response) {
-		Map<String, Object> mp = new HashedMap();
-		mp.put("message", msg);
-		mp.put("status", st);
-		mp.put("data", response);
-		return new ResponseEntity<Object>(mp, st);
-	}
-
+	/*
+	 * @PostMapping("/sendMail") public ResponseEntity<Object> sendMail(@RequestBody
+	 * Student student) { try { this.emailService.sendMail(student.getContestId(),
+	 * student.getName(), student.getEmail(),"Webkorps Code Assesment Credentials",
+	 * student.getPassword()); } catch (Exception e) { e.printStackTrace(); } return
+	 * generateResponse("mail sent to" + student.getEmail(), HttpStatus.OK,
+	 * student);
+	 * 
+	 * }
+	 * 
+	 * public ResponseEntity<Object> generateResponse(String msg, HttpStatus st,
+	 * Object response) { Map<String, Object> mp = new HashedMap();
+	 * mp.put("message", msg); mp.put("status", st); mp.put("data", response);
+	 * return new ResponseEntity<Object>(mp, st); }
+	 */
 }

@@ -1,18 +1,23 @@
 package com.codecompiler.service.impl;
 
-import com.codecompiler.controller.BinaryDataController;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.codecompiler.entity.ResponseToFE;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
 import com.codecompiler.service.CommonService;
 import com.codecompiler.service.StudentService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class CodeProcessingServiceImpl implements CodeProcessingService {
@@ -21,9 +26,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
     @Autowired
     private StudentService studentService;
-
-    @Autowired
-    private BinaryDataController binaryDataController;
 
     private PrintWriter processCode(String code,String language) throws IOException {
         FileWriter fl = null;
