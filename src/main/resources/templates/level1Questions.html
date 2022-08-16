@@ -370,7 +370,7 @@
                 "sampleTestCase": SampleTestCaseList,
                 "testcases": testCaseList
             };
-
+            if(updatedQuestionId==""){
             $.ajax({
                 url: "/savequestion",
                 contentType: "application/json; charset=utf-8",
@@ -388,12 +388,32 @@
                 },
 
             });
+            } else{  
+            	console.log("updatedQuestionId fill ",updatedQuestionId);
+           	 $.ajax({
+                    url: "/saveupdatedquestion",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    method: "POST",
+                    data: JSON.stringify(Question),
+                    success: function (response) {
+                        console.log(response);
+                        var data = '';
+                            window.location.href = "level1questions";
+                    },
+                    error: function (error) {
+                    	 window.location.href = "level1questions";
+                        console.log(error);
+                    },
+                });            
+           }
+            
             $(".aboutQuestion").val(''); 
             $(".aboutConstraints").val(''); 
             $(".aboutSampleInput").val(''); 
             $(".aboutSampleOutput").val('');
             $('.inputOutputList').remove();
-
+            
         });
         
         function removeCurrentIOli(temp) {
@@ -402,15 +422,19 @@
     
         function deleteQuestion(divId) {  
         	console.log("===>",divId);
+        	var qIdAndLevel = [];
+        	qIdAndLevel.push("questionForLevel");
+        	qIdAndLevel.push(divId);
+        	qIdAndLevel.push("Level 1");
         	var qid=divId;
         	var pDoc = document.getElementById(divId);
         	pDoc.parentNode.remove();
-        	 $.ajax({
+        	  $.ajax({
                  url: "/deletequestion",
                  contentType: "application/json; charset=utf-8",
                  dataType: "json",
                  method: "POST",
-                 data: JSON.stringify(qid),
+                 data: JSON.stringify(qIdAndLevel),
                  success: function (response) {
                     
                  },

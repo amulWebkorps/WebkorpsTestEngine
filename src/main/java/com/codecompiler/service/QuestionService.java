@@ -36,9 +36,7 @@ public class QuestionService {
 	
 	}
 	public ArrayList<Question>  findQuestionByContestLevel(String contestLevel){
-	System.out.println("cLevel"+contestLevel);
-	ArrayList<Question> question = questionRepository.findByContestLevel(contestLevel);
-   System.out.println("qList 22  :    "+question);        
+	ArrayList<Question> question = questionRepository.findByContestLevel(contestLevel);      
 	return question;
 }
 }

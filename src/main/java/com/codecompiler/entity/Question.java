@@ -16,12 +16,21 @@ public class Question {
 	private String questionId;	
 	private String question;
 	private  String contestLevel;	
+	private String questionStatus;
 	private List<SampleTestCase> sampleTestCase;
 	private List<TestCases> testcases;
 
 	public Question() {
 		super();
 		
+	}
+
+	public String getQuestionStatus() {
+		return questionStatus;
+	}
+
+	public void setQuestionStatus(String questionStatus) {
+		this.questionStatus = questionStatus;
 	}
 
 	public String getQuestionId() {
@@ -67,9 +76,8 @@ public class Question {
 	@Override
 	public String toString() {
 		return "Question [questionId=" + questionId + ", question=" + question + ", contestLevel=" + contestLevel
-				+ ", sampleTestCase=" + sampleTestCase + ", testcases=" + testcases + "]";
+				+ ", questionStatus=" + questionStatus + ", sampleTestCase=" + sampleTestCase + ", testcases="
+				+ testcases + "]";
 	}
-	
-	
-	
+		
 }
