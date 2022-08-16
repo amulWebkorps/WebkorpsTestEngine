@@ -367,29 +367,49 @@
             console.log(SampleTestCaseList);
             var Question = {
             	"questionId":updatedQuestionId,               
-                "contestLevel": $(".contestlevel").val()+"@"+$(".contestid").val(),
+            	"contestLevel": "Level 2",
                 "question": $(".aboutQuestion").val(),
                 "sampleTestCase": SampleTestCaseList,
                 "testcases": testCaseList
             };
 
-            $.ajax({
-                url: "/savequestion",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                method: "POST",
-                data: JSON.stringify(Question),
-                success: function (response) {
-                    console.log(response);
-                    var data = '';
-                    window.location.href = "level2questions";
-                },
-                error: function (error) {
-                	window.location.href = "level2questions";
-                    console.log(error);
-                },
+            if(updatedQuestionId==""){
+                $.ajax({
+                    url: "/savequestion",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    method: "POST",
+                    data: JSON.stringify(Question),
+                    success: function (response) {
+                        console.log(response);
+                        var data = '';
+                        window.location.href = "level2questions";
+                    },
+                    error: function (error) {
+                    	window.location.href = "level2questions";
+                        console.log(error);
+                    },
 
-            });
+                });
+                } else{  
+                	console.log("updatedQuestionId fill ",updatedQuestionId);
+               	 $.ajax({
+                        url: "/saveupdatedquestion",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        method: "POST",
+                        data: JSON.stringify(Question),
+                        success: function (response) {
+                            console.log(response);
+                            var data = '';
+                                window.location.href = "level2questions";
+                        },
+                        error: function (error) {
+                        	 window.location.href = "level2questions";
+                            console.log(error);
+                        },
+                    });            
+               }
             $(".aboutQuestion").val(''); 
             $(".aboutConstraints").val(''); 
             $(".aboutSampleInput").val(''); 
@@ -406,7 +426,7 @@
         	var qIdAndLevel = [];
         	qIdAndLevel.push("questionForLevel");
         	qIdAndLevel.push(divId);
-        	qIdAndLevel.push("Level 1");
+        	qIdAndLevel.push("Level 2");
         	var qid=divId;
         	var pDoc = document.getElementById(divId);
         	pDoc.parentNode.remove();

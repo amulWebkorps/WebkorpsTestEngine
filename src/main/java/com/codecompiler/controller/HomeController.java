@@ -180,29 +180,34 @@ public class HomeController {
 	@PostMapping("/savequestion")
 	public ResponseEntity<String> saveQuestion(@RequestBody Question question, Model model) throws IOException {
 		System.out.println("savequestion Obj Prev : " + question);
-
 		System.out.println("Obj q id : " + question.getQuestionId());
 		String[] stringOfCidAndCl = new String[2];
 		stringOfCidAndCl = question.getContestLevel().split("@");
-		Contest contest = new Contest(); // id, level
-		contest = contestService.getContestBasedOnContestIdAndLevel(stringOfCidAndCl[1], stringOfCidAndCl[0]);
-		question.setContestLevel(stringOfCidAndCl[0]);
-
+		System.out.println("stringOfCidAndCl length => "+stringOfCidAndCl.length);
 		String tempQid = question.getQuestionId();
 		if (tempQid == ("")) {			
 			tempQid = UUID.randomUUID().toString();
 			question.setQuestionId(tempQid);
 			question.setQuestionStatus("true");
 		}
-
-		Question savedQuestion = commonService.saveUpdatedQuestion(question);
-		QuestionStatus queStatus = new QuestionStatus();
-		queStatus.setQuestionId(savedQuestion.getQuestionId());
-		queStatus.setStatus(true);
-		// contest.getQuestionIds().add(savedQuestion.getQuestionId());
-		contest.getQuestionStatus().add(queStatus);
-		System.out.println("contest after :  " + contest);
-		contestService.saveContest(contest);
+		
+		if(stringOfCidAndCl.length == 1) {
+			question.setContestLevel(stringOfCidAndCl[0]);
+			Question savedQuestion = commonService.saveUpdatedQuestion(question);
+			System.out.println("savequestion Obj after : " + savedQuestion);
+		}else {
+			Contest contest = new Contest(); // id, level
+			contest = contestService.getContestBasedOnContestIdAndLevel(stringOfCidAndCl[1], stringOfCidAndCl[0]);
+			question.setContestLevel(stringOfCidAndCl[0]);
+			Question savedQuestion = commonService.saveUpdatedQuestion(question);
+			QuestionStatus queStatus = new QuestionStatus();
+			queStatus.setQuestionId(savedQuestion.getQuestionId());
+			queStatus.setStatus(true);
+			// contest.getQuestionIds().add(savedQuestion.getQuestionId());
+			contest.getQuestionStatus().add(queStatus);
+			System.out.println("contest after :  " + contest);
+			contestService.saveContest(contest);
+		}
 		return ResponseEntity.ok("");
 	}
 
@@ -212,6 +217,7 @@ public class HomeController {
 		String[] stringOfCidAndCl = new String[2];
 		stringOfCidAndCl = question.getContestLevel().split("@");
 		question.setContestLevel(stringOfCidAndCl[0]);
+		question.setQuestionStatus("true");
 		System.out.println("Obj after : " + question);
 		commonService.saveUpdatedQuestion(question);
 		model.addAttribute("questions", commonService.getAllQuestionFromDataBase());
