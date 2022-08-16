@@ -3,13 +3,14 @@ package com.codecompiler.controller;
 import java.util.Map;
 
 import org.apache.commons.collections4.map.HashedMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,15 +20,20 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.codecompiler.entity.Student;
 import com.codecompiler.helper.Helper;
+import com.codecompiler.service.EmailService;
 import com.codecompiler.service.StudentService;
 
 @Controller
 public class StudentController {
+	
 	@Autowired
 	private StudentService studentService;
-	@Autowired
-	private JavaMailSender jvms;
 
+	@Autowired
+	private EmailService emailService;
+
+	Logger logger = LogManager.getLogger(StudentController.class);
+	
 	@RequestMapping(value = "/student/upload", headers = "content-type=multipart/*", method = RequestMethod.POST)
 	public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
 		if (Helper.checkExcelFormat(file)) {
@@ -38,7 +44,6 @@ public class StudentController {
 				e.printStackTrace();
 			}
 			return ResponseEntity.ok(Map.of("message", "File is uploaded and data is saved to db"));
-
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please upload excel file ");
 	}
@@ -61,7 +66,7 @@ public class StudentController {
 
 		Student studentExists = studentService.findByEmailAndPassword(email, password);
 		if (studentExists == null) {
-			System.out.println("email and password does not match");
+			logger.error("email and password does not match");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("email and password does not match");
 		} else {
 			studentExists.setContestId(contestId);
@@ -77,15 +82,10 @@ public class StudentController {
 		return mv;
 	}
 
-	@RequestMapping("/sendMail")
+	@PostMapping("/sendMail")
 	public ResponseEntity<Object> sendMail(@RequestBody Student student) {
 		try {
-			SimpleMailMessage sms = new SimpleMailMessage();
-			sms.setFrom("patilritika1995@gmail.com");
-			sms.setTo(student.getEmail());
-			sms.setSubject("application");
-			sms.setText("hello dear");
-			jvms.send(sms);
+			this.emailService.sendMail(student.getContestId(), student.getName(), student.getEmail(),"Webkorps Code Assesment Credentials", student.getPassword());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
