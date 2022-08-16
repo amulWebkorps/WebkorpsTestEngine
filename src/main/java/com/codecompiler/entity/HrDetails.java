@@ -8,11 +8,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EntityScan
 public class HrDetails {
 	@Id
-	String hId;
-	String hName;
-	String hNumber;
-	String email;
-	String password;
+	private String hId;
+	private String hName;
+	private String hNumber;
+	private String email;
+	private String password;
 
 	public String getPassword() {
 		return password;

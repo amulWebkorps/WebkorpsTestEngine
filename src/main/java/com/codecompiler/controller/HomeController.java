@@ -29,15 +29,16 @@ import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCasesRecord;
 import com.codecompiler.service.CommonService;
 import com.codecompiler.service.ContestService;
+import com.codecompiler.service.ContestServiceImpl;
 import com.codecompiler.service.StudentService;
 
-@Controller
+//@Controller
 public class HomeController {
 
 	@Autowired
 	private CommonService commonService;
 	@Autowired
-	private ContestService contestService;
+	private ContestServiceImpl contestService;
 	@Autowired
 	StudentService studentService;
 	public String contestId = "";
@@ -67,11 +68,11 @@ public class HomeController {
 		return "Register";		
 	}
 	
-	@RequestMapping("/login")
-	public String login(@RequestParam("contestId") String contestId, Model model) {
-		model.addAttribute("contestId", contestId);
-		return "Login.html";		
-	}
+	/*
+	 * @RequestMapping("/login") public String login(@RequestParam("contestId")
+	 * String contestId, Model model) { model.addAttribute("contestId", contestId);
+	 * return "Login.html"; }
+	 */
 	@RequestMapping("/hrlogin")
 	public String Hrlogin(Model model) {
 		return "HrLogin.html";		

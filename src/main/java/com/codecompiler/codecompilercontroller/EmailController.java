@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.codecompiler.entity.Student;
 import com.codecompiler.service.EmailService;
@@ -30,12 +31,12 @@ public class EmailController {
 
 	Logger logger = LogManager.getLogger(EmailController.class);
 	
-	@PostMapping("/sendMail")
-	public ResponseEntity<Object> sendMail(@RequestBody List<String> StudentIds) {
+	@PostMapping("sendMail")
+	public ResponseEntity<Object> sendMail(@RequestParam("StudentIds") List<String> StudentIds, @RequestParam("contestId") String contestId) {
 		try {
 			for (String studentId : StudentIds) {
 				Student studentDetails = studentService1.findById(studentId);
-				this.emailService.sendMail(StudentIds.get(0), studentDetails.getName(), studentDetails.getEmail(),"Webkorps Code Assesment Credentials", studentDetails.getPassword());
+				this.emailService.sendMail(contestId, studentDetails.getName(), studentDetails.getEmail(),"Webkorps Code Assesment Credentials", studentDetails.getPassword());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
