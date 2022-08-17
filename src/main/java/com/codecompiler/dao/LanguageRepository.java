@@ -11,4 +11,6 @@ import com.codecompiler.entity.Language;
 public interface LanguageRepository extends MongoRepository<Language, String> {
 
 	public List<Language> findAll();
+	
+	public Language findByLanguage(String language);
 }

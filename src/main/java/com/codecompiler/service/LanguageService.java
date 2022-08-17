@@ -7,4 +7,6 @@ import com.codecompiler.entity.Language;
 public interface LanguageService {
 
 	public List<Language> findAllLanguage();
+	
+	public Language findByLanguage(String language);
 }

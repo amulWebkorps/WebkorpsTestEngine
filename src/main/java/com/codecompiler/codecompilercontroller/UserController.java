@@ -67,7 +67,9 @@ public class UserController {
 				adminDetail.sethNumber(hrDetails.gethNumber());
 				adminDetail.setPassword(hrDetails.getPassword());
 				adminService.saveHrDetails(adminDetail);
+				logger.error("Admin details saved");
 			} else {
+				logger.error("Email Already Registered");
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email Already Registered");
 			}		
 		} catch (Exception e) {
