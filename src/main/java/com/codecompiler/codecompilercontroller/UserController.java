@@ -45,6 +45,7 @@ public class UserController {
 	@PostMapping("doSignInForAdmin")
 	public ResponseEntity<Object> doLogin(@RequestParam("email") String email,
 			@RequestParam("password") String password) {
+		
 		HrDetails adminExistis = adminService.findByEmailAndPassword(email, password);
 		if (adminExistis == null) {
 			logger.error("email and password does not match");

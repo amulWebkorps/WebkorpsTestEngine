@@ -23,7 +23,7 @@ import com.codecompiler.helper.Helper;
 import com.codecompiler.service.EmailService;
 import com.codecompiler.service.StudentService;
 
-@Controller
+//@Controller
 public class StudentController {
 	
 	@Autowired

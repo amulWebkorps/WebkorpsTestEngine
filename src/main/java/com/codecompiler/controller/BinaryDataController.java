@@ -15,7 +15,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 //import com.mongodb.gridfs.GridFSDBFile;
 
-@RestController
+//@RestController
 public class BinaryDataController {
 
 //	@Autowired
