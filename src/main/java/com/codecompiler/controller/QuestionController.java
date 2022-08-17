@@ -23,48 +23,42 @@ import com.codecompiler.service.QuestionService;
 public class QuestionController {
 	@Autowired
 	QuestionService qs;
-	String contestLevel=null;
-		@RequestMapping(value = "/question/upload", headers = "content-type=multipart/*", method = RequestMethod.POST)
-	    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,@RequestParam("level")String level) {
-			contestLevel=level;
-	        if (Helper.checkExcelFormat(file)) {
-	            //true
-try {
-	            this.qs.save(file);
-}
-catch (Exception e) {
-e.printStackTrace();
-}
-	            return ResponseEntity.ok(contestLevel);
+	String contestLevel = null;
 
+	@RequestMapping(value = "/question/upload", headers = "content-type=multipart/*", method = RequestMethod.POST)
+	public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file, @RequestParam("level") String level) {
+		contestLevel = level;
+		if (Helper.checkExcelFormat(file)) {
+			// true
+			try {
+				this.qs.save(file);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return ResponseEntity.ok(contestLevel);
 
-	        }
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please upload excel file ");
-	    }
-	
-		@RequestMapping("/questionuploaded")
-		public String upload(Model model) {
-			List<Question> contestQuestionsTemp = new ArrayList<>();
-			if(contestLevel.equals("Level 2"))
-			{
-
-				contestQuestionsTemp = qs.findQuestionByContestLevel(contestLevel);	
-				model.addAttribute("questions", contestQuestionsTemp);
-				return "level2Questions";
-		
-			}
-			else if(contestLevel.equals("Level 1"))
-			{
-				contestQuestionsTemp = qs.findQuestionByContestLevel(contestLevel);	
-				model.addAttribute("questions", contestQuestionsTemp);
-				return "level1Questions";
-			}
-			else
-			{
-				contestQuestionsTemp =  qs.getAllQuestion();
-				model.addAttribute("questions", contestQuestionsTemp);
-				return "questionListAndAddNewQuestion";
-			}
-			
 		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please upload excel file ");
+	}
+
+	@RequestMapping("/questionuploaded")
+	public String upload(Model model) {
+		List<Question> contestQuestionsTemp = new ArrayList<>();
+		if (contestLevel.equals("Level 2")) {
+
+			contestQuestionsTemp = qs.findQuestionByContestLevel(contestLevel);
+			model.addAttribute("questions", contestQuestionsTemp);
+			return "level2Questions";
+
+		} else if (contestLevel.equals("Level 1")) {
+			contestQuestionsTemp = qs.findQuestionByContestLevel(contestLevel);
+			model.addAttribute("questions", contestQuestionsTemp);
+			return "level1Questions";
+		} else {
+			contestQuestionsTemp = qs.getAllQuestion();
+			model.addAttribute("questions", contestQuestionsTemp);
+			return "questionListAndAddNewQuestion";
+		}
+
+	}
 }

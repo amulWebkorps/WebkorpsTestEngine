@@ -25,7 +25,7 @@ import com.codecompiler.service.StudentService;
 
 @Controller
 public class StudentController {
-	
+
 	@Autowired
 	private StudentService studentService;
 
@@ -33,7 +33,7 @@ public class StudentController {
 	private EmailService emailService;
 
 	Logger logger = LogManager.getLogger(StudentController.class);
-	
+
 	@RequestMapping(value = "/student/upload", headers = "content-type=multipart/*", method = RequestMethod.POST)
 	public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
 		if (Helper.checkExcelFormat(file)) {
@@ -62,7 +62,8 @@ public class StudentController {
 	}
 
 	@RequestMapping("/dologin")
-	public ResponseEntity<?> doLogin(@RequestParam("email") String email, @RequestParam("password") String password, @RequestParam("contestId") String contestId) {
+	public ResponseEntity<?> doLogin(@RequestParam("email") String email, @RequestParam("password") String password,
+			@RequestParam("contestId") String contestId) {
 
 		Student studentExists = studentService.findByEmailAndPassword(email, password);
 		if (studentExists == null) {
@@ -78,7 +79,7 @@ public class StudentController {
 	public ModelAndView doLogin(@RequestParam("id") String id, @RequestParam("contestId") String contestId) {
 		Student studentRecord = studentService.findById(id);
 		studentRecord.setContestId(contestId);
-		ModelAndView mv = new ModelAndView("startContest","studentRecord", studentRecord);
+		ModelAndView mv = new ModelAndView("startContest", "studentRecord", studentRecord);
 		return mv;
 	}
 
