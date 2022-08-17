@@ -20,4 +20,7 @@ public class LanguageServiceImpl implements LanguageService{
 		return languageRepository.findAll();
 	}
 
+	public Language findByLanguage(String language) {
+		return languageRepository.findByLanguage(language);
+	}
 }

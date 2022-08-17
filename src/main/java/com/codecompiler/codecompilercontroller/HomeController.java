@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.codecompiler.entity.Language;
@@ -19,7 +18,7 @@ public class HomeController {
 	@Autowired
 	private LanguageService languageService;
 	
-	@PostMapping("login")
+	@GetMapping("login")
 	public ResponseEntity<Object> login(@RequestParam("contestId") String contestId) {
 		return new ResponseEntity<Object>(contestId, HttpStatus.OK);
 	}

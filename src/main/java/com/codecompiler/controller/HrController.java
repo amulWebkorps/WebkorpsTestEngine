@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.codecompiler.entity.HrDetails;
 import com.codecompiler.service.HrService;
-@Controller
+//@Controller
 public class HrController {
 	@Autowired 
 	HrService hrService;

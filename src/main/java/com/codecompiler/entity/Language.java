@@ -11,6 +11,7 @@ public class Language {
 	@Id
 	private String id;
 	private String language;
+	private String codeBase;
 	
 	public String getId() {
 		return id;
@@ -24,10 +25,16 @@ public class Language {
 	public void setLanguage(String language) {
 		this.language = language;
 	}
+	public String getCodeBase() {
+		return codeBase;
+	}
+	public void setCodeBase(String codeBase) {
+		this.codeBase = codeBase;
+	}
 	
 	@Override
 	public String toString() {
-		return "Language [id=" + id + ", language=" + language + "]";
+		return "Language [id=" + id + ", language=" + language + ", codeBase=" + codeBase + "]";
 	}
 	
 }

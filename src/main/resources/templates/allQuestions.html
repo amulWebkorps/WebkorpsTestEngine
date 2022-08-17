@@ -96,7 +96,7 @@
 		crossorigin="anonymous"></script>
 	<script>
 	$(document).ready(function() {
-		debugger;
+	
 	console.log(sessionStorage.getItem("form-select"));
 	if(sessionStorage.getItem("form-select")!=null)
 		{
@@ -105,33 +105,35 @@
 		}
 	
 	});
-        function deleteQuestion(divId) {  
-        	console.log("===>",divId);
-        	var qid=divId;
-        	var pDoc = document.getElementById(divId);
-        	pDoc.parentNode.remove();
-        	 $.ajax({
-                 url: "/deletequestion",
-                 contentType: "application/json; charset=utf-8",
-                 dataType: "json",
-                 method: "POST",
-                 data: JSON.stringify(qid),
-                 success: function (response) {
-                	  window.location.href = "allquestions";
-                 },
-                 error: function (error) {
-                	  window.location.href = "allquestions";
-                     console.log(error);
-                 },
+	function deleteQuestion(divId) {  
+    	console.log("===>",divId);
+    	var qIdAndLevel = [];
+    	qIdAndLevel.push("questionForLevel");
+    	qIdAndLevel.push(divId);
+    	qIdAndLevel.push("Level 1");
+    	var qid=divId;
+    	var pDoc = document.getElementById(divId);
+    	pDoc.parentNode.remove();
+    	  $.ajax({
+             url: "/deletequestion",
+             contentType: "application/json; charset=utf-8",
+             dataType: "json",
+             method: "POST",
+             data: JSON.stringify(qIdAndLevel),
+             success: function (response) {
+                
+             },
+             error: function (error) {
+                 console.log(error);
+             },
 
-             });
-        	
-        }
+         });
+    }
         
         $('.form-select').change(function(){
         	
 			var level = $(".form-select").val();	
-			debugger;
+			console.log("level=>",level);
 			console.log(level);
 			 $.ajax({
                  url: "/filterbasedonlevel",
@@ -149,7 +151,7 @@
                  },
                 
              });
-			 debugger;
+		
 			 sessionStorage.setItem("form-select", $(this).val());
 			
         });

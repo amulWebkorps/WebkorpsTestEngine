@@ -73,27 +73,11 @@ public class CommonService {
 		}
 		return sampleTestCaseCollection;
 	}
-	
-	/*
-	 * public ArrayList<Question> getQuestionByContestId(String contestId) {
-	 * System.out.println("String  : "+contestId); ArrayList<Question> question =
-	 * questionRepository.findByContestId(contestId);
-	 * System.out.println("q   :    "+question); return question; }
-	 * 
-	 * public Question findByContestIdAndContestLevel(String contestId, String
-	 * contestLevel){ System.out.println("CID  : "+contestId+"cLevel"+contestLevel);
-	 * 
-	 * Question question =
-	 * questionRepository.findByContestIdAndContestLevel(contestId, contestLevel);
-	 * System.out.println("qList  :    "+question); return question; }
-	 */
-	
+		
 	public ArrayList<Question>  findQuestionByContestLevel(String contestLevel){
-	System.out.println("cLevel"+contestLevel);
-	ArrayList<Question> question = questionRepository.findByContestLevel(contestLevel);
-   System.out.println("qList 22  :    "+question);        
+	ArrayList<Question> question = questionRepository.findByContestLevel(contestLevel);       
 	return question;
-}
+    }
 	
 	
 	
@@ -102,61 +86,6 @@ public class CommonService {
 		questionRepository.deleteByQuestionId(questionId);
 		return "Deleting....";
 	}
-		
-	
- //Currently not using :-	
-	/*
-	 * public void storeFileToFolder(String studentId, String code) throws
-	 * IOException { System.out.println("ID => :"+studentId); FileWriter fl = new
-	 * FileWriter(
-	 * "C:\\Users\\Public\\Montrix\\CodeCompiler\\src\\main\\resources\\temp\\" + studentId + "
-	 * ." + "txt"); PrintWriter pr = new PrintWriter(fl); pr.write((String) code);
-	 * 
-	 * System.out.println("id of file : => "+binaryDataController.saveFile(studentId
-	 * )); pr.flush(); pr.close(); deleteFileFromFolder(studentId); }
-	 * 
-	 * 
-	 * public Boolean deleteFileFromFolder(String fileName) throws IOException {
-	 * System.out.println("going to delete =>  ....");
-	 * System.out.println(fileName.getClass()); File f= new File(
-	 * "C:\\Users\\Public\\Montrix\\CodeCompiler\\src\\main\\resources\\temp\\"+fileName+"
-	 * .txt"); return f.delete(); }
-	 * 
-	 * @PostMapping("/savequestion") public ResponseEntity<Question> saveQuestion()
-	 * throws IOException { List<TestCases> testCases = new ArrayList<>(); String
-	 * table = ""; table="2" + "\r\n" + "4"+ "\r\n" + "6"+ "\r\n" + "8"+ "\r\n" +
-	 * "10"+ "\r\n" + "12"+ "\r\n" + "14"+ "\r\n" + "16"+ "\r\n" + "18"+ "\r\n" +
-	 * "20"; TestCases t1=new TestCases(1,"2",table); testCases.add(t1); table="3" +
-	 * "\r\n" + "6"+ "\r\n" + "9"+ "\r\n" + "12"+ "\r\n" + "15"+ "\r\n" + "18"+
-	 * "\r\n" + "21"+ "\r\n" + "24"+ "\r\n" + "27"+ "\r\n" + "30"; TestCases t2=new
-	 * TestCases(2,"3",table); testCases.add(t2); table="4" + "\r\n" + "8"+ "\r\n" +
-	 * "12"+ "\r\n" + "16"+ "\r\n" + "20"+ "\r\n" + "24"+ "\r\n" + "28"+ "\r\n" +
-	 * "32"+ "\r\n" + "36"+ "\r\n" + "40"; TestCases t3=new TestCases(3,"4",table);
-	 * testCases.add(t3);
-	 * 
-	 * File inputFile = new File(
-	 * "C:\\Users\\Public\\Montrix\\CodeCompiler\\src\\main\\resources\\temp\\"+"output
-	 * .txt"); BufferedReader inputReader = new BufferedReader(new
-	 * FileReader(inputFile)); table = ""; String input = ""; while((input =
-	 * inputReader.readLine()) != null){ table=table+"\r\n"+input; }
-	 * table=table.substring(2,table.length()); TestCases t4=new
-	 * TestCases(4,"5",table); testCases.add(t4); System.out.println(table);
-	 * 
-	 * Question question = new
-	 * Question(7,"Write a program to print table ?",testCases);
-	 * saveQuestion(question); return ResponseEntity.ok(question); }
-	 * 
-	 * @GetMapping("/getquestion/{questionId}") public
-	 * ResponseEntity<List<TestCases>> getQuestion(@PathVariable int questionId) {
-	 * List<Question> question = getQuestionFromDataBase(questionId);
-	 * System.out.println(question); List<TestCases> testCasesCollection = null; for
-	 * (Question q : question) { testCasesCollection = q.getTestcases(); } for
-	 * (TestCases tastCases : testCasesCollection) {
-	 * System.out.println(tastCases.getOutput()); } return
-	 * ResponseEntity.ok(testCasesCollection);
-	 * 
-	 * }
-	 */
 	
 	public List<Question> getAllQuestion(List<String> QuestionId) {
 		List<Question> question = questionRepository.findByQuestionIdIn(QuestionId);

@@ -45,6 +45,7 @@ public class UserController {
 	@PostMapping("doSignInForAdmin")
 	public ResponseEntity<Object> doLogin(@RequestParam("email") String email,
 			@RequestParam("password") String password) {
+		
 		HrDetails adminExistis = adminService.findByEmailAndPassword(email, password);
 		if (adminExistis == null) {
 			logger.error("email and password does not match");
@@ -66,7 +67,9 @@ public class UserController {
 				adminDetail.sethNumber(hrDetails.gethNumber());
 				adminDetail.setPassword(hrDetails.getPassword());
 				adminService.saveHrDetails(adminDetail);
+				logger.error("Admin details saved");
 			} else {
+				logger.error("Email Already Registered");
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email Already Registered");
 			}		
 		} catch (Exception e) {

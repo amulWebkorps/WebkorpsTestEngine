@@ -19,7 +19,7 @@ import com.codecompiler.entity.Student;
 import com.codecompiler.helper.Helper;
 import com.codecompiler.service.QuestionService;
 
-@Controller
+//@Controller
 public class QuestionController {
 	@Autowired
 	QuestionService qs;
