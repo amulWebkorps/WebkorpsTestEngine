@@ -1,21 +1,29 @@
 package com.codecompiler.codecompilercontroller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.HashedMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Language;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.ResponseToFE;
 import com.codecompiler.service.CodeProcessingService;
+import com.codecompiler.service.ContestService;
 import com.codecompiler.service.LanguageService;
 import com.codecompiler.service.QuestionService1;
 
@@ -30,6 +38,11 @@ public class CodeCompilerController {
 	
 	@Autowired
 	private LanguageService languageService;
+	
+	@Autowired
+	private ContestService contestService;
+	
+	Logger logger = LogManager.getLogger(CodeCompilerController.class);
 
 	@PostMapping("startContestPage")
 	public ResponseEntity<Object> contestPage(@RequestParam(value = "contestId", required = false) String contestId,
@@ -56,5 +69,25 @@ public class CodeCompilerController {
 		mp.put("previous", previous);
 		mp.put("next", next);
 		return new ResponseEntity<Object>(mp, status);
+	}
+	
+	@PostMapping("createContest")
+	private ResponseEntity<Object> addContest(@RequestBody Contest contest) {
+		List<Contest> contestIdAndName = new ArrayList<>();
+		try {
+			contestService.saveContest(contest);
+			List<Contest> allContest = contestService.findAllContest();
+			Contest contestRecord = new Contest();
+			allContest.forEach(eachContestRecord -> {
+				contestRecord.setContestId(eachContestRecord.getContestId());
+				contestRecord.setContestName(eachContestRecord.getContestName());
+				contestRecord.setContestDescription(eachContestRecord.getContestDescription());
+				contestIdAndName.add(contestRecord);
+			});
+			logger.info("Contest added successfully");
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		return new ResponseEntity<Object>(contestIdAndName, HttpStatus.OK);
 	}
 }

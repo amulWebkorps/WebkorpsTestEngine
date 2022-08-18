@@ -1,4 +1,4 @@
-package com.codecompiler.service;
+package com.codecompiler.service.impl;
 
 import java.util.List;
 
@@ -8,19 +8,19 @@ import org.springframework.stereotype.Service;
 import com.codecompiler.dao.ContestRepository;
 import com.codecompiler.dao.QuestionRepository;
 import com.codecompiler.entity.Contest;
+import com.codecompiler.service.ContestService;
 
 @Service
-public class ContestServiceImpl {
+public class ContestServiceImpl implements ContestService {
 
 	@Autowired
-	ContestRepository contestRepository;
+	private ContestRepository contestRepository;
 	
 	@Autowired
 	QuestionRepository questionRepository;
 	
 	public Contest saveContest(Contest contest) {
-		Contest con = contestRepository.save(contest);				
-		return con;
+		return contestRepository.save(contest);				
 	}
 	
 	public List<Contest> getAllContest() {
@@ -40,6 +40,11 @@ public class ContestServiceImpl {
 
 	public void deleteContest(String contestId) {
 		contestRepository.deleteById(contestId);			
+	}
+
+	@Override
+	public List<Contest> findAllContest() {
+		return contestRepository.findAll();
 	}
 	
 }

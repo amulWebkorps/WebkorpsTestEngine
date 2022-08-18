@@ -29,8 +29,8 @@ import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCasesRecord;
 import com.codecompiler.service.CommonService;
 import com.codecompiler.service.ContestService;
-import com.codecompiler.service.ContestServiceImpl;
 import com.codecompiler.service.StudentService;
+import com.codecompiler.service.impl.ContestServiceImpl;
 
 //@Controller
 public class HomeController {
