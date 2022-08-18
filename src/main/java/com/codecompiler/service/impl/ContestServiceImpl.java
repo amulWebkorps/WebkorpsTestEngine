@@ -34,8 +34,9 @@ public class ContestServiceImpl implements ContestService {
 		
 	}
 	
-	public Contest findByContestId(String cId) {
-		return contestRepository.findByContestId(cId);			
+	@Override
+	public Contest findByContestId(String contestId) {
+		return contestRepository.findByContestId(contestId);			
 	}
 
 	public void deleteContest(String contestId) {

@@ -35,5 +35,21 @@ public class QuestionServiceImpl implements QuestionService1 {
 		}
 		return questionRepository.findByQuestionIdIn(qListStatusTrue);
 	}
+	
+	@Override
+	public List<Question> findAllQuestion(){
+		List<Question> totalQuestionWithStatusTrue = new ArrayList<>();
+		for(Question verifyQuestion : questionRepository.findAll()) {
+			if(verifyQuestion.getQuestionStatus() != null ) {
+			if(verifyQuestion.getQuestionStatus().equals("true"))
+			totalQuestionWithStatusTrue.add(verifyQuestion);
+			}
+		}
+		return totalQuestionWithStatusTrue;
+	}
+	
+	public List<Question> findByQuestionIdIn(List<String> questionListStatusTrue) {
+		return questionRepository.findByQuestionIdIn(questionListStatusTrue);
+	}
 
 }

@@ -3,7 +3,6 @@ package com.codecompiler.codecompilercontroller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
@@ -12,20 +11,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Language;
 import com.codecompiler.entity.Question;
+import com.codecompiler.entity.QuestionStatus;
 import com.codecompiler.entity.ResponseToFE;
 import com.codecompiler.service.CodeProcessingService;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.LanguageService;
 import com.codecompiler.service.QuestionService1;
+import com.codecompiler.service.impl.ContestServiceImpl;
 
 @Controller
 public class CodeCompilerController {
@@ -41,6 +41,8 @@ public class CodeCompilerController {
 	
 	@Autowired
 	private ContestService contestService;
+	
+	
 	
 	Logger logger = LogManager.getLogger(CodeCompilerController.class);
 
@@ -90,4 +92,31 @@ public class CodeCompilerController {
 		}
 		return new ResponseEntity<Object>(contestIdAndName, HttpStatus.OK);
 	}
+	
+	@GetMapping("getContestDetail")
+	private ResponseEntity<Object> getContestDetail(@RequestBody Contest contest) {
+		Map<String, Object> contestDetail = new HashedMap<String, Object>();
+		ArrayList<String> qListStatusTrue = new ArrayList<>();
+		List<Question> totalQuestionWithStatusTrue = new ArrayList<>();
+		try {
+			Contest contestRecord = contestService.findByContestId(contest.getContestId());
+			contestDetail.put("contest", contestRecord);
+			for (QuestionStatus questionStatus : contestRecord.getQuestionStatus()) {
+				
+				if (questionStatus.getStatus()) {
+					qListStatusTrue.add(questionStatus.getQuestionId());
+				}
+			}
+			List<Question> questionDetailList = questionService.findByQuestionIdIn(qListStatusTrue);
+			contestDetail.put("contestQuestionDetail", questionDetailList);
+			totalQuestionWithStatusTrue = questionService.findAllQuestion();
+			contestDetail.put("totalAvailableQuestion",totalQuestionWithStatusTrue);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return new ResponseEntity<Object>(contestDetail, HttpStatus.OK);
+	}
+	
+	
+	
 }
