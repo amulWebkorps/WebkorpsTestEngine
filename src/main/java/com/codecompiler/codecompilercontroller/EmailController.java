@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -21,6 +21,7 @@ import com.codecompiler.service.StudentService1;
 
 @Controller
 @RequestMapping("/admin")
+@CrossOrigin(origins = "*")
 public class EmailController {
 
 	@Autowired
@@ -32,14 +33,15 @@ public class EmailController {
 	Logger logger = LogManager.getLogger(EmailController.class);
 	
 	@PostMapping("sendMail")
-	public ResponseEntity<Object> sendMail(@RequestParam("StudentIds") List<String> StudentIds, @RequestParam("contestId") String contestId) {
+	public ResponseEntity<Object> sendMail(@RequestParam("StudentEmail") List<String> StudentEmails, @RequestParam("contestId") String contestId) {
 		try {
-			for (String studentId : StudentIds) {
-				Student studentDetails = studentService1.findById(studentId);
+			for (String studentEmail : StudentEmails) {
+				Student studentDetails = studentService1.findByEmail(studentEmail);
 				this.emailService.sendMail(contestId, studentDetails.getName(), studentDetails.getEmail(),"Webkorps Code Assesment Credentials", studentDetails.getPassword());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			return generateResponse("mail not sent", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return generateResponse("mail sent", HttpStatus.OK);
 	}

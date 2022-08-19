@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,9 +26,9 @@ import com.codecompiler.service.CodeProcessingService;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.LanguageService;
 import com.codecompiler.service.QuestionService1;
-import com.codecompiler.service.impl.ContestServiceImpl;
 
 @Controller
+@CrossOrigin(origins = "*")
 public class CodeCompilerController {
 
 	@Autowired

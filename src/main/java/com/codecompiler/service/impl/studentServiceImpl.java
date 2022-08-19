@@ -21,4 +21,8 @@ public class studentServiceImpl implements StudentService1{
 		return studentRepository.findByEmailAndPassword(email, password);
 
 	}
+	
+	public Student findByEmail(String studentEmail) {
+		return studentRepository.findByEmail(studentEmail);
+	}
 }
