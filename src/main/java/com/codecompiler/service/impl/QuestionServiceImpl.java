@@ -1,16 +1,24 @@
 package com.codecompiler.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.codecompilercontroller.ExcelPOIHelper;
 import com.codecompiler.dao.ContestRepository;
 import com.codecompiler.dao.QuestionRepository;
 import com.codecompiler.entity.Contest;
+import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.QuestionStatus;
+import com.codecompiler.helper.Helper;
 import com.codecompiler.service.QuestionService1;
 
 @Service
@@ -21,6 +29,9 @@ public class QuestionServiceImpl implements QuestionService1 {
 
 	@Autowired
 	private QuestionRepository questionRepository;
+	
+	@Resource(name = "excelPOIHelper")
+	private ExcelPOIHelper excelPOIHelper;
 
 	public List<Question> getAllQuestion(String contestId, String studentId) {
 
@@ -35,21 +46,31 @@ public class QuestionServiceImpl implements QuestionService1 {
 		}
 		return questionRepository.findByQuestionIdIn(qListStatusTrue);
 	}
-	
+
 	@Override
-	public List<Question> findAllQuestion(){
+	public List<Question> findAllQuestion() {
 		List<Question> totalQuestionWithStatusTrue = new ArrayList<>();
-		for(Question verifyQuestion : questionRepository.findAll()) {
-			if(verifyQuestion.getQuestionStatus() != null ) {
-			if(verifyQuestion.getQuestionStatus().equals("true"))
-			totalQuestionWithStatusTrue.add(verifyQuestion);
+		for (Question verifyQuestion : questionRepository.findAll()) {
+			if (verifyQuestion.getQuestionStatus() != null) {
+				if (verifyQuestion.getQuestionStatus().equals("true"))
+					totalQuestionWithStatusTrue.add(verifyQuestion);
 			}
 		}
 		return totalQuestionWithStatusTrue;
 	}
-	
+
 	public List<Question> findByQuestionIdIn(List<String> questionListStatusTrue) {
 		return questionRepository.findByQuestionIdIn(questionListStatusTrue);
+	}
+	
+	public void saveFileForBulkQuestion(MultipartFile file) {
+		try {
+			Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(), file.getOriginalFilename());
+			List<Question> students = Helper.convertExcelToListOfQuestions(data);
+			this.questionRepository.saveAll(students);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

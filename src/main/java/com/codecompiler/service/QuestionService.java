@@ -22,7 +22,7 @@ public class QuestionService {
 	  public void save(MultipartFile file) {
 
 	        try {
-	            List<Question> students = Helper.convertExcelToListOfOestions(file.getInputStream());
+	            List<Question> students = Helper.convertExcelToListOfQuestions(file.getInputStream());
 	            this.questionRepository.saveAll(students);
 	        } catch (IOException e) {
 	            e.printStackTrace();
