@@ -63,14 +63,17 @@ public class QuestionServiceImpl implements QuestionService1 {
 		return questionRepository.findByQuestionIdIn(questionListStatusTrue);
 	}
 	
-	public void saveFileForBulkQuestion(MultipartFile file) {
+	public List<Question> saveFileForBulkQuestion(MultipartFile file) {
+		List<Question> allTrueQuestions = new ArrayList<>();
 		try {
 			Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(), file.getOriginalFilename());
 			List<Question> students = Helper.convertExcelToListOfQuestions(data);
-			this.questionRepository.saveAll(students);
+			questionRepository.saveAll(students);
+			allTrueQuestions = questionRepository.findByStatus(true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return allTrueQuestions;
 	}
 
 	public Question saveQuestion(Question question) {		

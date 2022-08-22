@@ -121,50 +121,21 @@ public class Helper {
 			List<MyCell> headerRow = data.get(0);
 			for (int i = 1; i < data.size(); i++) {
 				List<MyCell> row = data.get(i);
-				for (int k = 0; k < row.size(); k++) {
-					for (int j = 0; j < headerRow.size(); j++) {
-						if (headerRow.get(j).getContent().equalsIgnoreCase("Contest Level")) {
-							question.setContestLevel(row.get(k).getContent());
-							k++;
-							j++;
-							break;
-						}
-						if (headerRow.get(j).getContent().equalsIgnoreCase("Questions")) {
-							question.setQuestion(row.get(k).getContent());
-							k++;
-							j++;
-							break;
-						}
-						if (headerRow.get(j).getContent().equalsIgnoreCase("Sample Input")) {
-							sampleTestCases.setInput(row.get(k).getContent());
-							k++;
-							j++;
-							break;
-						}
-						if (headerRow.get(j).getContent().equalsIgnoreCase("Sample Output")) {
-							sampleTestCases.setOutput(row.get(k).getContent());
-							k++;
-							j++;
-							break;
-						}
-						if (headerRow.get(j).getContent().equalsIgnoreCase("Test Cases Input")) {
-							testCases.setInput(row.get(k).getContent());
-							k++;
-							j++;
-							break;
-						}
-						if (headerRow.get(j).getContent().equalsIgnoreCase("Test Cases Output")) {
-							testCases.setOutput(row.get(k).getContent());
-							k++;
-							j++;
-							break;
-						}
+				question.setContestLevel(row.get(0).getContent());
+				question.setQuestion(row.get(1).getContent());
+				sampleTestCases.setConstraints(row.get(2).getContent());
+				sampleTestCases.setInput(row.get(3).getContent());
+				sampleTestCases.setOutput(row.get(4).getContent());
+				for (int k = 5; k < headerRow.size(); k++) {
+					if (k % 2 != 0) {
+						testCases.setInput(row.get(k).getContent());
+					} else {
+						testCases.setOutput(row.get(k).getContent());
 					}
 				}
 				question.setQuestionId(tempQid);
 				question.setQuestionStatus("true");
 				ListSampleTestCase.add(sampleTestCases);
-				listTestCases.add(testCases);
 				question.setTestcases(listTestCases);
 				question.setSampleTestCase(ListSampleTestCase);
 				questionList.add(question);

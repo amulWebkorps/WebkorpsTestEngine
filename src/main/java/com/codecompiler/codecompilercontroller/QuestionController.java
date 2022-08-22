@@ -39,15 +39,15 @@ public class QuestionController {
 	String contestLevel = null;
 
 	@PostMapping(value = "/questionUpload", headers = "content-type=multipart/*")
-	public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file, @RequestParam("level") String level) {
+	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file, @RequestParam("level") String level) {
 		if (Helper.checkExcelFormat(file)) {
 			try {
-				questionService.saveFileForBulkQuestion(file);
+				List<Question> allQuestions = questionService.saveFileForBulkQuestion(file);
+				return new ResponseEntity<Object>(allQuestions, HttpStatus.OK);
 			} catch (Exception e) {
 				e.printStackTrace();
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Excel not uploaded");
 			}
-			return ResponseEntity.ok(level);
-
 		} else {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please check excel file format");
 		}
