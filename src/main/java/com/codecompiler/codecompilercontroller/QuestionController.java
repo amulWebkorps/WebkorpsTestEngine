@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +26,11 @@ import com.codecompiler.service.ContestService;
 import com.codecompiler.service.QuestionService;
 import com.codecompiler.service.QuestionService1;
 import com.codecompiler.service.impl.ContestServiceImpl;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.codecompiler.helper.Helper;
+import com.codecompiler.service.QuestionService1;
 
 @Controller
 @CrossOrigin(origins = "*")
@@ -42,41 +46,19 @@ public class QuestionController {
 	QuestionService qs;
 	String contestLevel = null;
 
-	@RequestMapping(value = "/question/upload", headers = "content-type=multipart/*", method = RequestMethod.POST)
+	@PostMapping(value = "/questionUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file, @RequestParam("level") String level) {
-		contestLevel = level;
 		if (Helper.checkExcelFormat(file)) {
-			// true
 			try {
-				this.qs.save(file);
+				questionService.saveFileForBulkQuestion(file);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			return ResponseEntity.ok(contestLevel);
+			return ResponseEntity.ok(level);
 
-		}
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please upload excel file ");
-	}
-
-	@RequestMapping("/questionuploaded")
-	public String upload(Model model) {
-		List<Question> contestQuestionsTemp = new ArrayList<>();
-		if (contestLevel.equals("Level 2")) {
-
-			contestQuestionsTemp = qs.findQuestionByContestLevel(contestLevel);
-			model.addAttribute("questions", contestQuestionsTemp);
-			return "level2Questions";
-
-		} else if (contestLevel.equals("Level 1")) {
-			contestQuestionsTemp = qs.findQuestionByContestLevel(contestLevel);
-			model.addAttribute("questions", contestQuestionsTemp);
-			return "level1Questions";
 		} else {
-			contestQuestionsTemp = qs.getAllQuestion();
-			model.addAttribute("questions", contestQuestionsTemp);
-			return "questionListAndAddNewQuestion";
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please check excel file format");
 		}
-
 	}
 	
 	@PostMapping("/savequestion")
@@ -107,4 +89,22 @@ public class QuestionController {
 		}
 		return new ResponseEntity<Object>(savedQuestion, HttpStatus.OK);
 	}
+
+	/*
+	 * @RequestMapping("/questionuploaded") public String upload(Model model) {
+	 * List<Question> contestQuestionsTemp = new ArrayList<>(); if
+	 * (contestLevel.equals("Level 2")) {
+	 * 
+	 * contestQuestionsTemp = qs.findQuestionByContestLevel(contestLevel);
+	 * model.addAttribute("questions", contestQuestionsTemp); return
+	 * "level2Questions";
+	 * 
+	 * } else if (contestLevel.equals("Level 1")) { contestQuestionsTemp =
+	 * qs.findQuestionByContestLevel(contestLevel); model.addAttribute("questions",
+	 * contestQuestionsTemp); return "level1Questions"; } else {
+	 * contestQuestionsTemp = qs.getAllQuestion(); model.addAttribute("questions",
+	 * contestQuestionsTemp); return "questionListAndAddNewQuestion"; }
+	 * 
+	 * }
+	 */
 }

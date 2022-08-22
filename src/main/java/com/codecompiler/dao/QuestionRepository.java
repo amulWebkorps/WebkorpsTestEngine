@@ -14,13 +14,13 @@ import com.codecompiler.entity.Question;
 public interface QuestionRepository extends MongoRepository<Question,Integer>{
 
    public List<Question> findByQuestionId(String questionId);
-   	/*
-	 * public ArrayList<Question> findByContestId(String contestId); public Question
-	 * findByContestIdAndContestLevel(String contestId,String contestLevel);
-	 */
+   
    public void deleteByQuestionId(String questionId);
+   
    public ArrayList<Question> findByContestLevel(String contestLevel);
+   
    public List<Question> findAll();
+   
    public List<Question> findByQuestionIdIn(List<String> questionId);
    
 }

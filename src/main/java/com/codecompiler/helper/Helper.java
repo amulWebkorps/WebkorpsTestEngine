@@ -1,4 +1,6 @@
-package  com.codecompiler.helper;
+package com.codecompiler.helper;
+
+import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.SampleTestCase;
 import com.codecompiler.entity.Student;
@@ -15,13 +17,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
 public class Helper {
 
-
-	//check that file is of excel type or not
+	// check that file inputStreamFileQuestion of excel type or not
 	public static boolean checkExcelFormat(MultipartFile file) {
 
 		String contentType = file.getContentType();
@@ -34,16 +36,14 @@ public class Helper {
 
 	}
 
+	// convert excel to list of products
 
-	//convert excel to list of products
-
-	public static List<Student> convertExcelToListOfStudent(InputStream is) {
+	public static List<Student> convertExcelToListOfStudent(InputStream inputStreamFileStudent) {
 		List<Student> list = new ArrayList<>();
 
 		try {
 
-
-			XSSFWorkbook workbook = new XSSFWorkbook(is);
+			XSSFWorkbook workbook = new XSSFWorkbook(inputStreamFileStudent);
 
 			XSSFSheet sheet = workbook.getSheet("Sheet1");
 
@@ -62,28 +62,28 @@ public class Helper {
 
 				int cid = 0;
 
-				Student p = new Student();
+				Student question = new Student();
 
 				while (cells.hasNext()) {
 					Cell cell = cells.next();
 
 					switch (cid) {
 					case 0:
-						if(cell.getCellType() == CellType.STRING)
-							p.setName(cell.getStringCellValue());
+						if (cell.getCellType() == CellType.STRING)
+							question.setName(cell.getStringCellValue());
 						break;
 					case 1:
-						if(cell.getCellType() == CellType.STRING)
-							p.setEmail(cell.getStringCellValue());
+						if (cell.getCellType() == CellType.STRING)
+							question.setEmail(cell.getStringCellValue());
 						break;
 					case 2:
-						if(cell.getCellType() == CellType.NUMERIC)
-							p.setMobileNumber((int)cell.getNumericCellValue());
+						if (cell.getCellType() == CellType.NUMERIC)
+							question.setMobileNumber((int) cell.getNumericCellValue());
 						break;
 
 					case 3:
-						if(cell.getCellType() == CellType.STRING)
-							p.setContestLevel(cell.getStringCellValue());
+						if (cell.getCellType() == CellType.STRING)
+							question.setContestLevel(cell.getStringCellValue());
 						break;
 					default:
 						break;
@@ -91,18 +91,16 @@ public class Helper {
 					cid++;
 
 				}
-				p.setId(UUID.randomUUID().toString());
-				String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijk"
-						+"lmnopqrstuvwxyz!@#$%&";
+				question.setId(UUID.randomUUID().toString());
+				String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijk" + "lmnopqrstuvwxyz!@#$%&";
 				Random rnd = new Random();
 				StringBuilder sb = new StringBuilder(6);
 				for (int i = 0; i < 6; i++)
 					sb.append(chars.charAt(rnd.nextInt(chars.length())));
-				p.setPassword(sb.toString());
-				list.add(p);
+				question.setPassword(sb.toString());
+				list.add(question);
 
 			}
-
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -110,117 +108,120 @@ public class Helper {
 		return list;
 
 	}
-	public static List<Question> convertExcelToListOfOestions(InputStream is) {
-		List<Question> list = new ArrayList<>();
 
+	public static List<Question> convertExcelToListOfQuestions(Map<Integer, List<MyCell>> data) {
+		List<Question> questionList = new ArrayList<>();
 		try {
-
-
-			XSSFWorkbook workbook = new XSSFWorkbook(is);
-
-			XSSFSheet sheet = workbook.getSheetAt(0);
-
-			int rowNumber = 0;
-			Iterator<Row> iterator = sheet.iterator();
-
-			while (iterator.hasNext()) {
-				Row row = iterator.next();
-
-				if (rowNumber == 0) {
-					rowNumber++;
-					continue;
-				}
-
-				Iterator<Cell> cells = row.iterator();
-
-				int cid = 0;
-
-				Question p = new Question();
-				SampleTestCase  s=new SampleTestCase();
-
-				List<SampleTestCase> sampleTestCase = new ArrayList();
-				List<TestCases> testCases = new ArrayList();
-				TestCases t=new TestCases();
-				String tempQid = UUID.randomUUID().toString();
-
-
-				while (cells.hasNext()) {
-					Cell cell = cells.next();
-
-					switch (cid) {
-
-
-					case 0:
-						if(cell.getCellType() == CellType.STRING)
-							p.setQuestion(cell.getStringCellValue());
-						break;
-					case 1:
-						if(cell.getCellType() == CellType.STRING)
-							p.setContestLevel(cell.getStringCellValue());
-						break;
-					case 2:
-						if(cell.getCellType() == CellType.STRING)
-							s.setInput(cell.getStringCellValue());
-						break;
-
-					case 3:
-						if(cell.getCellType() == CellType.STRING)
-							s.setOutput(cell.getStringCellValue());  
-						sampleTestCase.add(s);
-						break;
-					case 4:
-						if(cell.getCellType() == CellType.STRING)
-							t.setInput(cell.getStringCellValue());
-						break;
-					case 5:
-						if(cell.getCellType() == CellType.STRING)
-							t.setOutput(cell.getStringCellValue());
-						testCases.add(t);
-						t=new TestCases();
-						break;
-					case 6:
-						if(cell.getCellType() == CellType.STRING)
-							t.setInput(cell.getStringCellValue());
-						break;
-
-					case 7:
-						if(cell.getCellType() == CellType.STRING)
-							t.setOutput(cell.getStringCellValue());
-						testCases.add(t);
-						t=new TestCases();
-						break;	
-					case 8:
-						if(cell.getCellType() == CellType.STRING)
-							t.setInput(cell.getStringCellValue());
-						break;
-
-					case 9:
-						if(cell.getCellType() == CellType.STRING)
-							t.setOutput(cell.getStringCellValue());
-						testCases.add(t);
-						break;	
-					default:
-						break;
+			Question question = new Question();
+			SampleTestCase sampleTestCases = new SampleTestCase();
+			List<SampleTestCase> ListSampleTestCase = new ArrayList();
+			List<TestCases> listTestCases = new ArrayList();
+			TestCases testCases = new TestCases();
+			String tempQid = UUID.randomUUID().toString();
+			List<MyCell> headerRow = data.get(0);
+			for (int i = 1; i < data.size(); i++) {
+				List<MyCell> row = data.get(i);
+				for (int k = 0; k < row.size(); k++) {
+					for (int j = 0; j < headerRow.size(); j++) {
+						if (headerRow.get(j).getContent().equalsIgnoreCase("Contest Level")) {
+							question.setContestLevel(row.get(k).getContent());
+							k++;
+							j++;
+							break;
+						}
+						if (headerRow.get(j).getContent().equalsIgnoreCase("Questions")) {
+							question.setQuestion(row.get(k).getContent());
+							k++;
+							j++;
+							break;
+						}
+						if (headerRow.get(j).getContent().equalsIgnoreCase("Sample Input")) {
+							sampleTestCases.setInput(row.get(k).getContent());
+							k++;
+							j++;
+							break;
+						}
+						if (headerRow.get(j).getContent().equalsIgnoreCase("Sample Output")) {
+							sampleTestCases.setOutput(row.get(k).getContent());
+							k++;
+							j++;
+							break;
+						}
+						if (headerRow.get(j).getContent().equalsIgnoreCase("Test Cases Input")) {
+							testCases.setInput(row.get(k).getContent());
+							k++;
+							j++;
+							break;
+						}
+						if (headerRow.get(j).getContent().equalsIgnoreCase("Test Cases Output")) {
+							testCases.setOutput(row.get(k).getContent());
+							k++;
+							j++;
+							break;
+						}
 					}
-					cid++;
-					p.setQuestionId(UUID.randomUUID().toString());
-
-					p.setTestcases(testCases);
-
-					p.setSampleTestCase(sampleTestCase);
-
 				}
-				list.add(p);
-
+				question.setQuestionId(tempQid);
+				question.setQuestionStatus("true");
+				ListSampleTestCase.add(sampleTestCases);
+				listTestCases.add(testCases);
+				question.setTestcases(listTestCases);
+				question.setSampleTestCase(ListSampleTestCase);
+				questionList.add(question);
 			}
 
+			/*
+			 * XSSFWorkbook workbookQuestion = new XSSFWorkbook(data); XSSFSheet sheet =
+			 * workbookQuestion.getSheetAt(0); int rowNumber = 0; Iterator<Row> iterator =
+			 * sheet.iterator(); while (iterator.hasNext()) { Row row = iterator.next(); if
+			 * (rowNumber == 0) { rowNumber++; continue; } Iterator<Cell> cells =
+			 * row.iterator(); int cid = 0;
+			 * 
+			 * while (cells.hasNext()) { Cell cell = cells.next();
+			 * 
+			 * switch (cid) {
+			 * 
+			 * case 0: if (cell.getCellType() == CellType.STRING)
+			 * question.setQuestion(cell.getStringCellValue()); break; case 1: if
+			 * (cell.getCellType() == CellType.STRING)
+			 * question.setContestLevel(cell.getStringCellValue()); break; case 2: if
+			 * (cell.getCellType() == CellType.STRING)
+			 * sampleTestCases.setInput(cell.getStringCellValue()); break;
+			 * 
+			 * case 3: if (cell.getCellType() == CellType.STRING)
+			 * sampleTestCases.setOutput(cell.getStringCellValue());
+			 * ListSampleTestCase.add(sampleTestCases); break; case 4: if
+			 * (cell.getCellType() == CellType.STRING)
+			 * testCases.setInput(cell.getStringCellValue()); break; case 5: if
+			 * (cell.getCellType() == CellType.STRING)
+			 * testCases.setOutput(cell.getStringCellValue()); listTestCases.add(testCases);
+			 * testCases = new TestCases(); break; case 6: if (cell.getCellType() ==
+			 * CellType.STRING) testCases.setInput(cell.getStringCellValue()); break;
+			 * 
+			 * case 7: if (cell.getCellType() == CellType.STRING)
+			 * testCases.setOutput(cell.getStringCellValue()); listTestCases.add(testCases);
+			 * testCases = new TestCases(); break; case 8: if (cell.getCellType() ==
+			 * CellType.STRING) testCases.setInput(cell.getStringCellValue()); break;
+			 * 
+			 * case 9: if (cell.getCellType() == CellType.STRING)
+			 * testCases.setOutput(cell.getStringCellValue()); listTestCases.add(testCases);
+			 * break; default: break; } cid++;
+			 * question.setQuestionId(UUID.randomUUID().toString());
+			 * 
+			 * question.setTestcases(listTestCases);
+			 * 
+			 * question.setSampleTestCase(ListSampleTestCase);
+			 * 
+			 * } list.add(question);
+			 * 
+			 * }
+			 */
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return list;
+		return questionList;
 
 	}
-
 
 }
