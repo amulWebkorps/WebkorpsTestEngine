@@ -77,6 +77,10 @@ public class QuestionServiceImpl implements QuestionService1 {
 		return questionRepository.save(question);				
 	}
 	
+	public Question findByQuestionId(String questionId) {
+		return questionRepository.findByQuestionId(questionId);
+	}
+	
 }
 
 

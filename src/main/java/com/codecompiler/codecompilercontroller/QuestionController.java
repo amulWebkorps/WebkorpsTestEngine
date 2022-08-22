@@ -10,9 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -124,8 +124,31 @@ public class QuestionController {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		return ResponseEntity.ok(questionDetails);
+		
+		return new ResponseEntity<Object>(questionDetails, HttpStatus.OK);		
 	}
+	
+	@DeleteMapping("deletequestion") // cid, qid
+	private ResponseEntity<Object> deleteQuestion(@RequestBody ArrayList<String> contestAndQuestionId) {
+    if(contestAndQuestionId.get(0).equals("questionForLevel")) {			
+		Question questionStatusChange = questionService.findByQuestionId(contestAndQuestionId.get(1));			
+		questionStatusChange.setQuestionStatus("false");			
+		questionService.saveQuestion(questionStatusChange);
+		}else {
+			Contest contest = new Contest();
+			contest = contestService.findByContestId(contestAndQuestionId.get(0));	
+			int index = 0;
+			for (QuestionStatus qs : contest.getQuestionStatus()) {
+				if (qs.getQuestionId().equals(contestAndQuestionId.get(1))) {				
+					contest.getQuestionStatus().get(index).setStatus(false);
+				}
+				index++;
+			}
+			contestService.saveContest(contest);			
+		}
+          return new ResponseEntity<Object>(HttpStatus.OK);
+	}
+	
 	
 	/*
 	 * @RequestMapping("/questionuploaded") public String upload(Model model) {

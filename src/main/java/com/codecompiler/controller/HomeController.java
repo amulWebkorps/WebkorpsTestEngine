@@ -256,9 +256,7 @@ public class HomeController {
 			contestService.saveContest(contest);
 			System.out.println(contest);
 		}
-		
-
-		return ResponseEntity.ok("Done");
+       return ResponseEntity.ok("Done");
 	}
 
 	@RequestMapping("/getsavedquestion")
