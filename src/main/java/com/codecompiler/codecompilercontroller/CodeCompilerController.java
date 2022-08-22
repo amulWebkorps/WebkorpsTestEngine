@@ -95,12 +95,12 @@ public class CodeCompilerController {
 	}
 	
 	@GetMapping("getContestDetail")
-	private ResponseEntity<Object> getContestDetail(@RequestBody Contest contest) {
+	private ResponseEntity<Object> getContestDetail(@RequestParam String contestId) {
 		Map<String, Object> contestDetail = new HashedMap<String, Object>();
 		ArrayList<String> qListStatusTrue = new ArrayList<>();
 		List<Question> totalQuestionWithStatusTrue = new ArrayList<>();
 		try {
-			Contest contestRecord = contestService.findByContestId(contest.getContestId());
+			Contest contestRecord = contestService.findByContestId(contestId);
 			contestDetail.put("contest", contestRecord);
 			for (QuestionStatus questionStatus : contestRecord.getQuestionStatus()) {
 				
