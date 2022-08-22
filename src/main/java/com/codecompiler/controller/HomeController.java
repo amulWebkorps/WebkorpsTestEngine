@@ -194,13 +194,15 @@ public class HomeController {
 		
 		if(stringOfCidAndCl.length == 1) {
 			question.setContestLevel(stringOfCidAndCl[0]);
-			Question savedQuestion = commonService.saveUpdatedQuestion(question);
+			Question savedQuestion = commonService.saveQuestion(question);
+			//Question savedQuestion = commonService.saveUpdatedQuestion(question);
 			System.out.println("savequestion Obj after : " + savedQuestion);
 		}else {
 			Contest contest = new Contest(); // id, level
 			contest = contestService.getContestBasedOnContestIdAndLevel(stringOfCidAndCl[1], stringOfCidAndCl[0]);
 			question.setContestLevel(stringOfCidAndCl[0]);
-			Question savedQuestion = commonService.saveUpdatedQuestion(question);
+			//Question savedQuestion = commonService.saveUpdatedQuestion(question);
+			Question savedQuestion = commonService.saveQuestion(question);
 			QuestionStatus queStatus = new QuestionStatus();
 			queStatus.setQuestionId(savedQuestion.getQuestionId());
 			queStatus.setStatus(true);

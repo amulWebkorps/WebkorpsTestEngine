@@ -52,4 +52,13 @@ public class QuestionServiceImpl implements QuestionService1 {
 		return questionRepository.findByQuestionIdIn(questionListStatusTrue);
 	}
 
+	public Question saveQuestion(Question question) {		
+		return questionRepository.save(question);				
+	}
+	
 }
+
+
+
+
+
