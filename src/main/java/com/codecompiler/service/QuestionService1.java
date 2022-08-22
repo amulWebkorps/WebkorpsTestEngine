@@ -13,6 +13,7 @@ public interface QuestionService1 {
 	 public List<Question> findAllQuestion();
 	 
 	 public List<Question> findByQuestionIdIn(List<String> questionId);
+	 
 	 public Question saveQuestion(Question question);
 	 
 	 public void saveFileForBulkQuestion(MultipartFile file);

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,15 +20,8 @@ import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.QuestionStatus;
 import com.codecompiler.helper.Helper;
-import com.codecompiler.service.CommonService;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.QuestionService;
-import com.codecompiler.service.QuestionService1;
-import com.codecompiler.service.impl.ContestServiceImpl;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.codecompiler.helper.Helper;
 import com.codecompiler.service.QuestionService1;
 
 @Controller
@@ -61,13 +53,14 @@ public class QuestionController {
 		}
 	}
 	
-	@PostMapping("/savequestion")
-	public ResponseEntity<Object> saveQuestion(@RequestBody Question question, Model model) throws IOException {
+	@PostMapping("savequestion")
+	public ResponseEntity<Object> saveQuestion(@RequestBody Question question) throws IOException {
 		System.out.println("savequestion Obj Prev : " + question);
 		Question savedQuestion = null;
 		String[] stringOfCidAndCl = new String[2];		
 		stringOfCidAndCl = question.getContestLevel().split("@");
 		String tempQid = question.getQuestionId();
+		try {
 		if (tempQid == ("")) {			
 			tempQid = UUID.randomUUID().toString();
 			question.setQuestionId(tempQid);
@@ -87,9 +80,53 @@ public class QuestionController {
 			contest.getQuestionStatus().add(queStatus);
 			contestService.saveContest(contest);
 		}
+		
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 		return new ResponseEntity<Object>(savedQuestion, HttpStatus.OK);
 	}
 
+	@PostMapping("addselectedavailablequestiontocontest")
+	private ResponseEntity<Object> addSelectedAvailableQueToContest(@RequestBody ArrayList<String> questionIdList) {
+		List<Question> questionDetails = new ArrayList<>();
+		try {
+			String contestId = questionIdList.get(0);
+			questionIdList.remove(0);
+			Contest con = new Contest();
+			con = contestService.findByContestId(contestId);
+			questionDetails = questionService.findByQuestionIdIn(questionIdList);
+			ArrayList<QuestionStatus> idWithstatus = con.getQuestionStatus();
+			boolean flag = false;
+			for (String idToChangeStatus : questionIdList) {
+				int index = 0;
+				for (QuestionStatus qs : idWithstatus) {
+					if (idToChangeStatus.equals(qs.getQuestionId())) {
+						if (qs.getStatus() == false) {
+							con.getQuestionStatus().get(index).setStatus(true);
+							flag = true;
+						} else if (qs.getStatus() == true) {
+							flag = true;
+						}
+					}
+					index++;
+				}
+				if (flag == false) {
+					QuestionStatus qsTemp = new QuestionStatus();
+					qsTemp.setQuestionId(idToChangeStatus);
+					qsTemp.setStatus(true);
+					con.getQuestionStatus().add(qsTemp);
+				} else {
+					flag = false;
+				}
+			}
+			contestService.saveContest(con);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return ResponseEntity.ok(questionDetails);
+	}
+	
 	/*
 	 * @RequestMapping("/questionuploaded") public String upload(Model model) {
 	 * List<Question> contestQuestionsTemp = new ArrayList<>(); if

@@ -9,9 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.dao.QuestionRepository;
-import com.codecompiler.dao.StudentRepository;
 import com.codecompiler.entity.Question;
-import com.codecompiler.entity.Student;
 import com.codecompiler.helper.Helper;
 
 @Service
@@ -19,16 +17,16 @@ public class QuestionService {
 	 @Autowired
 	    private QuestionRepository questionRepository;
 	 
-	  public void save(MultipartFile file) {
-
-	        try {
-	            List<Question> students = Helper.convertExcelToListOfQuestions(file.getInputStream());
-	            this.questionRepository.saveAll(students);
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-
-	    }
+//	  public void save(MultipartFile file) {
+//
+//	        try {
+//	            List<Question> students = Helper.convertExcelToListOfQuestions(file.getInputStream());
+//	            this.questionRepository.saveAll(students);
+//	        } catch (IOException e) {
+//	            e.printStackTrace();
+//	        }
+//
+//	    }
 
 	public List<Question> getAllQuestion() {
 		List<Question> questions =questionRepository.findAll();

@@ -31,7 +31,7 @@ public class QuestionController {
 		if (Helper.checkExcelFormat(file)) {
 			// true
 			try {
-				this.qs.save(file);
+				//this.qs.save(file);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
