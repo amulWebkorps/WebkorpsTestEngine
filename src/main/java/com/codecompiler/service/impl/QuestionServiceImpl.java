@@ -69,7 +69,7 @@ public class QuestionServiceImpl implements QuestionService1 {
 			Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(), file.getOriginalFilename());
 			List<Question> students = Helper.convertExcelToListOfQuestions(data);
 			questionRepository.saveAll(students);
-			allTrueQuestions = questionRepository.findByStatus(true);
+			allTrueQuestions = questionRepository.findByQuestionStatus(true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

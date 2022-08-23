@@ -1,5 +1,7 @@
 package com.codecompiler.service.impl;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,5 +26,9 @@ public class studentServiceImpl implements StudentService1{
 	
 	public Student findByEmail(String studentEmail) {
 		return studentRepository.findByEmail(studentEmail);
+	}
+	
+	public ArrayList<Student> findByContestId(String contestId){
+		return studentRepository.findByContestId(contestId);
 	}
 }

@@ -30,4 +30,7 @@ public class HomeController {
 		List<Language> language = languageService.findAllLanguage();
 		return new ResponseEntity<Object>(language, HttpStatus.OK);
 	}
+	
+	
+	
 }

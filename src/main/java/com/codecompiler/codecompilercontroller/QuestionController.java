@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,10 +20,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.QuestionStatus;
+import com.codecompiler.entity.Student;
 import com.codecompiler.helper.Helper;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.QuestionService;
 import com.codecompiler.service.QuestionService1;
+import com.codecompiler.service.StudentService1;
 
 @Controller
 @CrossOrigin(origins = "*")
@@ -33,6 +36,9 @@ public class QuestionController {
 	
 	@Autowired
 	private ContestService contestService;
+	
+	@Autowired
+	private StudentService1 studentService;
 	
 	@Autowired
 	QuestionService qs;
@@ -148,6 +154,29 @@ public class QuestionController {
 		}
           return new ResponseEntity<Object>(HttpStatus.OK);
 	}
+	
+	@GetMapping("viewparticipatorofcontest")
+	private ResponseEntity<Object> viewParticipators(@RequestParam String contestId) {
+		List<Student> studentTemp = new ArrayList<>();
+		try {		
+			studentTemp = studentService.findByContestId(contestId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	/*

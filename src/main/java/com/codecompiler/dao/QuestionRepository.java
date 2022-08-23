@@ -23,6 +23,6 @@ public interface QuestionRepository extends MongoRepository<Question,Integer>{
    
    public Question findByQuestionId(String questionId);
    
-   public List<Question> findByStatus(Boolean True);
+   public List<Question> findByQuestionStatus(Boolean True);
 }
 
