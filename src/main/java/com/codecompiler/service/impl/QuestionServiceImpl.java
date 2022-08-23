@@ -84,6 +84,16 @@ public class QuestionServiceImpl implements QuestionService1 {
 		return questionRepository.findByQuestionId(questionId);
 	}
 	
+	public List<Question> findByContestLevel(String filterByString) {
+		ArrayList<Question> totalQuestionWithStatusTrue = new ArrayList<>();
+		for (Question verifyQuestion : questionRepository.findByContestLevel(filterByString)) {
+			if (verifyQuestion.getQuestionStatus() != null) {
+				if (verifyQuestion.getQuestionStatus().equals("true"))
+					totalQuestionWithStatusTrue.add(verifyQuestion);
+			}			
+		}
+		return totalQuestionWithStatusTrue;
+	}
 }
 
 

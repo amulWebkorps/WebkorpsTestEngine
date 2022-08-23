@@ -15,7 +15,7 @@ public interface QuestionRepository extends MongoRepository<Question,Integer>{
 
    public void deleteByQuestionId(String questionId);
    
-   public ArrayList<Question> findByContestLevel(String contestLevel);
+   public List<Question> findByContestLevel(String filterByString);
    
    public List<Question> findAll();
    

@@ -19,5 +19,8 @@ public interface QuestionService1 {
 	 public List<Question> saveFileForBulkQuestion(MultipartFile file);
 	 
 	 public Question findByQuestionId(String questionId);
+	 
+	 public List<Question> findByContestLevel(String filterByString);
+
 	   
 }
