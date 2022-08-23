@@ -12,4 +12,5 @@ public interface ContestService {
 	
 	public Contest saveContest(Contest contest); 
 	
+	public void deleteContest(String contestId);
 }

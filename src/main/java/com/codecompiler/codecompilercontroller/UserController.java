@@ -1,5 +1,6 @@
 package com.codecompiler.codecompilercontroller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -92,7 +93,17 @@ public class UserController {
 		return new ResponseEntity<Object>(mp, status);
 	}
 	
-	
+	@GetMapping("viewparticipatorofcontest")
+	public ResponseEntity<Object> viewParticipators(@RequestParam String contestId) {
+		List<Student> studentTemp = new ArrayList<>();
+		try {		
+			studentTemp = studentService.findByContestId(contestId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
+	}
 	
 }
 

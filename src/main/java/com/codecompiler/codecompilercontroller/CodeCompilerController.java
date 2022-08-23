@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -93,6 +94,23 @@ public class CodeCompilerController {
 		}
 		return new ResponseEntity<Object>(contestIdAndName, HttpStatus.OK);
 	}
+	
+	@DeleteMapping("deletecontest")
+	public ResponseEntity<Object> deleteContest(@RequestParam String contestId) {
+		try {		
+			contestService.deleteContest(contestId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<Object>(HttpStatus.OK);
+	}
+
+	
+	
+	
+	
+	
 	
 	@GetMapping("getContestDetail")
 	private ResponseEntity<Object> getContestDetail(@RequestParam String contestId) {
