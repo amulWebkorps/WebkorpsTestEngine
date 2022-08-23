@@ -98,6 +98,7 @@ public class CodeCompilerController {
 		}
 		return new ResponseEntity<Object>(HttpStatus.OK);
 	}
+
 	
 	@GetMapping("getContestDetail")
 	private ResponseEntity<Object> getContestDetail(@RequestParam String contestId) {
@@ -123,6 +124,20 @@ public class CodeCompilerController {
 		return new ResponseEntity<Object>(contestDetail, HttpStatus.OK);
 	}
 	
+	@GetMapping("filterquestion")
+	public ResponseEntity<Object> filterQuestion(@RequestParam String filterByString) {
+		List<Question> totalQuestionByFilter = new ArrayList<>();
+		try {
+			if (filterByString.equals("Level 1") || filterByString.equals("Level 2"))
+				totalQuestionByFilter = questionService.findByContestLevel(filterByString);
+			else
+				totalQuestionByFilter = questionService.findAllQuestion();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<Object>(totalQuestionByFilter, HttpStatus.OK);
+	}
 	
 	
 }
