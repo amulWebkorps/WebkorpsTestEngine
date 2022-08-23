@@ -1,5 +1,6 @@
 package com.codecompiler.codecompilercontroller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,11 +35,13 @@ public class EmailController {
 	Logger logger = LogManager.getLogger(EmailController.class);
 	
 	@PostMapping("sendMail")
-	public ResponseEntity<Object> sendMail(@RequestParam("StudentEmail") List<String> StudentEmails, @RequestParam("contestId") String contestId) {
+	public ResponseEntity<Object> sendMail(@RequestParam("StudentEmail") List<String> studentEmails, @RequestParam("contestId") String contestId) {
 		try {
-			for (String studentEmail : StudentEmails) {
+			for (String studentEmail : studentEmails) {
 				Student studentDetails = studentService1.findByEmail(studentEmail);
 				this.emailService.sendMail(contestId, studentDetails.getName(), studentDetails.getEmail(),"Webkorps Code Assesment Credentials", studentDetails.getPassword());
+				studentDetails.setStatus(true);
+				studentService1.saveStudent(studentDetails);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -52,4 +56,17 @@ public class EmailController {
 		mp.put("status", status);
 		return new ResponseEntity<Object>(mp, status);
 	}
+	
+	@GetMapping("sentMailForParticipator")
+	public ResponseEntity<Object> sentMailForParticipator() {
+		List<String> sentMailStudentList = new ArrayList<>();
+		try {
+			sentMailStudentList = studentService1.findEmailByStatus(true);
+			return new ResponseEntity<Object>(sentMailStudentList, HttpStatus.OK);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ResponseEntity<Object>("no email sent", HttpStatus.BAD_REQUEST);
+		}		
+	}
+	
 }

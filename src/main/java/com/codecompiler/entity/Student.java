@@ -10,16 +10,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EntityScan
 public class Student {
 	@Id
-	String id;
-	String name;
-	String email;
-	int mobileNumber;
-	String password;
-	String contestLevel;
+	private String id;
+	private String name;
+	private String email;
+	private String mobileNumber;
+	private String password;
+	private String contestLevel;
 	private String contestId;
 	private List<String> questionId;
 	private List<TestCasesRecord> testCasesRecord;
-
+	private boolean status;
 	public Student() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -64,19 +64,20 @@ public class Student {
 		this.email = email;
 	}
 
-	public int getMobileNumber() {
+	public String getMobileNumber() {
 		return mobileNumber;
 	}
 
-	public void setMobileNumber(int mobileNumber) {
+	public void setMobileNumber(String mobileNumber) {
 		this.mobileNumber = mobileNumber;
 	}
 
-	@Override
-	public String toString() {
-		return "Student [id=" + id + ", name=" + name + ", email=" + email + ", mobileNumber=" + mobileNumber
-				+ ", password=" + password + ", contestLevel=" + contestLevel + ", contestId=" + contestId
-				+ ", questionId=" + questionId + ", testCasesRecord=" + testCasesRecord + "]";
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
 	}
 
 	public String getContestId() {
@@ -101,6 +102,13 @@ public class Student {
 
 	public void setTestCasesRecord(List<TestCasesRecord> testCasesRecord) {
 		this.testCasesRecord = testCasesRecord;
+	}
+
+	@Override
+	public String toString() {
+		return "Student [id=" + id + ", name=" + name + ", email=" + email + ", mobileNumber=" + mobileNumber
+				+ ", password=" + password + ", contestLevel=" + contestLevel + ", contestId=" + contestId
+				+ ", questionId=" + questionId + ", testCasesRecord=" + testCasesRecord + ", status=" + status + "]";
 	}
 
 }

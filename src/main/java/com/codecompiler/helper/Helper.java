@@ -1,128 +1,74 @@
 package com.codecompiler.helper;
 
-import com.codecompiler.dao.QuestionRepository;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.SampleTestCase;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCases;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import com.codecompiler.service.StudentService1;
 
 public class Helper {
 
 	@Autowired
-	private QuestionRepository questionRepository;
-	
-	// check that file inputStreamFileQuestion of excel type or not
+	private StudentService1 studentService;
+
 	public static boolean checkExcelFormat(MultipartFile file) {
-
+		// check that file inputStreamFileQuestion of excel type or not
 		String contentType = file.getContentType();
-
 		if (contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
 			return true;
 		} else {
 			return false;
 		}
-
 	}
 
-	// convert excel to list of products
-
-	public static List<Student> convertExcelToListOfStudent(InputStream inputStreamFileStudent) {
-		List<Student> list = new ArrayList<>();
-
+	public List<Student> convertExcelToListOfStudent(Map<Integer, List<MyCell>> data) {
+		List<Student> studentList = new ArrayList<>();
 		try {
-
-			XSSFWorkbook workbook = new XSSFWorkbook(inputStreamFileStudent);
-
-			XSSFSheet sheet = workbook.getSheet("Sheet1");
-
-			int rowNumber = 0;
-			Iterator<Row> iterator = sheet.iterator();
-
-			while (iterator.hasNext()) {
-				Row row = iterator.next();
-
-				if (rowNumber == 0) {
-					rowNumber++;
-					continue;
+			for (int i = 1; i < data.size(); i++) {
+				List<MyCell> row = data.get(i);
+				Student student = new Student();
+				String studentId = UUID.randomUUID().toString();
+				String characters = "ABCDEFGHLMNOPQRSTUVWXYZabcdghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+				String pwd = RandomStringUtils.random(7, characters);
+				Student exsistingStudent = studentService.findByEmail(row.get(1).getContent());
+				if (exsistingStudent != null) {
+					student.setId(studentId);
+					student.setName(row.get(0).getContent());
+					student.setEmail(row.get(1).getContent());
+					student.setMobileNumber(row.get(2).getContent());
+					student.setContestLevel(row.get(3).getContent());
+					student.setPassword(pwd);
+					studentList.add(student);
+				} else {
+					exsistingStudent.setStatus(false);
+					studentService.saveStudent(exsistingStudent);
 				}
-
-				Iterator<Cell> cells = row.iterator();
-
-				int cid = 0;
-
-				Student question = new Student();
-
-				while (cells.hasNext()) {
-					Cell cell = cells.next();
-
-					switch (cid) {
-					case 0:
-						if (cell.getCellType() == CellType.STRING)
-							question.setName(cell.getStringCellValue());
-						break;
-					case 1:
-						if (cell.getCellType() == CellType.STRING)
-							question.setEmail(cell.getStringCellValue());
-						break;
-					case 2:
-						if (cell.getCellType() == CellType.NUMERIC)
-							question.setMobileNumber((int) cell.getNumericCellValue());
-						break;
-
-					case 3:
-						if (cell.getCellType() == CellType.STRING)
-							question.setContestLevel(cell.getStringCellValue());
-						break;
-					default:
-						break;
-					}
-					cid++;
-
-				}
-				question.setId(UUID.randomUUID().toString());
-				String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijk" + "lmnopqrstuvwxyz!@#$%&";
-				Random rnd = new Random();
-				StringBuilder sb = new StringBuilder(6);
-				for (int i = 0; i < 6; i++)
-					sb.append(chars.charAt(rnd.nextInt(chars.length())));
-				question.setPassword(sb.toString());
-				list.add(question);
-
 			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
-		return list;
-
+		return studentList;
 	}
 
-	public static List<Question> convertExcelToListOfQuestions(Map<Integer, List<MyCell>> data) {
+	public List<Question> convertExcelToListOfQuestions(Map<Integer, List<MyCell>> data) {
 		List<Question> questionList = new ArrayList<>();
 		try {
 			List<MyCell> headerRow = data.get(0);
 			for (int i = 1; i < data.size(); i++) {
 				Question question = new Question();
 				SampleTestCase sampleTestCases = new SampleTestCase();
-				List<SampleTestCase> ListSampleTestCase = new ArrayList();
-				List<TestCases> listTestCases = new ArrayList();
+				List<SampleTestCase> ListSampleTestCase = new ArrayList<>();
+				List<TestCases> listTestCases = new ArrayList<>();
 				TestCases testCases = new TestCases();
 				String tempQid = UUID.randomUUID().toString();
 				List<MyCell> row = data.get(i);
@@ -133,7 +79,7 @@ public class Helper {
 				sampleTestCases.setOutput(row.get(4).getContent());
 				for (int k = 5; k < headerRow.size(); k++) {
 					int flag = 0;
-					if (k % 2 != 0) {						
+					if (k % 2 != 0) {
 						testCases.setInput(row.get(k).getContent());
 						flag = 1;
 					} else {
@@ -144,7 +90,7 @@ public class Helper {
 						listTestCases.add(testCases);
 						testCases = new TestCases();
 					}
-				}				
+				}
 				ListSampleTestCase.add(sampleTestCases);
 				question.setQuestionId(tempQid);
 				question.setQuestionStatus("true");
@@ -156,7 +102,6 @@ public class Helper {
 			e.printStackTrace();
 		}
 		return questionList;
-
 	}
 
 }
