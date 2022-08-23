@@ -80,14 +80,7 @@ public class CodeCompilerController {
 		List<Contest> contestIdAndName = new ArrayList<>();
 		try {
 			contestService.saveContest(contest);
-			List<Contest> allContest = contestService.findAllContest();
-			Contest contestRecord = new Contest();
-			allContest.forEach(eachContestRecord -> {
-				contestRecord.setContestId(eachContestRecord.getContestId());
-				contestRecord.setContestName(eachContestRecord.getContestName());
-				contestRecord.setContestDescription(eachContestRecord.getContestDescription());
-				contestIdAndName.add(contestRecord);
-			});
+			contestIdAndName = contestService.findAllContest();			
 			logger.info("Contest added successfully");
 		} catch(Exception ex) {
 			ex.printStackTrace();
@@ -105,12 +98,6 @@ public class CodeCompilerController {
 		}
 		return new ResponseEntity<Object>(HttpStatus.OK);
 	}
-
-	
-	
-	
-	
-	
 	
 	@GetMapping("getContestDetail")
 	private ResponseEntity<Object> getContestDetail(@RequestParam String contestId) {

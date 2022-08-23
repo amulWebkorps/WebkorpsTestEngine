@@ -1,5 +1,6 @@
 package com.codecompiler.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,16 @@ public class ContestServiceImpl implements ContestService {
 
 	@Override
 	public List<Contest> findAllContest() {
-		return contestRepository.findAll();
+		List<Contest> contestIdAndName = new ArrayList<>();
+		List<Contest> contestList = contestRepository.findAll();
+		Contest contestRecord = new Contest();
+		contestList.forEach(eachContestRecord -> {
+			contestRecord.setContestId(eachContestRecord.getContestId());
+			contestRecord.setContestName(eachContestRecord.getContestName());
+			contestRecord.setContestDescription(eachContestRecord.getContestDescription());
+			contestIdAndName.add(contestRecord);
+		});
+		return contestIdAndName;
 	}
 	
 }
