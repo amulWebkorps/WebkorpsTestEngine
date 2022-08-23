@@ -52,8 +52,8 @@ public class CodeCompilerController {
 	public ResponseEntity<Object> contestPage(@RequestParam(value = "contestId", required = false) String contestId,
 			@RequestParam(value = "studentId", required = false) String studentId, @RequestParam(value = "language", required = false) String selectlanguage) {
 		Language language = languageService.findByLanguage(selectlanguage);
-		List<Question> contestQuestions = questionService.getAllQuestion(contestId, studentId);
-		return generateResponse(contestQuestions.get(0), language, contestId, studentId, 0, false, true, HttpStatus.OK);
+		List<Question> contestQuestionsList = questionService.getAllQuestion(contestId, studentId);
+		return generateResponse(contestQuestionsList, language, contestId, studentId, 0, false, true, HttpStatus.OK);
 	}
 	
 	@PostMapping("javacompiler")
@@ -63,9 +63,9 @@ public class CodeCompilerController {
 		return ResponseEntity.ok(responsef);
 	}
 	
-	public ResponseEntity<Object> generateResponse(Question contestQuestions, Language language, String contestId, String studentId, Integer nextQuestion, boolean previous, boolean next, HttpStatus status) {
+	public ResponseEntity<Object> generateResponse(List<Question> contestQuestionsList, Language language, String contestId, String studentId, Integer nextQuestion, boolean previous, boolean next, HttpStatus status) {
 		Map<String, Object> mp = new HashedMap();
-		mp.put("QuestionList", contestQuestions);
+		mp.put("QuestionList", contestQuestionsList);
 		mp.put("languageCode", language);
 		mp.put("contestId", contestId);
 		mp.put("studentId", studentId);
@@ -80,14 +80,7 @@ public class CodeCompilerController {
 		List<Contest> contestIdAndName = new ArrayList<>();
 		try {
 			contestService.saveContest(contest);
-			List<Contest> allContest = contestService.findAllContest();
-			Contest contestRecord = new Contest();
-			allContest.forEach(eachContestRecord -> {
-				contestRecord.setContestId(eachContestRecord.getContestId());
-				contestRecord.setContestName(eachContestRecord.getContestName());
-				contestRecord.setContestDescription(eachContestRecord.getContestDescription());
-				contestIdAndName.add(contestRecord);
-			});
+			contestIdAndName = contestService.findAllContest();			
 			logger.info("Contest added successfully");
 		} catch(Exception ex) {
 			ex.printStackTrace();
@@ -106,6 +99,7 @@ public class CodeCompilerController {
 		return new ResponseEntity<Object>(HttpStatus.OK);
 	}
 
+	
 	@GetMapping("getContestDetail")
 	private ResponseEntity<Object> getContestDetail(@RequestParam String contestId) {
 		Map<String, Object> contestDetail = new HashedMap<String, Object>();
