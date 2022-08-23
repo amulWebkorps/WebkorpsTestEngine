@@ -155,17 +155,9 @@ public class QuestionController {
           return new ResponseEntity<Object>(HttpStatus.OK);
 	}
 	
-	@GetMapping("viewparticipatorofcontest")
-	private ResponseEntity<Object> viewParticipators(@RequestParam String contestId) {
-		List<Student> studentTemp = new ArrayList<>();
-		try {		
-			studentTemp = studentService.findByContestId(contestId);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
-	}
+	
+	
+	
 	
 	
 	

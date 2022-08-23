@@ -40,7 +40,7 @@ public class ContestServiceImpl implements ContestService {
 	}
 
 	public void deleteContest(String contestId) {
-		contestRepository.deleteById(contestId);			
+		contestRepository.deleteById(contestId);		
 	}
 
 	@Override
