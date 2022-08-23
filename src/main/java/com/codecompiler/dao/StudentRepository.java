@@ -1,6 +1,7 @@
 package com.codecompiler.dao;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -14,4 +15,6 @@ public interface StudentRepository extends MongoRepository<Student, Integer> {
 	public Student findById(String studentId);
 
 	ArrayList<Student> findByContestId(String contestId);
+	
+	List<Student> findEmailByStatus(Boolean True);
 }

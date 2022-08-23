@@ -1,5 +1,6 @@
 package com.codecompiler.codecompilercontroller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +39,14 @@ public class HomeController {
 	
 	@GetMapping("getAllContestList")
 	public ResponseEntity<Object> showContestList() {
-		List<Contest> contesList = contestService.findAllContest();
-		return new ResponseEntity<Object>(contesList, HttpStatus.OK);
+		List<Contest> contesList = new ArrayList<>();	
+		try {
+			contesList = contestService.findAllContest();
+			return new ResponseEntity<Object>(contesList, HttpStatus.OK);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ResponseEntity<Object>("No contest Found", HttpStatus.BAD_REQUEST);
+		}	
 	} 
 
 }
