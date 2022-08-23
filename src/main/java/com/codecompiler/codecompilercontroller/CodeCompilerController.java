@@ -51,8 +51,8 @@ public class CodeCompilerController {
 	public ResponseEntity<Object> contestPage(@RequestParam(value = "contestId", required = false) String contestId,
 			@RequestParam(value = "studentId", required = false) String studentId, @RequestParam(value = "language", required = false) String selectlanguage) {
 		Language language = languageService.findByLanguage(selectlanguage);
-		List<Question> contestQuestions = questionService.getAllQuestion(contestId, studentId);
-		return generateResponse(contestQuestions.get(0), language, contestId, studentId, 0, false, true, HttpStatus.OK);
+		List<Question> contestQuestionsList = questionService.getAllQuestion(contestId, studentId);
+		return generateResponse(contestQuestionsList, language, contestId, studentId, 0, false, true, HttpStatus.OK);
 	}
 	
 	@PostMapping("javacompiler")
@@ -62,9 +62,9 @@ public class CodeCompilerController {
 		return ResponseEntity.ok(responsef);
 	}
 	
-	public ResponseEntity<Object> generateResponse(Question contestQuestions, Language language, String contestId, String studentId, Integer nextQuestion, boolean previous, boolean next, HttpStatus status) {
+	public ResponseEntity<Object> generateResponse(List<Question> contestQuestionsList, Language language, String contestId, String studentId, Integer nextQuestion, boolean previous, boolean next, HttpStatus status) {
 		Map<String, Object> mp = new HashedMap();
-		mp.put("QuestionList", contestQuestions);
+		mp.put("QuestionList", contestQuestionsList);
 		mp.put("languageCode", language);
 		mp.put("contestId", contestId);
 		mp.put("studentId", studentId);

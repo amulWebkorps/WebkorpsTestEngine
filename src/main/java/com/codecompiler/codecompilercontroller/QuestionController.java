@@ -166,34 +166,5 @@ public class QuestionController {
 		}
 		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/*
-	 * @RequestMapping("/questionuploaded") public String upload(Model model) {
-	 * List<Question> contestQuestionsTemp = new ArrayList<>(); if
-	 * (contestLevel.equals("Level 2")) {
-	 * 
-	 * contestQuestionsTemp = qs.findQuestionByContestLevel(contestLevel);
-	 * model.addAttribute("questions", contestQuestionsTemp); return
-	 * "level2Questions";
-	 * 
-	 * } else if (contestLevel.equals("Level 1")) { contestQuestionsTemp =
-	 * qs.findQuestionByContestLevel(contestLevel); model.addAttribute("questions",
-	 * contestQuestionsTemp); return "level1Questions"; } else {
-	 * contestQuestionsTemp = qs.getAllQuestion(); model.addAttribute("questions",
-	 * contestQuestionsTemp); return "questionListAndAddNewQuestion"; }
-	 * 
-	 * }
-	 */
+
 }
