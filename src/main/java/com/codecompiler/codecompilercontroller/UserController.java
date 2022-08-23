@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.HrDetails;
+import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.service.AdminService;
 import com.codecompiler.service.ContestService;
+import com.codecompiler.service.QuestionService1;
 import com.codecompiler.service.StudentService1;
 
 @Controller
@@ -37,6 +39,9 @@ public class UserController {
 	
 	@Autowired
 	private ContestService contestService;
+	
+	@Autowired
+	private QuestionService1 questionService;	
 
 	Logger logger = LogManager.getLogger(UserController.class);
 
@@ -104,6 +109,25 @@ public class UserController {
 		}
 		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
 	}
+	
+	@GetMapping("getparticipatordetail")
+	public ResponseEntity<Object> getparticipatordetail(@RequestParam String studentId) {
+		Map<String, Object> mp = new HashedMap();
+		Student student = studentService.findById(studentId);
+		List<Question> questionDetail = new ArrayList<>();
+		for(String questionId : student.getQuestionId()) {
+			Question question = questionService.findByQuestionId(questionId);
+			Question questionTemp = new Question();
+			questionTemp.setQuestionId(question.getQuestionId());
+			questionTemp.setQuestion(question.getQuestion());
+			questionTemp.setSampleTestCase(question.getSampleTestCase());
+			questionDetail.add(questionTemp);
+		}
+		mp.put("studentDetail", student);
+		mp.put("questionSubmitedByStudent", questionDetail);
+		return new ResponseEntity<Object>(mp, HttpStatus.OK);
+	}
+	
 	
 }
 
