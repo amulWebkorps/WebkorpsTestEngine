@@ -56,7 +56,7 @@ public class CodeCompilerController {
 		return generateResponse(contestQuestionsList, language, contestId, studentId, 0, false, true, HttpStatus.OK);
 	}
 	
-	@PostMapping("javacompiler")
+	@PostMapping("runAndCompilerCode")
 	public ResponseEntity<ResponseToFE> getCompiler(@RequestBody Map<String, Object> data)
 			throws Exception {
 		ResponseToFE responsef = codeProcessingService.compileCode(data);

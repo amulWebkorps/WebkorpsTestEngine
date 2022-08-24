@@ -18,7 +18,7 @@ import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.QuestionStatus;
-import com.codecompiler.helper.Helper;
+import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService1;
 
 @Service
@@ -29,6 +29,9 @@ public class QuestionServiceImpl implements QuestionService1 {
 
 	@Autowired
 	private QuestionRepository questionRepository;
+	
+	@Autowired
+	private ExcelConvertorService excelConvertorService;
 	
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
@@ -67,7 +70,7 @@ public class QuestionServiceImpl implements QuestionService1 {
 		List<Question> allTrueQuestions = new ArrayList<>();
 		try {
 			Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(), file.getOriginalFilename());
-			allTrueQuestions = Helper.convertExcelToListOfQuestions(data);
+			allTrueQuestions = excelConvertorService.convertExcelToListOfQuestions(data);
 			questionRepository.saveAll(allTrueQuestions);
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -16,18 +16,15 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.HrDetails;
-import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
-import com.codecompiler.helper.Helper;
 import com.codecompiler.service.AdminService;
 import com.codecompiler.service.ContestService;
+import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.StudentService1;
 
 @Controller
@@ -42,6 +39,9 @@ public class UserController {
 	
 	@Autowired
 	private ContestService contestService;
+	
+	@Autowired
+	private ExcelConvertorService excelConvertorService;
 
 	Logger logger = LogManager.getLogger(UserController.class);
 
@@ -112,7 +112,7 @@ public class UserController {
 	
 	@PostMapping(value = "/studentUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file) {
-		if (Helper.checkExcelFormat(file)) {
+		if (excelConvertorService.checkExcelFormat(file)) {
 			try {
 				List<String> allStudents = studentService.saveFileForBulkParticipator(file);
 				return new ResponseEntity<Object>(allStudents, HttpStatus.OK);

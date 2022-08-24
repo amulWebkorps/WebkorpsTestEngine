@@ -16,7 +16,7 @@ import com.codecompiler.codecompilercontroller.ExcelPOIHelper;
 import com.codecompiler.dao.StudentRepository;
 import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Student;
-import com.codecompiler.helper.Helper;
+import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.StudentService1;
 
 @Service
@@ -27,6 +27,9 @@ public class studentServiceImpl implements StudentService1{
 	
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
+	
+	@Autowired
+	private ExcelConvertorService excelConvertorService;
 	
 	public Student findById(String studentId) {
 		return studentRepository.findById(studentId);
@@ -59,7 +62,7 @@ public class studentServiceImpl implements StudentService1{
 		List<Student> uploadParticipator = new ArrayList<>();
 		try {
 			Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(), file.getOriginalFilename());
-			uploadParticipator = Helper.convertExcelToListOfStudent(data);
+			uploadParticipator = excelConvertorService.convertExcelToListOfStudent(data);
 			studentRepository.saveAll(uploadParticipator);
 		} catch (IOException e) {
 			e.printStackTrace();
