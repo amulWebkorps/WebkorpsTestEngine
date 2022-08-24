@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -35,11 +36,11 @@ public class EmailController {
 	Logger logger = LogManager.getLogger(EmailController.class);
 	
 	@PostMapping("sendMail")
-	public ResponseEntity<Object> sendMail(@RequestParam("StudentEmail") List<String> studentEmails, @RequestParam("contestId") String contestId) {
+	public ResponseEntity<Object> sendMail(@RequestBody Map<String, List<String>> sendEmailDetails) {
 		try {
-			for (String studentEmail : studentEmails) {
+			for (String studentEmail : sendEmailDetails.get("studentEmails")) {
 				Student studentDetails = studentService1.findByEmail(studentEmail);
-				this.emailService.sendMail(contestId, studentDetails.getName(), studentDetails.getEmail(),"Webkorps Code Assesment Credentials", studentDetails.getPassword());
+				this.emailService.sendMail(sendEmailDetails.get("contestId").get(0), studentDetails.getName(), studentDetails.getEmail(),"Webkorps Code Assesment Credentials", studentDetails.getPassword());
 				studentDetails.setStatus(true);
 				studentService1.saveStudent(studentDetails);
 			}

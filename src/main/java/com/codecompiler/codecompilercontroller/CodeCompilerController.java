@@ -44,8 +44,6 @@ public class CodeCompilerController {
 	@Autowired
 	private ContestService contestService;
 	
-	
-	
 	Logger logger = LogManager.getLogger(CodeCompilerController.class);
 
 	@PostMapping("startContestPage")

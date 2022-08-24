@@ -18,6 +18,8 @@ import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.QuestionStatus;
+import com.codecompiler.entity.SampleTestCase;
+import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService1;
 
@@ -29,10 +31,10 @@ public class QuestionServiceImpl implements QuestionService1 {
 
 	@Autowired
 	private QuestionRepository questionRepository;
-	
+
 	@Autowired
 	private ExcelConvertorService excelConvertorService;
-	
+
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
 
@@ -65,11 +67,12 @@ public class QuestionServiceImpl implements QuestionService1 {
 	public List<Question> findByQuestionIdIn(List<String> questionListStatusTrue) {
 		return questionRepository.findByQuestionIdIn(questionListStatusTrue);
 	}
-	
+
 	public List<Question> saveFileForBulkQuestion(MultipartFile file) {
 		List<Question> allTrueQuestions = new ArrayList<>();
 		try {
-			Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(), file.getOriginalFilename());
+			Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(),
+					file.getOriginalFilename());
 			allTrueQuestions = excelConvertorService.convertExcelToListOfQuestions(data);
 			questionRepository.saveAll(allTrueQuestions);
 		} catch (IOException e) {
@@ -78,27 +81,30 @@ public class QuestionServiceImpl implements QuestionService1 {
 		return allTrueQuestions;
 	}
 
-	public Question saveQuestion(Question question) {		
-		return questionRepository.save(question);				
+	public Question saveQuestion(Question question) {
+		return questionRepository.save(question);
 	}
-	
+
 	public Question findByQuestionId(String questionId) {
 		return questionRepository.findByQuestionId(questionId);
 	}
-	
+
 	public List<Question> findByContestLevel(String filterByString) {
 		ArrayList<Question> totalQuestionWithStatusTrue = new ArrayList<>();
 		for (Question verifyQuestion : questionRepository.findByContestLevel(filterByString)) {
 			if (verifyQuestion.getQuestionStatus() != null) {
 				if (verifyQuestion.getQuestionStatus().equals("true"))
 					totalQuestionWithStatusTrue.add(verifyQuestion);
-			}			
+			}
 		}
 		return totalQuestionWithStatusTrue;
 	}
+
+	@Override
+	public List<TestCases> getTestCase(String questionId) {
+		Question questions = questionRepository.findByQuestionId(questionId);
+		List<TestCases> testCasesCollection = new ArrayList<>();
+		testCasesCollection.addAll(questions.getTestcases());
+		return testCasesCollection;
+	}
 }
-
-
-
-
-

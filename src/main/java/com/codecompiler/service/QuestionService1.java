@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.entity.Question;
+import com.codecompiler.entity.SampleTestCase;
+import com.codecompiler.entity.TestCases;
 
 public interface QuestionService1 {
 
@@ -22,5 +24,6 @@ public interface QuestionService1 {
 	 
 	 public List<Question> findByContestLevel(String filterByString);
 
-	   
+	 public List<TestCases> getTestCase(String questionId);
+	 
 }
