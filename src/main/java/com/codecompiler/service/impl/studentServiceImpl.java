@@ -29,7 +29,7 @@ public class studentServiceImpl implements StudentService1{
 	private ExcelPOIHelper excelPOIHelper;
 	
 	public Student findById(String studentId) {
-		return studentRepository.findById(studentId);
+		return studentRepository.findById(studentId);		
 	}
 	
 	public Student findByEmailAndPassword(String email, String password) {
@@ -65,6 +65,10 @@ public class studentServiceImpl implements StudentService1{
 			e.printStackTrace();
 		}
 		return uploadParticipator.stream().map(Student::getEmail).collect(Collectors.toList());
+	}
+	
+	public Student deleteByEmail(String emailId) {		
+		return studentRepository.deleteByEmail(emailId);
 	}
 
 }

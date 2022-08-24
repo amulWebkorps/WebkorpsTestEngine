@@ -17,4 +17,6 @@ public interface StudentRepository extends MongoRepository<Student, Integer> {
 	ArrayList<Student> findByContestId(String contestId);
 	
 	List<Student> findEmailByStatus(Boolean True);
+	
+	public Student deleteByEmail(String emailId);
 }
