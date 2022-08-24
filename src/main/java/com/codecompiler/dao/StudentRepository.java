@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.codecompiler.entity.Student;
+import com.mongodb.BasicDBObject;
 
 public interface StudentRepository extends MongoRepository<Student, Integer> {
 	Student findByEmailAndPassword(String email, String password);
@@ -19,4 +20,6 @@ public interface StudentRepository extends MongoRepository<Student, Integer> {
 	List<Student> findEmailByStatus(Boolean True);
 	
 	public Student deleteByEmail(String emailId);
+	
+	
 }

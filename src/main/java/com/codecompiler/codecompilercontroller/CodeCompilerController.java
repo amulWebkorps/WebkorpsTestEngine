@@ -108,8 +108,7 @@ public class CodeCompilerController {
 		try {
 			Contest contestRecord = contestService.findByContestId(contestId);
 			contestDetail.put("contest", contestRecord);
-			for (QuestionStatus questionStatus : contestRecord.getQuestionStatus()) {
-				
+			for (QuestionStatus questionStatus : contestRecord.getQuestionStatus()) {				
 				if (questionStatus.getStatus()) {
 					qListStatusTrue.add(questionStatus.getQuestionId());
 				}

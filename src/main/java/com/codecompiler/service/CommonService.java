@@ -30,7 +30,7 @@ public class CommonService {
 		Query query=new Query();
 		query.addCriteria(Criteria.where("_id").is(question.getQuestionId()));
 		Question q = mongoTemplate.findOne(query, Question.class);
-		mongoTemplate.save(question);
+		mongoTemplate.save(question);		
 		System.out.println("**** >"+q);
 		return question;
 	}

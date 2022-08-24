@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.entity.Student;
+import com.mongodb.BasicDBObject;
 
 public interface StudentService1 {
 
@@ -24,4 +25,6 @@ public interface StudentService1 {
 	public List<String> saveFileForBulkParticipator(MultipartFile file);
 	
 	public Student deleteByEmail(String emailId);
+	
+	public List<Student> getByEmail(String filterString);
 }
