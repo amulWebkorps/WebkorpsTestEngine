@@ -29,6 +29,7 @@ import com.codecompiler.service.ContestService;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService1;
 import com.codecompiler.service.StudentService1;
+import com.mongodb.BasicDBObject;
 
 @Controller
 @CrossOrigin(origins = "*")
@@ -168,6 +169,19 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Email Id");
 		}
 		return ResponseEntity.status(HttpStatus.OK).body("Student deleted successfully");
+
+	}
+	
+	@GetMapping("filterparticipator")
+	private ResponseEntity<Object> filterParticipator(@RequestParam String filterByString) {			
+		List<Student> studentTemp = new ArrayList<>();
+		try {						
+			studentTemp = studentService.getByEmail(filterByString);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Email Id");
+		}
+		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
 
 	}
 }
