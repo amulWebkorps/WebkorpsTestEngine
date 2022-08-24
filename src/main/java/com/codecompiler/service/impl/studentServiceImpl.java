@@ -80,12 +80,12 @@ public class studentServiceImpl implements StudentService1{
 		return studentRepository.deleteByEmail(emailId);
 	}
 	
-	public List<Student> getByEmail(String filterByString){		
+	public List<String> getByEmail(String filterByString){		
 		Query query=new Query();
 		List<Student> studentTemp = new ArrayList<>();
 		query.addCriteria(Criteria.where("email").regex("^"+filterByString));
 		studentTemp = mongoTemplate.find(query, Student.class);
-        return studentTemp;
+        return studentTemp.stream().map(Student::getEmail).collect(Collectors.toList());
 	}
 
 }

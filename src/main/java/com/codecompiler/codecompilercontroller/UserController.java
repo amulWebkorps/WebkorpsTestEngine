@@ -174,7 +174,7 @@ public class UserController {
 	
 	@GetMapping("filterparticipator")
 	private ResponseEntity<Object> filterParticipator(@RequestParam String filterByString) {			
-		List<Student> studentTemp = new ArrayList<>();
+		List<String> studentTemp = new ArrayList<>();
 		try {						
 			studentTemp = studentService.getByEmail(filterByString);
 		} catch (Exception e) {
