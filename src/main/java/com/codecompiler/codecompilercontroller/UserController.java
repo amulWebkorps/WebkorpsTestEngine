@@ -164,7 +164,8 @@ public class UserController {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Email Id");
 		}
-		return new ResponseEntity<Object>(student, HttpStatus.OK);
+		return ResponseEntity.status(HttpStatus.OK).body("Student deleted successfully");
+
 	}
 }
 

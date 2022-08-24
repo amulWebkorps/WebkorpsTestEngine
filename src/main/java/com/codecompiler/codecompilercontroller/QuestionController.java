@@ -136,24 +136,28 @@ public class QuestionController {
 	
 	@DeleteMapping("deletequestion") // cid, qid
 	private ResponseEntity<Object> deleteQuestion(@RequestBody ArrayList<String> contestAndQuestionId) {
-		
-    if(contestAndQuestionId.get(0).equals("questionForLevel")) {			
-		Question questionStatusChange = questionService.findByQuestionId(contestAndQuestionId.get(1));			
-		questionStatusChange.setQuestionStatus("false");			
-		questionService.saveQuestion(questionStatusChange);
-		}else {
-			Contest contest = new Contest();
-			contest = contestService.findByContestId(contestAndQuestionId.get(0));	
-			int index = 0;
-			for (QuestionStatus qs : contest.getQuestionStatus()) {
-				if (qs.getQuestionId().equals(contestAndQuestionId.get(1))) {				
-					contest.getQuestionStatus().get(index).setStatus(false);
+		try {
+			if (contestAndQuestionId.get(0).equals("questionForLevel")) {
+				Question questionStatusChange = questionService.findByQuestionId(contestAndQuestionId.get(1));
+				questionStatusChange.setQuestionStatus("false");
+				questionService.saveQuestion(questionStatusChange);
+			} else {
+				Contest contest = new Contest();
+				contest = contestService.findByContestId(contestAndQuestionId.get(0));
+				int index = 0;
+				for (QuestionStatus qs : contest.getQuestionStatus()) {
+					if (qs.getQuestionId().equals(contestAndQuestionId.get(1))) {
+						contest.getQuestionStatus().get(index).setStatus(false);
+					}
+					index++;
 				}
-				index++;
+				contestService.saveContest(contest);
 			}
-			contestService.saveContest(contest);			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Please check Input ");
 		}
-          return new ResponseEntity<Object>(HttpStatus.OK);
+		return ResponseEntity.status(HttpStatus.OK).body("Question deleted successfully");
 	}
 	
 }
