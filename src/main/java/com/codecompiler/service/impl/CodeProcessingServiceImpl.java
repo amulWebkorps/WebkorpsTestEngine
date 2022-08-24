@@ -127,17 +127,18 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
             e.printStackTrace();
         }
         if (flag.equalsIgnoreCase("submit")) {
-            List<String> questionIds = new ArrayList<>();
-            questionIds.add(questionId);
-            FileWriter flSubmitted = new FileWriter("src/main/resources/CodeSubmittedByCandidate/" + SubmittedCodeFileName);
-            PrintWriter prSubmitted = new PrintWriter(flSubmitted);
-            prSubmitted.write((String) data.get("code"));
-            studentService.updateStudentDetails(studentId, (String) data.get("contestId"),
-                    questionIds, testCasesSuccess, complilationMessage);
-            responsef.setSuccessMessage("Code SUbmitted Successfully");
-            prSubmitted.flush();
-            prSubmitted.close();
-        }
+			List<String> questionIds = new ArrayList<>();
+			questionIds.add(questionId);
+			FileWriter flSubmitted = new FileWriter(
+					"src/main/resources/CodeSubmittedByCandidate/" + SubmittedCodeFileName);
+			PrintWriter prSubmitted = new PrintWriter(flSubmitted);
+			prSubmitted.write((String) data.get("code"));
+			studentService.updateStudentDetails(studentId, (String) data.get("contestId"), questionIds,
+					testCasesSuccess, complilationMessage);
+			responsef.setSuccessMessage("Code SUbmitted Successfully");
+			prSubmitted.flush();
+			prSubmitted.close();
+		}
         responsef.setTestCasesSuccess(testCasesSuccess);
         return responsef;
     }

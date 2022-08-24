@@ -52,6 +52,7 @@ public class ContestServiceImpl implements ContestService {
 			Contest contestRecord = new Contest();
 			contestRecord.setContestId(eachContestRecord.getContestId());
 			contestRecord.setContestName(eachContestRecord.getContestName());
+			contestRecord.setContestLevel(eachContestRecord.getContestLevel());
 			contestRecord.setContestDescription(eachContestRecord.getContestDescription());
 			contestIdAndName.add(contestRecord);
 		});
