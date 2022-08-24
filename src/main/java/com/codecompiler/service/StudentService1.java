@@ -15,11 +15,13 @@ public interface StudentService1 {
 	
 	public Student findByEmail(String studentEmail);
 	
-	ArrayList<Student> findByContestId(String contestId);
+	public ArrayList<Student> findByContestId(String contestId);
 	
 	public Student saveStudent(Student studentDetails);
 	
-	List<String> findEmailByStatus(Boolean True);
+	public List<String> findEmailByStatus(Boolean True);
 	
 	public List<String> saveFileForBulkParticipator(MultipartFile file);
+	
+	public Student deleteByEmail(String emailId);
 }

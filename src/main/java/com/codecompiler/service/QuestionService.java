@@ -33,8 +33,8 @@ public class QuestionService {
         return questions;
 	
 	}
-	public ArrayList<Question>  findQuestionByContestLevel(String contestLevel){
-	ArrayList<Question> question = questionRepository.findByContestLevel(contestLevel);      
+	public List<Question>  findQuestionByContestLevel(String contestLevel){
+	List<Question> question = questionRepository.findByContestLevel(contestLevel);      
 	return question;
 }
 }

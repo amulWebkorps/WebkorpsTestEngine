@@ -76,8 +76,8 @@ public class CommonService {
 	}
 		
 	public ArrayList<Question>  findQuestionByContestLevel(String contestLevel){
-	ArrayList<Question> question = questionRepository.findByContestLevel(contestLevel);       
-	return question;
+	//ArrayList<Question> question = questionRepository.findByContestLevel(contestLevel);       
+	return null;
     }
 	
 	

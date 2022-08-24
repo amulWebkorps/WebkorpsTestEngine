@@ -47,9 +47,9 @@ public class ContestServiceImpl implements ContestService {
 	@Override
 	public List<Contest> findAllContest() {
 		List<Contest> contestIdAndName = new ArrayList<>();
-		List<Contest> contestList = contestRepository.findAll();
-		Contest contestRecord = new Contest();
+		List<Contest> contestList = contestRepository.findAll();		
 		contestList.forEach(eachContestRecord -> {
+			Contest contestRecord = new Contest();
 			contestRecord.setContestId(eachContestRecord.getContestId());
 			contestRecord.setContestName(eachContestRecord.getContestName());
 			contestRecord.setContestDescription(eachContestRecord.getContestDescription());
