@@ -94,9 +94,9 @@ public class CodeCompilerController {
 			contestService.deleteContest(contestId);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Contest Id");
 		}
-		return new ResponseEntity<Object>(HttpStatus.OK);
+		return ResponseEntity.status(HttpStatus.OK).body("Contest deleted successfully");
 	}
 
 	
