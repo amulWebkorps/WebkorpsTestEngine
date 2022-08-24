@@ -26,5 +26,5 @@ public interface StudentService1 {
 	
 	public Student deleteByEmail(String emailId);
 	
-	public List<Student> getByEmail(String filterString);
+	public List<String> getByEmail(String filterString);
 }

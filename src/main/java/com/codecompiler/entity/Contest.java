@@ -17,7 +17,9 @@ public class Contest {
 	private  String contestName;
 	private  String contestDescription;
 	private  String contestLevel;
-		private ArrayList<QuestionStatus> questionStatus = new ArrayList<>();
+	private ArrayList<QuestionStatus> questionStatus = new ArrayList<>();
+	private String contestTime;
+	
 	public Contest() {
 		super();		
 	}
@@ -51,10 +53,17 @@ public class Contest {
 	public void setQuestionStatus(ArrayList<QuestionStatus> questionStatus) {
 		this.questionStatus = questionStatus;
 	}
+	public String getContestTime() {
+		return contestTime;
+	}
+	public void setContestTime(String contestTime) {
+		this.contestTime = contestTime;
+	}
 	@Override
 	public String toString() {
 		return "Contest [contestId=" + contestId + ", contestName=" + contestName + ", contestDescription="
-				+ contestDescription + ", contestLevel=" + contestLevel + ", questionStatus=" + questionStatus + "]";
+				+ contestDescription + ", contestLevel=" + contestLevel + ", questionStatus=" + questionStatus
+				+ ", contestTime=" + contestTime + "]";
 	}
 	
 	
