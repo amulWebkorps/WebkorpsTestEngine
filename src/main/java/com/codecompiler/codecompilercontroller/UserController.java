@@ -17,15 +17,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.HrDetails;
 import com.codecompiler.entity.Question;
-import com.codecompiler.entity.QuestionStatus;
 import com.codecompiler.entity.Student;
 import com.codecompiler.helper.Helper;
 import com.codecompiler.service.AdminService;
@@ -118,9 +115,10 @@ public class UserController {
 	
 	@GetMapping("getparticipatordetail")
 	public ResponseEntity<Object> getparticipatordetail(@RequestParam String studentId) {
-		Map<String, Object> mp = new HashedMap();
+		Map<String, Object> mp = new HashedMap<>();
 		try {
 		Student student = studentService.findById(studentId);
+		if(student != null) {
 		List<Question> questionDetail = new ArrayList<>();
 		for(String questionId : student.getQuestionId()) {
 			Question question = questionService.findByQuestionId(questionId);
@@ -132,6 +130,9 @@ public class UserController {
 		}
 		mp.put("studentDetail", student);
 		mp.put("questionSubmitedByStudent", questionDetail);
+		}else {
+			return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This student not present in DataBase");	
+		}		
 		}catch(Exception e) {
 			e.printStackTrace();
 			return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Student Id");
@@ -156,10 +157,9 @@ public class UserController {
 	}
 	
 	@DeleteMapping("deletestudent")
-	private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {
-		Student student = new Student();
+	private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {	
 		try {
-			student = studentService.deleteByEmail(emailId);
+			 studentService.deleteByEmail(emailId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Email Id");
