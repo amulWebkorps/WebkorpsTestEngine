@@ -83,7 +83,7 @@ public class studentServiceImpl implements StudentService1{
 	public List<Student> getByEmail(String filterByString){		
 		Query query=new Query();
 		List<Student> studentTemp = new ArrayList<>();
-		query.addCriteria(Criteria.where("email").regex(filterByString));
+		query.addCriteria(Criteria.where("email").regex("^"+filterByString));
 		studentTemp = mongoTemplate.find(query, Student.class);
         return studentTemp;
 	}
