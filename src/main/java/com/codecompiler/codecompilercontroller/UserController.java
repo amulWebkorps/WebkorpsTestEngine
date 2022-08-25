@@ -183,6 +183,17 @@ public class UserController {
 		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
 
 	}
+	
+	@DeleteMapping("finalsubmitcontest")
+	public  ResponseEntity<Object> submitContest(@RequestParam String emailId) {
+		try {
+			 studentService.submitContest(emailId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check EmailId");
+		}
+		return ResponseEntity.status(HttpStatus.OK).body("Test submitted successfully");
+	}
 }
 
 

@@ -110,5 +110,11 @@ public class studentServiceImpl implements StudentService1{
 		}		
 		return studentRepository.save(existingRecord);
 	}
+	
+	public Student submitContest(String emailId) {
+		Student student = studentRepository.findByEmail(emailId);
+		student.setPassword(null);
+		return studentRepository.save(student);
+	}
 
 }

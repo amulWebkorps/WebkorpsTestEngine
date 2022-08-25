@@ -29,4 +29,6 @@ public interface StudentService1 {
 	
 	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
 			ArrayList<Boolean> testCasesSuccess, String complilationMessage);
+	
+	public Student submitContest(String emailId);
 }
