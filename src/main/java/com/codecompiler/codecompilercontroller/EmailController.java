@@ -52,7 +52,7 @@ public class EmailController {
 	}
 
 	public ResponseEntity<Object> generateResponse(String msg, HttpStatus status) {
-		Map<String, Object> mp = new HashedMap();
+		Map<String, Object> mp = new HashedMap<>();
 		mp.put("message", msg);
 		mp.put("status", status);
 		return new ResponseEntity<Object>(mp, status);
