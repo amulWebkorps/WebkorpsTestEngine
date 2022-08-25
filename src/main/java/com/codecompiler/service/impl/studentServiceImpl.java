@@ -18,8 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.codecompiler.codecompilercontroller.ExcelPOIHelper;
 import com.codecompiler.dao.StudentRepository;
 import com.codecompiler.entity.MyCell;
-import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
+import com.codecompiler.entity.TestCasesRecord;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.StudentService1;
 
@@ -86,6 +86,29 @@ public class studentServiceImpl implements StudentService1{
 		query.addCriteria(Criteria.where("email").regex("^"+filterByString));
 		studentTemp = mongoTemplate.find(query, Student.class);
         return studentTemp.stream().map(Student::getEmail).collect(Collectors.toList());
+	}
+	
+	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
+			ArrayList<String> testCasesSuccess, String complilationMessage) {
+		TestCasesRecord testCasesRecord = new TestCasesRecord();
+		List<TestCasesRecord> testCasesRecord1 = new ArrayList<>(); // need to remove in future
+		testCasesRecord.setQuestionId(questionIds);
+		testCasesRecord.setComplilationMessage(complilationMessage);
+		testCasesRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testcasesrecord and save that pass id in get method
+		Student existingRecord = studentRepository.findById(studentId);
+		existingRecord.setContestId(contestId);
+		if (existingRecord.getQuestionId() != null) {
+			existingRecord.getQuestionId().addAll(questionIds);
+		} else {
+			existingRecord.setQuestionId(questionIds);
+		}
+		if (existingRecord.getTestCasesRecord() != null) {
+			existingRecord.getTestCasesRecord().add(testCasesRecord);
+		} else {
+			existingRecord.setTestCasesRecord(testCasesRecord1); // need to remove in future
+			existingRecord.getTestCasesRecord().add(testCasesRecord);
+		}		
+		return studentRepository.save(existingRecord);
 	}
 
 }

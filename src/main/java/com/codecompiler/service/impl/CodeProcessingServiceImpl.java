@@ -17,13 +17,13 @@ import com.codecompiler.entity.ResponseToFE;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
 import com.codecompiler.service.QuestionService1;
-import com.codecompiler.service.StudentService;
+import com.codecompiler.service.StudentService1;
 
 @Service
 public class CodeProcessingServiceImpl implements CodeProcessingService {
 
 	@Autowired
-	private StudentService studentService;
+	private StudentService1 studentService;
 
 	@Autowired
 	private QuestionService1 questionService;
@@ -65,7 +65,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		String SubmittedCodeFileName = questionId + "_" + studentId;
 		String code = (String) data.get("code");
 		String command = null;
-
 		PrintWriter pr = processCode(code, language);
 		try {
 			if (language.equalsIgnoreCase("java")) {

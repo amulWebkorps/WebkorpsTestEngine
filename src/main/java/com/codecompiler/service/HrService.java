@@ -11,18 +11,18 @@ import com.codecompiler.entity.Student;
 public class HrService {
 	@Autowired
 	HrRepository hrRepository;
+
 	public HrDetails saveHrDetails(HrDetails hrDetails) {
-		HrDetails con = hrRepository.save(hrDetails);				
+		HrDetails con = hrRepository.save(hrDetails);
 		return con;
 	}
-	public HrDetails findByEmailAndPassword(String email, String password)
-	{
-		HrDetails s=null;
+
+	public HrDetails findByEmailAndPassword(String email, String password) {
+		HrDetails s = null;
 		try {
-			s   =	hrRepository.findByEmailAndPassword(email, password);
+			s = hrRepository.findByEmailAndPassword(email, password);
 			return s;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return s;
 

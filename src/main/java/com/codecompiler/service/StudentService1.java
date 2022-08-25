@@ -27,4 +27,7 @@ public interface StudentService1 {
 	public Student deleteByEmail(String emailId);
 	
 	public List<String> getByEmail(String filterString);
+	
+	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
+			ArrayList<String> testCasesSuccess, String complilationMessage);
 }

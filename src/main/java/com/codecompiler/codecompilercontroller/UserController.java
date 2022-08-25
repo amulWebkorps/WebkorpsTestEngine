@@ -29,7 +29,6 @@ import com.codecompiler.service.ContestService;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService1;
 import com.codecompiler.service.StudentService1;
-import com.mongodb.BasicDBObject;
 
 @Controller
 @CrossOrigin(origins = "*")
@@ -99,7 +98,7 @@ public class UserController {
 	}
 	
 	public ResponseEntity<Object> generateResponseForAdmin(HrDetails adminDetails, List<Contest> presentContest, HttpStatus status) {
-		Map<String, Object> mp = new HashedMap();
+		Map<String, Object> mp = new HashedMap<>();
 		mp.put("adminDetails", adminDetails);
 		mp.put("presentContest", presentContest);
 		return new ResponseEntity<Object>(mp, status);
