@@ -7,7 +7,7 @@ public class TestCasesRecord {
 
 	private List<String> questionId;
 	private String complilationMessage;
-	private ArrayList<String> testCasesSuccess;
+	private ArrayList<Boolean> testCasesSuccess;
 
 	public String getComplilationMessage() {
 		return complilationMessage;
@@ -17,11 +17,11 @@ public class TestCasesRecord {
 		this.complilationMessage = complilationMessage;
 	}
 
-	public void setTestCasesSuccess(ArrayList<String> testCasesSuccess) {
+	public void setTestCasesSuccess(ArrayList<Boolean> testCasesSuccess) {
 		this.testCasesSuccess = testCasesSuccess;
 	}
 
-	public ArrayList<String> getTestCasesSuccess() {
+	public ArrayList<Boolean> getTestCasesSuccess() {
 		return testCasesSuccess;
 	}
 

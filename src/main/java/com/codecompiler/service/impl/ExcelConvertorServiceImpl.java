@@ -44,7 +44,7 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				String characters = "ABCDEFGHLMNOPQRSTUVWXYZabcdghijklmnopqrstuvwxyz0123456789!@#$%^&*";
 				String pwd = RandomStringUtils.random(7, characters);
 				Student exsistingStudent = studentRepository.findByEmail(row.get(1).getContent());
-				if (exsistingStudent != null) {
+				if (exsistingStudent == null) {
 					student.setId(studentId);
 					student.setName(row.get(0).getContent());
 					student.setEmail(row.get(1).getContent());

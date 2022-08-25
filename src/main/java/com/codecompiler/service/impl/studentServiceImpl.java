@@ -89,7 +89,7 @@ public class studentServiceImpl implements StudentService1{
 	}
 	
 	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
-			ArrayList<String> testCasesSuccess, String complilationMessage) {
+			ArrayList<Boolean> testCasesSuccess, String complilationMessage) {
 		TestCasesRecord testCasesRecord = new TestCasesRecord();
 		List<TestCasesRecord> testCasesRecord1 = new ArrayList<>(); // need to remove in future
 		testCasesRecord.setQuestionId(questionIds);
