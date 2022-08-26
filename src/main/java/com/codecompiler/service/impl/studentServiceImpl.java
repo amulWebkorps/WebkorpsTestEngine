@@ -124,4 +124,9 @@ public class studentServiceImpl implements StudentService1{
 		return studentRepository.save(student);
 	}
 
+	@Override
+	public List<Student> findAll() {
+		return studentRepository.findAll();
+	}
+
 }

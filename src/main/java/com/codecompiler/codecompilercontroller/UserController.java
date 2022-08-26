@@ -69,22 +69,23 @@ public class UserController {
 	public ResponseEntity<Object> doLogin(@RequestParam("email") String email,
 			@RequestParam("password") String password) {
 		
-		HrDetails adminExistis = adminService.findByEmailAndPassword(email, password);
+		HrDetails adminExistis = adminService.findByEmailAndPassword(email.toLowerCase(), password);
 		if (adminExistis == null) {
 			logger.error("email and password does not match");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("email and password does not match");
 		} else {
 			List<Contest> allContest = contestService.findAllContest();
-			return generateResponseForAdmin(adminExistis, allContest, HttpStatus.OK);
+			return generateResponseForAdmin("Admin registration successfully", allContest, HttpStatus.OK);
 		}
 	}
 
 	@PostMapping("adminRegistration")
 	private ResponseEntity<Object> addHrDetails(@RequestBody HrDetails hrDetails) {
 		try {
-			HrDetails adminExists = adminService.findByEmail(hrDetails.getEmail());
+			HrDetails adminExists = adminService.findByEmail(hrDetails.getEmail().toLowerCase());
 			if (adminExists == null) {
 				hrDetails.sethId(UUID.randomUUID().toString());
+				hrDetails.setEmail(hrDetails.getEmail().toLowerCase());
 				adminService.saveHrDetails(hrDetails);
 				logger.error("Admin details saved successfully");
 			} else {
@@ -97,9 +98,9 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body("Admin registered successfully");
 	}
 	
-	public ResponseEntity<Object> generateResponseForAdmin(HrDetails adminDetails, List<Contest> presentContest, HttpStatus status) {
+	public ResponseEntity<Object> generateResponseForAdmin(String successMessage, List<Contest> presentContest, HttpStatus status) {
 		Map<String, Object> mp = new HashedMap<>();
-		mp.put("adminDetails", adminDetails);
+		mp.put("successMessage", successMessage);
 		mp.put("presentContest", presentContest);
 		return new ResponseEntity<Object>(mp, status);
 	}
@@ -193,6 +194,22 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check EmailId");
 		}
 		return ResponseEntity.status(HttpStatus.OK).body("Test submitted successfully");
+	}
+	
+	@GetMapping("getAllParticipator")
+	public ResponseEntity<Object> getAllParticipator() {
+		List<Student> allParticipator = new ArrayList<>();
+		try {
+			if (!allParticipator.isEmpty()) {
+				allParticipator = studentService.findAll();
+				return new ResponseEntity<Object>(allParticipator, HttpStatus.OK);
+			} else
+				return new ResponseEntity<Object>("No Participator is in active state", HttpStatus.CONFLICT);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("No Participator is in active state");
+		}
+		
 	}
 }
 
