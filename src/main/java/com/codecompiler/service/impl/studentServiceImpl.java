@@ -54,7 +54,8 @@ public class studentServiceImpl implements StudentService1{
 		return studentRepository.findByContestId(contestId);
 	}
 	
-	public Student saveStudent(Student studentDetails) {		
+	public Student saveStudent(Student studentDetails) {
+		studentDetails.setPassword("ROLE_ADMIN");
 		return studentRepository.save(studentDetails);				
 	}
 	

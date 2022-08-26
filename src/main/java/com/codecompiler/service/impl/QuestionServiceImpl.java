@@ -18,7 +18,6 @@ import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.QuestionStatus;
-import com.codecompiler.entity.SampleTestCase;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService1;
