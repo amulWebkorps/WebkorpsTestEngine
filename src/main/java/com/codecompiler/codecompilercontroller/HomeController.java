@@ -26,7 +26,7 @@ public class HomeController {
 	@Autowired
 	private ContestService contestService;
 	
-	@GetMapping("login")
+	@GetMapping("public/login")
 	public ResponseEntity<Object> login(@RequestParam("contestId") String contestId) {
 		return new ResponseEntity<Object>(contestId, HttpStatus.OK);
 	}
@@ -37,7 +37,7 @@ public class HomeController {
 		return new ResponseEntity<Object>(language, HttpStatus.OK);
 	}
 	
-	@GetMapping("getAllContestList")
+	@GetMapping("admin/getAllContestList")
 	public ResponseEntity<Object> showContestList() {
 		List<Contest> contesList = new ArrayList<>();	
 		try {
