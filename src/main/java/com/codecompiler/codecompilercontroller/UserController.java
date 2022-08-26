@@ -15,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;  
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,7 +34,6 @@ import com.codecompiler.service.ContestService;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService1;
 import com.codecompiler.service.StudentService1;
-import com.codecompiler.service.impl.UserDetailServiceImpl;
 import com.codecompiler.util.JwtUtil;
 
 @Controller
@@ -46,66 +45,58 @@ public class UserController {
 
 	@Autowired
 	private AdminService adminService;
-	
-@Autowired
-private UserDetailServiceImpl userDetailServiceImpl;
-	
+
 	@Autowired
 	private ContestService contestService;
-    @Autowired
-    private JwtUtil jwtUtil;
-    
-    @Autowired
-    private AuthenticationManager authenticationManager;
-		
+	@Autowired
+	private JwtUtil jwtUtil;
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
+
 	@Autowired
 	private ExcelConvertorService excelConvertorService;
 
 	@Autowired
-	private QuestionService1 questionService;	
+	private QuestionService1 questionService;
 
 	Logger logger = LogManager.getLogger(UserController.class);
 
 	@GetMapping("/public/signin")
 	public ResponseEntity<Object> doSignIn(@RequestParam("email") String email,
 			@RequestParam("password") String password, @RequestParam("contestId") String contestId) {
-System.out.println("UserController.doSignIn()");
-
-		Authentication authObj ;
+		
+		Authentication authObj;
 		Student studentExists = null;
-		try{
-    authObj =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email,password));
+		try {
+			authObj = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
-	 studentExists = studentService.findByEmailAndPassword(email, password);
-	studentExists.setContestId(contestId);
-}catch (BadCredentialsException e){
-    e.printStackTrace();
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("email and password does not match");
-}
-    String token = jwtUtil.generateToken(authObj.getName());
-    System.out.println(token);
-    HashMap<String, Object> hm = new HashMap<>();
-    hm.put("token", token);
-    hm.put("student", studentExists);
-return new ResponseEntity<Object>(hm, HttpStatus.OK);
+			studentExists = studentService.findByEmailAndPassword(email, password);
+			studentExists.setContestId(contestId);
+		} catch (BadCredentialsException e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("email and password does not match");
+		}
+		String token = jwtUtil.generateToken(authObj.getName());
+		HashMap<String, Object> hm = new HashMap<>();
+		hm.put("token", token);
+		hm.put("student", studentExists);
+		return new ResponseEntity<Object>(hm, HttpStatus.OK);
 	}
 
 	@GetMapping("public/admin/signin")
 	public ResponseEntity<Object> doLogin(@RequestParam("email") String email,
 			@RequestParam("password") String password) {
-		Authentication authObj ;
-		try{
-    authObj =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email,password));
-	System.out.println("UserController.doLogin()");
-	System.out.println("email = "+authObj.getName());
-}catch (BadCredentialsException e){
-    e.printStackTrace();
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("email and password does not match");
-}
-    String token = jwtUtil.generateToken(authObj.getName());
-    System.out.println(token);
-    List<Contest> allContest = contestService.findAllContest();
-    return generateResponseForAdmin( allContest,token, HttpStatus.OK);
+		Authentication authObj;
+		try {
+			authObj = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+		} catch (BadCredentialsException e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("email and password does not match");
+		}
+		String token = jwtUtil.generateToken(authObj.getName());
+		List<Contest> allContest = contestService.findAllContest();
+		return generateResponseForAdmin(allContest, token, HttpStatus.OK);
 	}
 
 	@PostMapping("/public/adminRegistration")
@@ -120,24 +111,25 @@ return new ResponseEntity<Object>(hm, HttpStatus.OK);
 			} else {
 				logger.error("Email Already Registered");
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email Already Registered");
-			}		
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return ResponseEntity.status(HttpStatus.OK).body("Admin registered successfully");
 	}
-	
-	public ResponseEntity<Object> generateResponseForAdmin( List<Contest> presentContest,String token, HttpStatus status) {
+
+	public ResponseEntity<Object> generateResponseForAdmin(List<Contest> presentContest, String token,
+			HttpStatus status) {
 		Map<String, Object> mp = new HashedMap<>();
 		mp.put("presentContest", presentContest);
 		mp.put("token", token);
 		return new ResponseEntity<Object>(mp, status);
 	}
-	
+
 	@GetMapping("/admin/participatorOfContest")
 	public ResponseEntity<Object> viewParticipators(@RequestParam String contestId) {
 		List<Student> studentTemp = new ArrayList<>();
-		try {		
+		try {
 			studentTemp = studentService.findByContestId(contestId);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -145,35 +137,34 @@ return new ResponseEntity<Object>(hm, HttpStatus.OK);
 		}
 		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
 	}
-	
+
 	@GetMapping("getparticipatordetail")
 	public ResponseEntity<Object> getparticipatordetail(@RequestParam String studentId) {
 		Map<String, Object> mp = new HashedMap<>();
 		try {
-		Student student = studentService.findById(studentId);
-		if(student != null) {
-		List<Question> questionDetail = new ArrayList<>();
-		for(String questionId : student.getQuestionId()) {
-			Question question = questionService.findByQuestionId(questionId);
-			Question questionTemp = new Question();
-			questionTemp.setQuestionId(question.getQuestionId());
-			questionTemp.setQuestion(question.getQuestion());
-			questionTemp.setSampleTestCase(question.getSampleTestCase());
-			questionDetail.add(questionTemp);
-		}
-		mp.put("studentDetail", student);
-		mp.put("questionSubmitedByStudent", questionDetail);
-		}else {
-			return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This student not present in DataBase");	
-		}		
-		}catch(Exception e) {
+			Student student = studentService.findById(studentId);
+			if (student != null) {
+				List<Question> questionDetail = new ArrayList<>();
+				for (String questionId : student.getQuestionId()) {
+					Question question = questionService.findByQuestionId(questionId);
+					Question questionTemp = new Question();
+					questionTemp.setQuestionId(question.getQuestionId());
+					questionTemp.setQuestion(question.getQuestion());
+					questionTemp.setSampleTestCase(question.getSampleTestCase());
+					questionDetail.add(questionTemp);
+				}
+				mp.put("studentDetail", student);
+				mp.put("questionSubmitedByStudent", questionDetail);
+			} else {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This student not present in DataBase");
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
-			return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Student Id");
-        }
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Student Id");
+		}
 		return new ResponseEntity<Object>(mp, HttpStatus.OK);
 	}
-	
-	
+
 	@PostMapping(value = "/admin/studentUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file) {
 		if (excelConvertorService.checkExcelFormat(file)) {
@@ -188,11 +179,11 @@ return new ResponseEntity<Object>(hm, HttpStatus.OK);
 			return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("Please check excel file format");
 		}
 	}
-	
+
 	@DeleteMapping("/admin/deletestudent")
-	private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {	
+	private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {
 		try {
-			 studentService.deleteByEmail(emailId);
+			studentService.deleteByEmail(emailId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Email Id");
@@ -200,11 +191,11 @@ return new ResponseEntity<Object>(hm, HttpStatus.OK);
 		return ResponseEntity.status(HttpStatus.OK).body("Student deleted successfully");
 
 	}
-	
+
 	@GetMapping("/admin/filterparticipator")
-	private ResponseEntity<Object> filterParticipator(@RequestParam String filterByString) {			
+	private ResponseEntity<Object> filterParticipator(@RequestParam String filterByString) {
 		List<String> studentTemp = new ArrayList<>();
-		try {						
+		try {
 			studentTemp = studentService.getByEmail(filterByString);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -214,12 +205,3 @@ return new ResponseEntity<Object>(hm, HttpStatus.OK);
 
 	}
 }
-
-
-
-
-
-
-
-
-
