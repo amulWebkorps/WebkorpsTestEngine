@@ -1,4 +1,4 @@
-package com.codecompiler.codecompilercontroller;
+package com.codecompiler.helper;
 
 import java.io.IOException;
 import java.io.InputStream;

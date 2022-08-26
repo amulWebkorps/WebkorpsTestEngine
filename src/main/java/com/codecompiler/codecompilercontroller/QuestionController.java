@@ -36,7 +36,7 @@ public class QuestionController {
 	@Autowired
 	private ExcelConvertorService excelConvertorService;
 
-	@PostMapping(value = "/questionUpload", headers = "content-type=multipart/*")
+	@PostMapping(value = "/admin/questionUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file, @RequestParam("level") String level) {
 		if (excelConvertorService.checkExcelFormat(file)) {
 			try {
@@ -51,7 +51,7 @@ public class QuestionController {
 		}
 	}
 	
-	@PostMapping("savequestion")
+	@PostMapping("admin/savequestion")
 	public ResponseEntity<Object> saveQuestion(@RequestBody Question question) throws IOException {
 		System.out.println("savequestion Obj Prev : " + question);
 		Question savedQuestion = null;
@@ -85,7 +85,7 @@ public class QuestionController {
 		return new ResponseEntity<Object>(savedQuestion, HttpStatus.OK);
 	}
 
-	@PostMapping("addselectedavailablequestiontocontest")
+	@PostMapping("admin/addselectedavailablequestiontocontest")
 	private ResponseEntity<Object> addSelectedAvailableQueToContest(@RequestBody ArrayList<String> questionIdList) {
 		List<Question> questionDetails = new ArrayList<>();
 		try {
@@ -126,7 +126,7 @@ public class QuestionController {
 		return new ResponseEntity<Object>(questionDetails, HttpStatus.OK);		
 	}
 	
-	@DeleteMapping("deletequestion") // cid, qid
+	@DeleteMapping("admin/deletequestion") // cid, qid
 	private ResponseEntity<Object> deleteQuestion(@RequestBody ArrayList<String> contestAndQuestionId) {
 		try {
 			if (contestAndQuestionId.get(0).equals("questionForLevel")) {
