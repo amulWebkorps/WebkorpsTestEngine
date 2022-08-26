@@ -75,7 +75,7 @@ public class CodeCompilerController {
 		return new ResponseEntity<Object>(mp, status);
 	}
 	
-	@PostMapping("createContest")
+	@PostMapping("admin/createContest")
 	private ResponseEntity<Object> addContest(@RequestBody Contest contest) {
 		List<Contest> contestIdAndName = new ArrayList<>();
 		try {
@@ -88,7 +88,7 @@ public class CodeCompilerController {
 		return new ResponseEntity<Object>(contestIdAndName, HttpStatus.OK);
 	}
 	
-	@DeleteMapping("deletecontest")
+	@DeleteMapping("admin/deleteContest")
 	public ResponseEntity<Object> deleteContest(@RequestParam String contestId) {
 		try {		
 			contestService.deleteContest(contestId);
@@ -100,7 +100,7 @@ public class CodeCompilerController {
 	}
 
 	
-	@GetMapping("getContestDetail")
+	@GetMapping("admin/getContestDetail")
 	private ResponseEntity<Object> getContestDetail(@RequestParam String contestId) {
 		Map<String, Object> contestDetail = new HashedMap<String, Object>();
 		ArrayList<String> qListStatusTrue = new ArrayList<>();
@@ -137,7 +137,7 @@ public class CodeCompilerController {
 		return new ResponseEntity<Object>(contestDetail, HttpStatus.OK);
 	}
 	
-	@GetMapping("filterquestion")
+	@GetMapping("admin/filterQuestion")
 	public ResponseEntity<Object> filterQuestion(@RequestParam String filterByString) {
 		List<Question> totalQuestionByFilter = new ArrayList<>();
 		try {
