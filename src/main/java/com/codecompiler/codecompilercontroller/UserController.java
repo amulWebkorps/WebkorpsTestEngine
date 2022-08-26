@@ -108,13 +108,21 @@ public class UserController {
 	@GetMapping("viewParticipatorOfContest")
 	public ResponseEntity<Object> viewParticipators(@RequestParam String contestId) {
 		List<Student> studentTemp = new ArrayList<>();
+		List<Student> studentTempFormat = new ArrayList<>();
 		try {		
 			studentTemp = studentService.findByContestId(contestId);
+			for(Student student : studentTemp){
+				Student studentFormat = new Student();
+				studentFormat.setId(student.getId());
+				studentFormat.setEmail(student.getEmail());
+				studentTempFormat.add(studentFormat);
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
+		return new ResponseEntity<Object>(studentTempFormat, HttpStatus.OK);
 	}
 	
 	@GetMapping("getparticipatordetail")
