@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.entity.Student;
-import com.mongodb.BasicDBObject;
 
 public interface StudentService1 {
 
@@ -29,5 +28,9 @@ public interface StudentService1 {
 	public List<String> getByEmail(String filterString);
 	
 	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
-			ArrayList<String> testCasesSuccess, String complilationMessage);
+			ArrayList<Boolean> testCasesSuccess, String complilationMessage);
+	
+	public Student submitContest(String emailId);
+	
+	public List<Student> findAll();
 }

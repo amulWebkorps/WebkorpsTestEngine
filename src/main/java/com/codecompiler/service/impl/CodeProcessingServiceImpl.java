@@ -54,7 +54,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	public ResponseToFE compileCode(Map<String, Object> data) throws IOException {
 		ResponseToFE responsef = new ResponseToFE();
 		String studentId = (String) data.get("studentId");
-		ArrayList<String> testCasesSuccess = new ArrayList<String>();
+		ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
 		String complilationMessage = "";
 		Process pro = null;
 		BufferedReader in = null;
@@ -93,7 +93,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 			} else if (language.equalsIgnoreCase("cpp")) {
 				command = "src/main/resources/temp/" + "exeofCPP.exe ";
 			} else if (language.equalsIgnoreCase("c")) {
-				command = "jsrc/main/resources/temp/exeofc.exe ";
+				command = "src/main/resources/temp/exeofc.exe ";
 			}
 			List<TestCases> testCases = questionService.getTestCase(questionId);
 
@@ -101,16 +101,15 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				String input = testCase.getInput();
 				pro = Runtime.getRuntime().exec(command + input, null, new File("src/main/resources/temp/"));
 				in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
-				System.out.println("complilationMessage." + in.toString());
 				String output = "";
 				while ((line = in.readLine()) != null) {
 					output += line + "\n";
 				}
 				output = output.substring(0, output.length() - 1);
 				if (output.contains(testCase.getOutput()) || output.equals(testCase.getOutput())) {
-					testCasesSuccess.add("Pass");
+					testCasesSuccess.add(true);
 				} else {
-					testCasesSuccess.add("Fail");
+					testCasesSuccess.add(false);
 				}
 				complilationMessage += line + "\n";
 			}			

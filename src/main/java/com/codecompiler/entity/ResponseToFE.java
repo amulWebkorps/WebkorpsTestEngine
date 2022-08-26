@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class ResponseToFE {
 
 	private String complilationMessage;
-	private ArrayList<String> testCasesSuccess;
+	private ArrayList<Boolean> testCasesSuccess;
 	private String successMessage;
 	public String getComplilationMessage() {
 		return complilationMessage;
@@ -15,11 +15,11 @@ public class ResponseToFE {
 		this.complilationMessage = complilationMessage;
 	}
 
-	public void setTestCasesSuccess(ArrayList<String> testCasesSuccess) {
+	public void setTestCasesSuccess(ArrayList<Boolean> testCasesSuccess) {
 		this.testCasesSuccess = testCasesSuccess;
 	}
 
-	public ArrayList<String> getTestCasesSuccess() {
+	public ArrayList<Boolean> getTestCasesSuccess() {
 		return testCasesSuccess;
 	}
 
