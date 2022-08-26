@@ -62,7 +62,7 @@ public class UserController {
 
 	Logger logger = LogManager.getLogger(UserController.class);
 
-	@GetMapping("/public/signIn")
+	@GetMapping("public/signIn")
 	public ResponseEntity<Object> doSignIn(@RequestParam("email") String email,
 			@RequestParam("password") String password, @RequestParam("contestId") String contestId) {
 		
@@ -89,7 +89,7 @@ public class UserController {
 			@RequestParam("password") String password) {
 		Authentication authObj;
 		try {
-			authObj = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+			authObj = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email.toLowerCase(), password));
 		} catch (BadCredentialsException e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("email and password does not match");
@@ -99,12 +99,13 @@ public class UserController {
 		return generateResponseForAdmin(allContest, token, HttpStatus.OK);
 	}
 
-	@PostMapping("/public/adminRegistration")
+	@PostMapping("public/adminRegistration")
 	private ResponseEntity<Object> addHrDetails(@RequestBody HrDetails hrDetails) {
 		try {
-			HrDetails adminExists = adminService.findByEmail(hrDetails.getEmail());
+			HrDetails adminExists = adminService.findByEmail(hrDetails.getEmail().toLowerCase());
 			if (adminExists == null) {
 				hrDetails.sethId(UUID.randomUUID().toString());
+				hrDetails.setEmail(hrDetails.getEmail().toLowerCase());
 				hrDetails.setRole("ROLE_ADMIN");
 				adminService.saveHrDetails(hrDetails);
 				logger.error("Admin details saved successfully");
@@ -126,7 +127,7 @@ public class UserController {
 		return new ResponseEntity<Object>(mp, status);
 	}
 
-	@GetMapping("/admin/participatorOfContest")
+	@GetMapping("admin/participatorOfContest")
 	public ResponseEntity<Object> viewParticipators(@RequestParam String contestId) {
 		List<Student> studentTemp = new ArrayList<>();
 		List<Student> studentTempFormat = new ArrayList<>();			
@@ -173,7 +174,7 @@ public class UserController {
 		return new ResponseEntity<Object>(mp, HttpStatus.OK);
 	}
 
-	@PostMapping(value = "/admin/studentUpload", headers = "content-type=multipart/*")
+	@PostMapping(value = "admin/studentUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file) {
 		if (excelConvertorService.checkExcelFormat(file)) {
 			try {
@@ -188,7 +189,7 @@ public class UserController {
 		}
 	}
 
-	@DeleteMapping("/admin/deleteStudent")
+	@DeleteMapping("admin/deleteStudent")
 	private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {
 		try {
 			studentService.deleteByEmail(emailId);
@@ -200,7 +201,7 @@ public class UserController {
 
 	}
 
-	@GetMapping("/admin/filterParticipator")
+	@GetMapping("admin/filterParticipator")
 	private ResponseEntity<Object> filterParticipator(@RequestParam String filterByString) {
 		List<String> studentTemp = new ArrayList<>();
 		try {
@@ -210,6 +211,33 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Email Id");
 		}
 		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
+
+	}
+	
+	@DeleteMapping("finalSubmitContest")
+	public  ResponseEntity<Object> submitContest(@RequestParam String emailId) {
+		try {
+			 studentService.finalSubmitContest(emailId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check EmailId");
+		}
+		return ResponseEntity.status(HttpStatus.OK).body("Test submitted successfully");
+	}
+
+	@GetMapping("getAllParticipator")
+	public ResponseEntity<Object> getAllParticipator() {
+		List<Student> allParticipator = new ArrayList<>();
+		try {
+			if (!allParticipator.isEmpty()) {
+				allParticipator = studentService.findAll();
+				return new ResponseEntity<Object>(allParticipator, HttpStatus.OK);
+			} else
+				return new ResponseEntity<Object>("No Participator is in active state", HttpStatus.CONFLICT);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("No Participator is in active state");
+		}
 
 	}
 }
