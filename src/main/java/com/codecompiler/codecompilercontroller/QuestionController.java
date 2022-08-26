@@ -51,7 +51,7 @@ public class QuestionController {
 		}
 	}
 	
-	@PostMapping("admin/savequestion")
+	@PostMapping("admin/saveQuestion")
 	public ResponseEntity<Object> saveQuestion(@RequestBody Question question) throws IOException {
 		System.out.println("savequestion Obj Prev : " + question);
 		Question savedQuestion = null;
@@ -85,7 +85,7 @@ public class QuestionController {
 		return new ResponseEntity<Object>(savedQuestion, HttpStatus.OK);
 	}
 
-	@PostMapping("admin/addselectedavailablequestiontocontest")
+	@PostMapping("admin/addSelectedAvailableQuestiontoContest")
 	private ResponseEntity<Object> addSelectedAvailableQueToContest(@RequestBody ArrayList<String> questionIdList) {
 		List<Question> questionDetails = new ArrayList<>();
 		try {
@@ -126,7 +126,7 @@ public class QuestionController {
 		return new ResponseEntity<Object>(questionDetails, HttpStatus.OK);		
 	}
 	
-	@DeleteMapping("admin/deletequestion") // cid, qid
+	@DeleteMapping("admin/deleteQuestion") // cid, qid
 	private ResponseEntity<Object> deleteQuestion(@RequestBody ArrayList<String> contestAndQuestionId) {
 		try {
 			if (contestAndQuestionId.get(0).equals("questionForLevel")) {

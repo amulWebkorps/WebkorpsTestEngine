@@ -88,7 +88,7 @@ public class CodeCompilerController {
 		return new ResponseEntity<Object>(contestIdAndName, HttpStatus.OK);
 	}
 	
-	@DeleteMapping("admin/deletecontest")
+	@DeleteMapping("admin/deleteContest")
 	public ResponseEntity<Object> deleteContest(@RequestParam String contestId) {
 		try {		
 			contestService.deleteContest(contestId);
@@ -137,7 +137,7 @@ public class CodeCompilerController {
 		return new ResponseEntity<Object>(contestDetail, HttpStatus.OK);
 	}
 	
-	@GetMapping("admin/filterquestion")
+	@GetMapping("admin/filterQuestion")
 	public ResponseEntity<Object> filterQuestion(@RequestParam String filterByString) {
 		List<Question> totalQuestionByFilter = new ArrayList<>();
 		try {

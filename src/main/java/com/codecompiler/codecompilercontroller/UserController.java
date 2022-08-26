@@ -62,7 +62,7 @@ public class UserController {
 
 	Logger logger = LogManager.getLogger(UserController.class);
 
-	@GetMapping("/public/signin")
+	@GetMapping("/public/signIn")
 	public ResponseEntity<Object> doSignIn(@RequestParam("email") String email,
 			@RequestParam("password") String password, @RequestParam("contestId") String contestId) {
 		
@@ -84,7 +84,7 @@ public class UserController {
 		return new ResponseEntity<Object>(hm, HttpStatus.OK);
 	}
 
-	@GetMapping("public/admin/signin")
+	@GetMapping("public/admin/signIn")
 	public ResponseEntity<Object> doLogin(@RequestParam("email") String email,
 			@RequestParam("password") String password) {
 		Authentication authObj;
@@ -138,7 +138,7 @@ public class UserController {
 		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
 	}
 
-	@GetMapping("getparticipatordetail")
+	@GetMapping("getParticipatorDetail")
 	public ResponseEntity<Object> getparticipatordetail(@RequestParam String studentId) {
 		Map<String, Object> mp = new HashedMap<>();
 		try {
@@ -180,7 +180,7 @@ public class UserController {
 		}
 	}
 
-	@DeleteMapping("/admin/deletestudent")
+	@DeleteMapping("/admin/deleteStudent")
 	private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {
 		try {
 			studentService.deleteByEmail(emailId);
@@ -192,7 +192,7 @@ public class UserController {
 
 	}
 
-	@GetMapping("/admin/filterparticipator")
+	@GetMapping("/admin/filterParticipator")
 	private ResponseEntity<Object> filterParticipator(@RequestParam String filterByString) {
 		List<String> studentTemp = new ArrayList<>();
 		try {
