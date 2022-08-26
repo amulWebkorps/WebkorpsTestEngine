@@ -67,13 +67,25 @@ public class QuestionServiceImpl implements QuestionService1 {
 		return questionRepository.findByQuestionIdIn(questionListStatusTrue);
 	}
 
-	public List<Question> saveFileForBulkQuestion(MultipartFile file) {
+	public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId) {
 		List<Question> allTrueQuestions = new ArrayList<>();
 		try {
 			Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(),
 					file.getOriginalFilename());
 			allTrueQuestions = excelConvertorService.convertExcelToListOfQuestions(data);
 			questionRepository.saveAll(allTrueQuestions);
+			ArrayList<QuestionStatus> queStatusList = new ArrayList<>();
+			allTrueQuestions.forEach(latestUploadedQuestions -> {
+				QuestionStatus queStatus = new QuestionStatus();
+				queStatus.setQuestionId(latestUploadedQuestions.getQuestionId());
+				queStatus.setStatus(true);
+				queStatusList.add(queStatus);
+			});
+			Contest contest = contestRepository.findByContestId(contestId);
+			if (contest != null) {
+				contest.setQuestionStatus(queStatusList);
+				contestRepository.save(contest);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

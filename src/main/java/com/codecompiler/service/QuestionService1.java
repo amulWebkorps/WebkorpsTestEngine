@@ -18,7 +18,7 @@ public interface QuestionService1 {
 	 
 	 public Question saveQuestion(Question question);
 	 
-	 public List<Question> saveFileForBulkQuestion(MultipartFile file);
+	 public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId);
 	 
 	 public Question findByQuestionId(String questionId);
 	 

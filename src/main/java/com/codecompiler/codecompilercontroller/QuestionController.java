@@ -37,10 +37,10 @@ public class QuestionController {
 	private ExcelConvertorService excelConvertorService;
 
 	@PostMapping(value = "/admin/questionUpload", headers = "content-type=multipart/*")
-	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file, @RequestParam("level") String level) {
+	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file, @RequestParam("contestId") String contestId) {
 		if (excelConvertorService.checkExcelFormat(file)) {
 			try {
-				List<Question> allQuestions = questionService.saveFileForBulkQuestion(file);
+				List<Question> allQuestions = questionService.saveFileForBulkQuestion(file, contestId);
 				return new ResponseEntity<Object>(allQuestions, HttpStatus.OK);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -53,7 +53,6 @@ public class QuestionController {
 	
 	@PostMapping("admin/saveQuestion")
 	public ResponseEntity<Object> saveQuestion(@RequestBody Question question) throws IOException {
-		System.out.println("savequestion Obj Prev : " + question);
 		Question savedQuestion = null;
 		String[] stringOfCidAndCl = new String[2];		
 		stringOfCidAndCl = question.getContestLevel().split("@");
