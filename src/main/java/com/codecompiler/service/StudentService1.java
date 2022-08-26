@@ -31,4 +31,6 @@ public interface StudentService1 {
 			ArrayList<Boolean> testCasesSuccess, String complilationMessage);
 	
 	public Student submitContest(String emailId);
+	
+	public List<Student> findAll();
 }
