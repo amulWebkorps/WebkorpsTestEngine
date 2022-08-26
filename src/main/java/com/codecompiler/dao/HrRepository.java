@@ -1,7 +1,5 @@
 package com.codecompiler.dao;
 
-
-
 import com.codecompiler.entity.HrDetails;
 
 public interface HrRepository extends  UserRepository<HrDetails>{

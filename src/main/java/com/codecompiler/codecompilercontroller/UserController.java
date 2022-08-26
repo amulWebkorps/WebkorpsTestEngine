@@ -27,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.HrDetails;
-import com.codecompiler.entity.JwtResponse;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.service.AdminService;
@@ -70,13 +69,13 @@ private UserDetailServiceImpl userDetailServiceImpl;
 	@GetMapping("/public/signin")
 	public ResponseEntity<Object> doSignIn(@RequestParam("email") String email,
 			@RequestParam("password") String password, @RequestParam("contestId") String contestId) {
+System.out.println("UserController.doSignIn()");
 
 		Authentication authObj ;
 		Student studentExists = null;
 		try{
     authObj =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email,password));
-	System.out.println("UserController.doLogin()");
-	System.out.println("email = "+authObj.getName());
+
 	 studentExists = studentService.findByEmailAndPassword(email, password);
 	studentExists.setContestId(contestId);
 }catch (BadCredentialsException e){
@@ -94,7 +93,6 @@ return new ResponseEntity<Object>(hm, HttpStatus.OK);
 	@GetMapping("public/admin/signin")
 	public ResponseEntity<Object> doLogin(@RequestParam("email") String email,
 			@RequestParam("password") String password) {
-<<<<<<< HEAD
 		Authentication authObj ;
 		try{
     authObj =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email,password));
@@ -108,30 +106,15 @@ return new ResponseEntity<Object>(hm, HttpStatus.OK);
     System.out.println(token);
     List<Contest> allContest = contestService.findAllContest();
     return generateResponseForAdmin( allContest,token, HttpStatus.OK);
-=======
-		
-		HrDetails adminExistis = adminService.findByEmailAndPassword(email.toLowerCase(), password);
-		if (adminExistis == null) {
-			logger.error("email and password does not match");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("email and password does not match");
-		} else {
-			List<Contest> allContest = contestService.findAllContest();
-			return generateResponseForAdmin("Admin registration successfully", allContest, HttpStatus.OK);
-		}
->>>>>>> 810a50582b27e785fbe6f37be79e7d27dad4f826
 	}
 
 	@PostMapping("/public/adminRegistration")
 	private ResponseEntity<Object> addHrDetails(@RequestBody HrDetails hrDetails) {
 		try {
-			HrDetails adminExists = adminService.findByEmail(hrDetails.getEmail().toLowerCase());
+			HrDetails adminExists = adminService.findByEmail(hrDetails.getEmail());
 			if (adminExists == null) {
 				hrDetails.sethId(UUID.randomUUID().toString());
-<<<<<<< HEAD
 				hrDetails.setRole("ROLE_ADMIN");
-=======
-				hrDetails.setEmail(hrDetails.getEmail().toLowerCase());
->>>>>>> 810a50582b27e785fbe6f37be79e7d27dad4f826
 				adminService.saveHrDetails(hrDetails);
 				logger.error("Admin details saved successfully");
 			} else {
@@ -144,14 +127,8 @@ return new ResponseEntity<Object>(hm, HttpStatus.OK);
 		return ResponseEntity.status(HttpStatus.OK).body("Admin registered successfully");
 	}
 	
-<<<<<<< HEAD
 	public ResponseEntity<Object> generateResponseForAdmin( List<Contest> presentContest,String token, HttpStatus status) {
 		Map<String, Object> mp = new HashedMap<>();
-=======
-	public ResponseEntity<Object> generateResponseForAdmin(String successMessage, List<Contest> presentContest, HttpStatus status) {
-		Map<String, Object> mp = new HashedMap<>();
-		mp.put("successMessage", successMessage);
->>>>>>> 810a50582b27e785fbe6f37be79e7d27dad4f826
 		mp.put("presentContest", presentContest);
 		mp.put("token", token);
 		return new ResponseEntity<Object>(mp, status);
@@ -235,33 +212,6 @@ return new ResponseEntity<Object>(hm, HttpStatus.OK);
 		}
 		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
 
-	}
-	
-	@DeleteMapping("finalsubmitcontest")
-	public  ResponseEntity<Object> finalSubmitContest(@RequestParam String emailId) {
-		try {
-			 studentService.finalSubmitContest(emailId);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check EmailId");
-		}
-		return ResponseEntity.status(HttpStatus.OK).body("Test submitted successfully");
-	}
-	
-	@GetMapping("getAllParticipator")
-	public ResponseEntity<Object> getAllParticipator() {
-		List<Student> allParticipator = new ArrayList<>();
-		try {
-			if (!allParticipator.isEmpty()) {
-				allParticipator = studentService.findAll();
-				return new ResponseEntity<Object>(allParticipator, HttpStatus.OK);
-			} else
-				return new ResponseEntity<Object>("No Participator is in active state", HttpStatus.CONFLICT);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return ResponseEntity.status(HttpStatus.CONFLICT).body("No Participator is in active state");
-		}
-		
 	}
 }
 

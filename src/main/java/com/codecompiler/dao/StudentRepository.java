@@ -3,10 +3,7 @@ package com.codecompiler.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
-
 import com.codecompiler.entity.Student;
-import com.mongodb.BasicDBObject;
 
 public interface StudentRepository extends UserRepository<Student> {
 	Student findByEmailAndPassword(String email, String password);
