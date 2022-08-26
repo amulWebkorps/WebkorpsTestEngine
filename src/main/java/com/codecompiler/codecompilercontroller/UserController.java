@@ -238,9 +238,9 @@ return new ResponseEntity<Object>(hm, HttpStatus.OK);
 	}
 	
 	@DeleteMapping("finalsubmitcontest")
-	public  ResponseEntity<Object> submitContest(@RequestParam String emailId) {
+	public  ResponseEntity<Object> finalSubmitContest(@RequestParam String emailId) {
 		try {
-			 studentService.submitContest(emailId);
+			 studentService.finalSubmitContest(emailId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check EmailId");
