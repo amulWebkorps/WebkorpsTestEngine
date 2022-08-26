@@ -1,6 +1,7 @@
 package com.codecompiler.codecompilercontroller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -9,8 +10,12 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;  
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.HrDetails;
+import com.codecompiler.entity.JwtResponse;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.service.AdminService;
@@ -29,6 +35,8 @@ import com.codecompiler.service.ContestService;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService1;
 import com.codecompiler.service.StudentService1;
+import com.codecompiler.service.impl.UserDetailServiceImpl;
+import com.codecompiler.util.JwtUtil;
 
 @Controller
 @CrossOrigin(origins = "*")
@@ -40,8 +48,16 @@ public class UserController {
 	@Autowired
 	private AdminService adminService;
 	
+@Autowired
+private UserDetailServiceImpl userDetailServiceImpl;
+	
 	@Autowired
 	private ContestService contestService;
+    @Autowired
+    private JwtUtil jwtUtil;
+    
+    @Autowired
+    private AuthenticationManager authenticationManager;
 		
 	@Autowired
 	private ExcelConvertorService excelConvertorService;
@@ -51,40 +67,55 @@ public class UserController {
 
 	Logger logger = LogManager.getLogger(UserController.class);
 
-	@GetMapping("doSignInForParticipator")
+	@GetMapping("/public/signin")
 	public ResponseEntity<Object> doSignIn(@RequestParam("email") String email,
 			@RequestParam("password") String password, @RequestParam("contestId") String contestId) {
 
-		Student studentExists = studentService.findByEmailAndPassword(email, password);
-		if (studentExists == null) {
-			logger.error("email and password does not match");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("email and password does not match");
-		} else {
-			studentExists.setContestId(contestId);
-			return new ResponseEntity<Object>(studentExists, HttpStatus.OK);
-		}
+		Authentication authObj ;
+		Student studentExists = null;
+		try{
+    authObj =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email,password));
+	System.out.println("UserController.doLogin()");
+	System.out.println("email = "+authObj.getName());
+	 studentExists = studentService.findByEmailAndPassword(email, password);
+	studentExists.setContestId(contestId);
+}catch (BadCredentialsException e){
+    e.printStackTrace();
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("email and password does not match");
+}
+    String token = jwtUtil.generateToken(authObj.getName());
+    System.out.println(token);
+    HashMap<String, Object> hm = new HashMap<>();
+    hm.put("token", token);
+    hm.put("student", studentExists);
+return new ResponseEntity<Object>(hm, HttpStatus.OK);
 	}
 
-	@GetMapping("doSignInForAdmin")
+	@GetMapping("public/admin/signin")
 	public ResponseEntity<Object> doLogin(@RequestParam("email") String email,
 			@RequestParam("password") String password) {
-		
-		HrDetails adminExistis = adminService.findByEmailAndPassword(email, password);
-		if (adminExistis == null) {
-			logger.error("email and password does not match");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("email and password does not match");
-		} else {
-			List<Contest> allContest = contestService.findAllContest();
-			return generateResponseForAdmin(adminExistis, allContest, HttpStatus.OK);
-		}
+		Authentication authObj ;
+		try{
+    authObj =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email,password));
+	System.out.println("UserController.doLogin()");
+	System.out.println("email = "+authObj.getName());
+}catch (BadCredentialsException e){
+    e.printStackTrace();
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("email and password does not match");
+}
+    String token = jwtUtil.generateToken(authObj.getName());
+    System.out.println(token);
+    List<Contest> allContest = contestService.findAllContest();
+    return generateResponseForAdmin( allContest,token, HttpStatus.OK);
 	}
 
-	@PostMapping("adminRegistration")
+	@PostMapping("/public/adminRegistration")
 	private ResponseEntity<Object> addHrDetails(@RequestBody HrDetails hrDetails) {
 		try {
 			HrDetails adminExists = adminService.findByEmail(hrDetails.getEmail());
 			if (adminExists == null) {
 				hrDetails.sethId(UUID.randomUUID().toString());
+				hrDetails.setRole("ROLE_ADMIN");
 				adminService.saveHrDetails(hrDetails);
 				logger.error("Admin details saved successfully");
 			} else {
@@ -97,14 +128,14 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body("Admin registered successfully");
 	}
 	
-	public ResponseEntity<Object> generateResponseForAdmin(HrDetails adminDetails, List<Contest> presentContest, HttpStatus status) {
+	public ResponseEntity<Object> generateResponseForAdmin( List<Contest> presentContest,String token, HttpStatus status) {
 		Map<String, Object> mp = new HashedMap<>();
-		mp.put("adminDetails", adminDetails);
 		mp.put("presentContest", presentContest);
+		mp.put("token", token);
 		return new ResponseEntity<Object>(mp, status);
 	}
 	
-	@GetMapping("viewParticipatorOfContest")
+	@GetMapping("/admin/participatorOfContest")
 	public ResponseEntity<Object> viewParticipators(@RequestParam String contestId) {
 		List<Student> studentTemp = new ArrayList<>();
 		try {		
@@ -144,7 +175,7 @@ public class UserController {
 	}
 	
 	
-	@PostMapping(value = "/studentUpload", headers = "content-type=multipart/*")
+	@PostMapping(value = "/admin/studentUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file) {
 		if (excelConvertorService.checkExcelFormat(file)) {
 			try {
@@ -155,11 +186,11 @@ public class UserController {
 				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Excel not uploaded");
 			}
 		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please check excel file format");
+			return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("Please check excel file format");
 		}
 	}
 	
-	@DeleteMapping("deletestudent")
+	@DeleteMapping("/admin/deletestudent")
 	private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {	
 		try {
 			 studentService.deleteByEmail(emailId);
@@ -171,7 +202,7 @@ public class UserController {
 
 	}
 	
-	@GetMapping("filterparticipator")
+	@GetMapping("/admin/filterparticipator")
 	private ResponseEntity<Object> filterParticipator(@RequestParam String filterByString) {			
 		List<String> studentTemp = new ArrayList<>();
 		try {						

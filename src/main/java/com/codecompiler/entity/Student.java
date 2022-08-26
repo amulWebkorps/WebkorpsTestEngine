@@ -8,13 +8,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "StudentDetails")
 @EntityScan
-public class Student {
+public class Student extends User{
 	@Id
 	private String id;
 	private String name;
-	private String email;
 	private String mobileNumber;
-	private String password;
 	private String contestLevel;
 	private String contestId;
 	private List<String> questionId;
@@ -33,13 +31,7 @@ public class Student {
 		this.contestLevel = contestLevel;
 	}
 
-	public String getPassword() {
-		return password;
-	}
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
 	public String getId() {
 		return id;
 	}
@@ -56,13 +48,7 @@ public class Student {
 		this.name = name;
 	}
 
-	public String getEmail() {
-		return email;
-	}
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
 
 	public String getMobileNumber() {
 		return mobileNumber;
@@ -106,8 +92,8 @@ public class Student {
 
 	@Override
 	public String toString() {
-		return "Student [id=" + id + ", name=" + name + ", email=" + email + ", mobileNumber=" + mobileNumber
-				+ ", password=" + password + ", contestLevel=" + contestLevel + ", contestId=" + contestId
+		return "Student [id=" + id + ", name=" + name + ", email=" + super.getEmail() + ", mobileNumber=" + mobileNumber
+				+ ", password=" + super.getPassword() + ", contestLevel=" + contestLevel + ", contestId=" + contestId
 				+ ", questionId=" + questionId + ", testCasesRecord=" + testCasesRecord + ", status=" + status + "]";
 	}
 

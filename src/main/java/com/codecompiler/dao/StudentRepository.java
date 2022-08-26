@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import com.codecompiler.entity.Student;
 import com.mongodb.BasicDBObject;
 
-public interface StudentRepository extends MongoRepository<Student, Integer> {
+public interface StudentRepository extends UserRepository<Student> {
 	Student findByEmailAndPassword(String email, String password);
 
 	Student findByEmail(String email);
