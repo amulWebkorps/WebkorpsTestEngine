@@ -112,11 +112,25 @@ public class CodeCompilerController {
 				if (questionStatus.getStatus()) {
 					qListStatusTrue.add(questionStatus.getQuestionId());
 				}
-			}
+			}			
 			List<Question> questionDetailList = questionService.findByQuestionIdIn(qListStatusTrue);
-			contestDetail.put("contestQuestionDetail", questionDetailList);
+			List<Question> questionDetailListFormat = new ArrayList<>();
+			for (Question question : questionDetailList) {
+				Question formateQuestion = new Question(); 
+				formateQuestion.setQuestionId(question.getQuestionId());
+				formateQuestion.setQuestion(question.getQuestion());				
+				questionDetailListFormat.add(formateQuestion);
+			}			
+			contestDetail.put("contestQuestionDetail", questionDetailListFormat);			
 			totalQuestionWithStatusTrue = questionService.findAllQuestion();
-			contestDetail.put("totalAvailableQuestion",totalQuestionWithStatusTrue);
+			List<Question> totalQuestionWithStatusTrueFormat = new ArrayList<>();
+			for (Question question : totalQuestionWithStatusTrue) {
+				Question formateQuestion = new Question(); 
+				formateQuestion.setQuestionId(question.getQuestionId());
+				formateQuestion.setQuestion(question.getQuestion());				
+				totalQuestionWithStatusTrueFormat.add(formateQuestion);
+			}
+			contestDetail.put("totalAvailableQuestion",totalQuestionWithStatusTrueFormat);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
