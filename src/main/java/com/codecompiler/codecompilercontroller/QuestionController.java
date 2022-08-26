@@ -47,7 +47,7 @@ public class QuestionController {
 				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Excel not uploaded");
 			}
 		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please check excel file format");
+			return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("Please check excel file format");
 		}
 	}
 	

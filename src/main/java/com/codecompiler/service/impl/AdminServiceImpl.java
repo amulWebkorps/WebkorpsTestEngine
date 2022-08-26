@@ -24,4 +24,6 @@ public class AdminServiceImpl implements AdminService{
 	public HrDetails findByEmail(String email) {
 		return hrRepository.findByEmail(email);
 	}
+	
+
 }
