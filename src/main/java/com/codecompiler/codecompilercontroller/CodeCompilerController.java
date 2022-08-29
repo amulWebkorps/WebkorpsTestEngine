@@ -122,7 +122,7 @@ public class CodeCompilerController {
 				questionDetailListFormat.add(formateQuestion);
 			}			
 			contestDetail.put("contestQuestionDetail", questionDetailListFormat);			
-			totalQuestionWithStatusTrue = questionService.findAllQuestion();
+			totalQuestionWithStatusTrue = questionService.findAllQuestion();			
 			List<Question> totalQuestionWithStatusTrueFormat = new ArrayList<>();
 			for (Question question : totalQuestionWithStatusTrue) {
 				Question formateQuestion = new Question(); 
