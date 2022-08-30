@@ -62,7 +62,7 @@ public class UserController {
 
 	Logger logger = LogManager.getLogger(UserController.class);
 
-	@GetMapping("public/signIn")
+	@GetMapping("public/doSignInForParticipator")
 	public ResponseEntity<Object> doSignIn(@RequestParam("email") String email,
 			@RequestParam("password") String password, @RequestParam("contestId") String contestId) {
 		

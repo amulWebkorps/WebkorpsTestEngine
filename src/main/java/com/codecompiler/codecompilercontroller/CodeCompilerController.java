@@ -104,7 +104,6 @@ public class CodeCompilerController {
 	private ResponseEntity<Object> getContestDetail(@RequestParam String contestId) {
 		Map<String, Object> contestDetail = new HashedMap<String, Object>();
 		ArrayList<String> qListStatusTrue = new ArrayList<>();
-		List<Question> totalQuestionWithStatusTrue = new ArrayList<>();
 		try {
 			Contest contestRecord = contestService.findByContestId(contestId);
 			contestDetail.put("contest", contestRecord);
@@ -114,15 +113,16 @@ public class CodeCompilerController {
 				}
 			}			
 			List<Question> questionDetailList = questionService.findByQuestionIdIn(qListStatusTrue);
+			List<Question> totalQuestionWithStatusTrue = questionService.findAllQuestion();
 			List<Question> questionDetailListFormat = new ArrayList<>();
 			for (Question question : questionDetailList) {
 				Question formateQuestion = new Question(); 
 				formateQuestion.setQuestionId(question.getQuestionId());
 				formateQuestion.setQuestion(question.getQuestion());				
 				questionDetailListFormat.add(formateQuestion);
+				totalQuestionWithStatusTrue.removeIf(x -> x.getQuestionId().equalsIgnoreCase(question.getQuestionId()));
 			}			
 			contestDetail.put("contestQuestionDetail", questionDetailListFormat);			
-			totalQuestionWithStatusTrue = questionService.findAllQuestion();			
 			List<Question> totalQuestionWithStatusTrueFormat = new ArrayList<>();
 			for (Question question : totalQuestionWithStatusTrue) {
 				Question formateQuestion = new Question(); 
