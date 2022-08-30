@@ -200,21 +200,8 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body("Student deleted successfully");
 
 	}
-
-	@GetMapping("admin/filterParticipator")
-	private ResponseEntity<Object> filterParticipator(@RequestParam String filterByString) {
-		List<String> studentTemp = new ArrayList<>();
-		try {
-			studentTemp = studentService.getByEmail(filterByString);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Email Id");
-		}
-		return new ResponseEntity<Object>(studentTemp, HttpStatus.OK);
-
-	}
 	
-	@DeleteMapping("finalSubmitContest")
+	@DeleteMapping("admin/finalSubmitContest")
 	public  ResponseEntity<Object> submitContest(@RequestParam String emailId) {
 		try {
 			 studentService.finalSubmitContest(emailId);
@@ -225,12 +212,11 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body("Test submitted successfully");
 	}
 
-	@GetMapping("getAllParticipator")
+	@GetMapping("admin/getAllParticipator")
 	public ResponseEntity<Object> getAllParticipator() {
-		List<Student> allParticipator = new ArrayList<>();
+		List<String> allParticipator =  studentService.findAll();
 		try {
 			if (!allParticipator.isEmpty()) {
-				allParticipator = studentService.findAll();
 				return new ResponseEntity<Object>(allParticipator, HttpStatus.OK);
 			} else
 				return new ResponseEntity<Object>("No Participator is in active state", HttpStatus.CONFLICT);
