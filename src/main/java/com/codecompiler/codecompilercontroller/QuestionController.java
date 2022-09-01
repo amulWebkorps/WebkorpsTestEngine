@@ -36,7 +36,7 @@ public class QuestionController {
 	@Autowired
 	private ExcelConvertorService excelConvertorService;
 
-	@PostMapping(value = "/admin/questionUpload", headers = "content-type=multipart/*")
+	@PostMapping(value = "admin/questionUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file, @RequestParam("level") String level) {
 		if (excelConvertorService.checkExcelFormat(file)) {
 			try {
