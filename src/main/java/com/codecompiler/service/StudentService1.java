@@ -24,13 +24,11 @@ public interface StudentService1 {
 	public List<String> saveFileForBulkParticipator(MultipartFile file);
 	
 	public Student deleteByEmail(String emailId);
-	
-	public List<String> getByEmail(String filterString);
-	
+		
 	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
 			ArrayList<Boolean> testCasesSuccess, String complilationMessage);
 	
 	public Student finalSubmitContest(String emailId);
 	
-	public List<Student> findAll();
+	public List<String> findAll();
 }

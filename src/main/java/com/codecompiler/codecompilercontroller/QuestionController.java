@@ -3,6 +3,7 @@ package com.codecompiler.codecompilercontroller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +37,13 @@ public class QuestionController {
 	@Autowired
 	private ExcelConvertorService excelConvertorService;
 
-	@PostMapping(value = "admin/questionUpload", headers = "content-type=multipart/*")
-	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file, @RequestParam("level") String level) {
+
+	@PostMapping(value = "/admin/questionUpload", headers = "content-type=multipart/*")
+	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file, @RequestParam("contestId") String contestId) {
+
 		if (excelConvertorService.checkExcelFormat(file)) {
 			try {
-				List<Question> allQuestions = questionService.saveFileForBulkQuestion(file);
+				List<Question> allQuestions = questionService.saveFileForBulkQuestion(file, contestId);
 				return new ResponseEntity<Object>(allQuestions, HttpStatus.OK);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -53,7 +56,6 @@ public class QuestionController {
 	
 	@PostMapping("admin/saveQuestion")
 	public ResponseEntity<Object> saveQuestion(@RequestBody Question question) throws IOException {
-		System.out.println("savequestion Obj Prev : " + question);
 		Question savedQuestion = null;
 		String[] stringOfCidAndCl = new String[2];		
 		stringOfCidAndCl = question.getContestLevel().split("@");
@@ -86,17 +88,16 @@ public class QuestionController {
 	}
 
 	@PostMapping("admin/addSelectedAvailableQuestiontoContest")
-	private ResponseEntity<Object> addSelectedAvailableQueToContest(@RequestBody ArrayList<String> questionIdList) {
+	private ResponseEntity<Object> addSelectedAvailableQueToContest(@RequestBody Map<String, List<String>> questionIdList) {
 		List<Question> questionDetails = new ArrayList<>();
 		try {
-			String contestId = questionIdList.get(0);
-			questionIdList.remove(0);
+			String contestId = questionIdList.get("contestId").get(0);
 			Contest con = new Contest();
 			con = contestService.findByContestId(contestId);
-			questionDetails = questionService.findByQuestionIdIn(questionIdList);
+			questionDetails = questionService.findByQuestionIdIn(questionIdList.get("questionsIds"));
 			ArrayList<QuestionStatus> idWithstatus = con.getQuestionStatus();
 			boolean flag = false;
-			for (String idToChangeStatus : questionIdList) {
+			for (String idToChangeStatus : questionIdList.get("questionsIds")) {
 				int index = 0;
 				for (QuestionStatus qs : idWithstatus) {
 					if (idToChangeStatus.equals(qs.getQuestionId())) {

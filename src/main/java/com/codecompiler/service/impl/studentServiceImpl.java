@@ -81,21 +81,6 @@ public class studentServiceImpl implements StudentService1{
 		return studentRepository.deleteByEmail(emailId);
 	}
 	
-	public List<String> getByEmail(String filterByString){		
-		Query query=new Query();
-		List<String> studentEmail = new ArrayList<>();
-		List<Student> studentTemp = new ArrayList<>();
-		System.out.println(studentRepository.findByEmail(filterByString));
-		query.addCriteria(Criteria.where("email").regex("^"+filterByString));
-		studentTemp = mongoTemplate.find(query, Student.class);
-		System.out.println(studentTemp);
-		for(Student student : studentTemp) {
-			studentEmail.add(student.getEmail());
-		}
-        //return studentTemp.stream().map(Student::getEmail).collect(Collectors.toList());
-	     return studentEmail;
-	}
-	
 	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
 			ArrayList<Boolean> testCasesSuccess, String complilationMessage) {
 		TestCasesRecord testCasesRecord = new TestCasesRecord();
@@ -126,8 +111,9 @@ public class studentServiceImpl implements StudentService1{
 	}
 
 	@Override
-	public List<Student> findAll() {
-		return studentRepository.findAll();
+	public List<String> findAll() {
+		List<Student> presentStudent = studentRepository.findEmailByStatus(false);
+		return presentStudent.stream().map(Student::getEmail).collect(Collectors.toList());
 	}
 
 }
