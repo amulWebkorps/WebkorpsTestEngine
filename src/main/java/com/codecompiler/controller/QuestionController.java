@@ -1,4 +1,4 @@
-package com.codecompiler.codecompilercontroller;
+package com.codecompiler.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
