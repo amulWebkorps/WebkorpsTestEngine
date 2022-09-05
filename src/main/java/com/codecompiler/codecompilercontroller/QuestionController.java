@@ -137,6 +137,7 @@ public class QuestionController {
 
 	@DeleteMapping("admin/deleteQuestion") // cid, qid
 	private ResponseEntity<Object> deleteQuestion(@RequestBody ArrayList<String> contestAndQuestionId) {
+		logger.info("deleteQuestion: started");
 		try {
 			if (contestAndQuestionId.get(0).equals("questionForLevel")) {
 				Question questionStatusChange = questionService.findByQuestionId(contestAndQuestionId.get(1));
