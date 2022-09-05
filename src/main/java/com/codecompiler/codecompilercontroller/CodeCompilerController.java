@@ -117,23 +117,18 @@ public class CodeCompilerController {
 		try {
 			Contest contestRecord = contestService.findByContestId(contestId);
 			contestDetail.put("contest", contestRecord);
-			for (QuestionStatus questionStatus : contestRecord.getQuestionStatus()) {
+			ArrayList<QuestionStatus> questionStatusTemp = contestRecord.getQuestionStatus();
+			for (QuestionStatus questionStatus : questionStatusTemp) {
 				if (questionStatus.getStatus()) {
 					qListStatusTrue.add(questionStatus.getQuestionId());
 				}
 			}
 			List<Question> questionDetailList = questionService.findByQuestionIdIn(qListStatusTrue);
-			List<Question> totalQuestionWithStatusTrue = questionService.findAllQuestion();
-			List<Question> questionDetailListFormat = new ArrayList<>();
-			for (Question question : questionDetailList) {
-				Question formateQuestion = new Question();
-				formateQuestion.setQuestionId(question.getQuestionId());
-				formateQuestion.setQuestion(question.getQuestion());
-				questionDetailListFormat.add(formateQuestion);
-
+			List<Question> totalQuestionWithStatusTrue = questionService.findAllQuestion();			
+			for (Question question : questionDetailList) 
 				totalQuestionWithStatusTrue.removeIf(x -> x.getQuestionId().equalsIgnoreCase(question.getQuestionId()));
-			}			
-			contestDetail.put("contestQuestionDetail", questionDetailListFormat);			
+						
+			contestDetail.put("contestQuestionDetail", questionDetailList);			
 
 			List<Question> totalQuestionWithStatusTrueFormat = new ArrayList<>();
 			for (Question question : totalQuestionWithStatusTrue) {
