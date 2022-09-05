@@ -9,7 +9,7 @@ import com.codecompiler.entity.Contest;
 
 
 @Repository
-public interface ContestRepository extends  MongoRepository<Contest,String>{
+public interface ContestRepository extends MongoRepository<Contest,String>{
 
 	public Contest findByContestIdAndContestLevel(String contestid, String contestLevel);
 	
