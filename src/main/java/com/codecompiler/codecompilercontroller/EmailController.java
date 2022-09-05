@@ -25,17 +25,18 @@ import com.codecompiler.service.StudentService1;
 @RequestMapping("/admin")
 @CrossOrigin(origins = "*")
 public class EmailController {
+	
+	private static final Logger logger = LogManager.getLogger(EmailController.class);
 
 	@Autowired
 	private EmailService emailService;
 	
 	@Autowired
 	private StudentService1 studentService1;
-
-	Logger logger = LogManager.getLogger(EmailController.class);
 	
 	@PostMapping("sendMail")
 	public ResponseEntity<Object> sendMail(@RequestBody Map<String, List<String>> sendEmailDetails) {
+		logger.info("addContest: started sendEmailDetails size = "+sendEmailDetails.size());
 		try {
 			for (String studentEmail : sendEmailDetails.get("studentEmails")) {
 				Student studentDetails = studentService1.findByEmail(studentEmail);
@@ -44,13 +45,14 @@ public class EmailController {
 				studentService1.saveStudent(studentDetails);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occured in sendMail :: "+e.getMessage());
 			return generateResponse("mail not sent", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		logger.info("Mail Send successfully");
 		return generateResponse("mail sent", HttpStatus.OK);
 	}
 
-	public ResponseEntity<Object> generateResponse(String msg, HttpStatus status) {
+	private ResponseEntity<Object> generateResponse(String msg, HttpStatus status) {
 		Map<String, Object> mp = new HashedMap<>();
 		mp.put("message", msg);
 		mp.put("status", status);
@@ -59,14 +61,17 @@ public class EmailController {
 	
 	@GetMapping("sentMailForParticipator")
 	public ResponseEntity<Object> sentMailForParticipator() {
+		logger.info("sentMailForParticipator: started");
 		List<String> sentMailStudentList = new ArrayList<>();
 		try {
 			sentMailStudentList = studentService1.findEmailByStatus(true);
+			logger.info("sentMailForParticipator: Ended setMailStudentList Size :: "+ sentMailStudentList.size());
 			return new ResponseEntity<Object>(sentMailStudentList, HttpStatus.OK);
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			return new ResponseEntity<Object>("no email sent", HttpStatus.BAD_REQUEST);
-		}		
+			logger.error("Exception occured in sendMail :: "+ex.getMessage());
+			return new ResponseEntity<Object>("no email sent", HttpStatus.INTERNAL_SERVER_ERROR);
+		}	
+		
 	}
 	
 }

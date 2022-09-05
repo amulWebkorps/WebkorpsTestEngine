@@ -32,37 +32,44 @@ import com.codecompiler.service.QuestionService1;
 @CrossOrigin(origins = "*")
 public class CodeCompilerController {
 
+	private static final Logger logger = LogManager.getLogger(CodeCompilerController.class);
+
 	@Autowired
 	private CodeProcessingService codeProcessingService;
-	
+
 	@Autowired
 	private QuestionService1 questionService;
-	
+
 	@Autowired
 	private LanguageService languageService;
-	
+
 	@Autowired
 	private ContestService contestService;
-	
-	Logger logger = LogManager.getLogger(CodeCompilerController.class);
 
 	@PostMapping("startContestPage")
 	public ResponseEntity<Object> contestPage(@RequestParam(value = "contestId", required = false) String contestId,
-			@RequestParam(value = "studentId", required = false) String studentId, @RequestParam(value = "language", required = false) String selectlanguage) {
+			@RequestParam(value = "studentId", required = false) String studentId,
+			@RequestParam(value = "language", required = false) String selectlanguage) {
+		logger.info("contestPage: started contestId = " + contestId + ", studentId = "+studentId+", language = "+selectlanguage);
 		Language language = languageService.findByLanguage(selectlanguage);
 		Contest contestTime = contestService.findByContestId(contestId);
 		List<Question> contestQuestionsList = questionService.getAllQuestion(contestId, studentId);
-		return generateResponse(contestQuestionsList, language, contestId, contestTime.getContestTime() ,studentId, 0, false, true, HttpStatus.OK);
+		logger.info("contestPage: ended");
+		return generateResponse(contestQuestionsList, language, contestId, contestTime.getContestTime(), studentId, 0,
+				false, true, HttpStatus.OK);
 	}
-	
+
 	@PostMapping("runAndCompilerCode")
-	public ResponseEntity<ResponseToFE> getCompiler(@RequestBody Map<String, Object> data)
-			throws Exception {
+	public ResponseEntity<ResponseToFE> getCompiler(@RequestBody Map<String, Object> data) throws Exception {
+		logger.info("getCompiler: started");
 		ResponseToFE responsef = codeProcessingService.compileCode(data);
+		logger.info("getCompiler: ended");
 		return ResponseEntity.ok(responsef);
 	}
-	
-	public ResponseEntity<Object> generateResponse(List<Question> contestQuestionsList, Language language, String contestId, String contestTime ,String studentId, Integer nextQuestion, boolean previous, boolean next, HttpStatus status) {
+
+	private ResponseEntity<Object> generateResponse(List<Question> contestQuestionsList, Language language,
+			String contestId, String contestTime, String studentId, Integer nextQuestion, boolean previous,
+			boolean next, HttpStatus status) {
 		Map<String, Object> mp = new HashedMap();
 		mp.put("QuestionList", contestQuestionsList);
 		mp.put("languageCode", language);
@@ -74,71 +81,79 @@ public class CodeCompilerController {
 		mp.put("next", next);
 		return new ResponseEntity<Object>(mp, status);
 	}
-	
+
 	@PostMapping("admin/createContest")
-	private ResponseEntity<Object> addContest(@RequestBody Contest contest) {
+	public ResponseEntity<Object> addContest(@RequestBody Contest contest) {
+		logger.info("addContest: started contestName = "+contest.getContestName());
 		List<Contest> contestIdAndName = new ArrayList<>();
 		try {
 			contestService.saveContest(contest);
-			contestIdAndName = contestService.findAllContest();			
 			logger.info("Contest added successfully");
-		} catch(Exception ex) {
-			ex.printStackTrace();
+		} catch (Exception ex) {
+			logger.error("Exception occured in addContest :: "+ex.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Contest not added");
 		}
 		return new ResponseEntity<Object>(contestIdAndName, HttpStatus.OK);
 	}
-	
+
 	@DeleteMapping("admin/deleteContest")
 	public ResponseEntity<Object> deleteContest(@RequestParam String contestId) {
-		try {		
+		logger.info("deleteContest: started contestId = "+contestId);
+		try {
 			contestService.deleteContest(contestId);
+			logger.info("deleteContest: deleted successfully");
 		} catch (Exception e) {
-			e.printStackTrace();
-			return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Contest Id");
+			logger.error("Exception occured in deleteContest :: "+e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Contest Id");
 		}
 		return ResponseEntity.status(HttpStatus.OK).body("Contest deleted successfully");
 	}
 
-	
 	@GetMapping("admin/getContestDetail")
-	private ResponseEntity<Object> getContestDetail(@RequestParam String contestId) {
+	public ResponseEntity<Object> getContestDetail(@RequestParam String contestId) {
+		logger.info("getContestDetail: started contestId = "+contestId);
 		Map<String, Object> contestDetail = new HashedMap<String, Object>();
 		ArrayList<String> qListStatusTrue = new ArrayList<>();
 		try {
 			Contest contestRecord = contestService.findByContestId(contestId);
 			contestDetail.put("contest", contestRecord);
-			for (QuestionStatus questionStatus : contestRecord.getQuestionStatus()) {				
+			for (QuestionStatus questionStatus : contestRecord.getQuestionStatus()) {
 				if (questionStatus.getStatus()) {
 					qListStatusTrue.add(questionStatus.getQuestionId());
 				}
-			}			
+			}
 			List<Question> questionDetailList = questionService.findByQuestionIdIn(qListStatusTrue);
 			List<Question> totalQuestionWithStatusTrue = questionService.findAllQuestion();
 			List<Question> questionDetailListFormat = new ArrayList<>();
 			for (Question question : questionDetailList) {
-				Question formateQuestion = new Question(); 
+				Question formateQuestion = new Question();
 				formateQuestion.setQuestionId(question.getQuestionId());
-				formateQuestion.setQuestion(question.getQuestion());				
+				formateQuestion.setQuestion(question.getQuestion());
 				questionDetailListFormat.add(formateQuestion);
+
 				totalQuestionWithStatusTrue.removeIf(x -> x.getQuestionId().equalsIgnoreCase(question.getQuestionId()));
 			}			
 			contestDetail.put("contestQuestionDetail", questionDetailListFormat);			
+
 			List<Question> totalQuestionWithStatusTrueFormat = new ArrayList<>();
 			for (Question question : totalQuestionWithStatusTrue) {
-				Question formateQuestion = new Question(); 
+				Question formateQuestion = new Question();
 				formateQuestion.setQuestionId(question.getQuestionId());
-				formateQuestion.setQuestion(question.getQuestion());				
+				formateQuestion.setQuestion(question.getQuestion());
 				totalQuestionWithStatusTrueFormat.add(formateQuestion);
 			}
-			contestDetail.put("totalAvailableQuestion",totalQuestionWithStatusTrueFormat);
+			contestDetail.put("totalAvailableQuestion", totalQuestionWithStatusTrueFormat);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("Exception occured in getContestDetail :: "+ex.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
 		}
+		logger.info("getContestDetail: ended");
 		return new ResponseEntity<Object>(contestDetail, HttpStatus.OK);
 	}
-	
+
 	@GetMapping("admin/filterQuestion")
 	public ResponseEntity<Object> filterQuestion(@RequestParam String filterByString) {
+		logger.info("filterQuestion: started filterByString = "+filterByString);
 		List<Question> totalQuestionByFilter = new ArrayList<>();
 		try {
 			if (filterByString.equals("Level 1") || filterByString.equals("Level 2"))
@@ -146,11 +161,11 @@ public class CodeCompilerController {
 			else
 				totalQuestionByFilter = questionService.findAllQuestion();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occured in getContestDetail :: "+e.getMessage());
 			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		logger.info("filterQuestion: ended");
 		return new ResponseEntity<Object>(totalQuestionByFilter, HttpStatus.OK);
 	}
-	
-	
+
 }
