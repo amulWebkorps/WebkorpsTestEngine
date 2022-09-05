@@ -55,7 +55,6 @@ public class studentServiceImpl implements StudentService1{
 	}
 	
 	public Student saveStudent(Student studentDetails) {
-		studentDetails.setPassword("ROLE_ADMIN");
 		return studentRepository.save(studentDetails);				
 	}
 	
