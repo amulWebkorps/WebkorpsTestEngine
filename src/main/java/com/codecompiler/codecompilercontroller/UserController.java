@@ -152,7 +152,7 @@ public class UserController {
 		Map<String, Object> mp = new HashedMap<>();
 		try {
 			Student student = studentService.findById(studentId);
-			if (student != null) {
+			if (student != null && student.getQuestionId() != null) {
 				List<Question> questionDetail = new ArrayList<>();
 				for (String questionId : student.getQuestionId()) {
 					Question question = questionService.findByQuestionId(questionId);
@@ -165,7 +165,7 @@ public class UserController {
 				mp.put("studentDetail", student);
 				mp.put("questionSubmitedByStudent", questionDetail);
 			} else {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This student not present in DataBase");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This student did not submit a single Question");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
