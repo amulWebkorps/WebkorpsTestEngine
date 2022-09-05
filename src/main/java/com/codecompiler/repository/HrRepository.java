@@ -1,4 +1,4 @@
-package com.codecompiler.dao;
+package com.codecompiler.repository;
 
 import com.codecompiler.entity.HrDetails;
 

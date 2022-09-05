@@ -6,9 +6,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.codecompiler.dao.ContestRepository;
-import com.codecompiler.dao.QuestionRepository;
 import com.codecompiler.entity.Contest;
+import com.codecompiler.repository.ContestRepository;
+import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.service.ContestService;
 
 @Service

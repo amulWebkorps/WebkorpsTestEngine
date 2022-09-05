@@ -2,10 +2,10 @@ package com.codecompiler.service.impl;
 
 import org.springframework.stereotype.Service;
 
-import com.codecompiler.dao.HrRepository;
-import com.codecompiler.dao.StudentRepository;
 import com.codecompiler.entity.ApplicationUserDetails;
 import com.codecompiler.entity.User;
+import com.codecompiler.repository.HrRepository;
+import com.codecompiler.repository.StudentRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

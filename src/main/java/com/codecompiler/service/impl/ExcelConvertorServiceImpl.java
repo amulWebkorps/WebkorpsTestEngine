@@ -10,12 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.codecompiler.dao.StudentRepository;
 import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.SampleTestCase;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCases;
+import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.service.ExcelConvertorService;
 
 @Service

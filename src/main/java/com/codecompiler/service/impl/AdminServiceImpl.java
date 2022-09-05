@@ -3,8 +3,8 @@ package com.codecompiler.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.codecompiler.dao.HrRepository;
 import com.codecompiler.entity.HrDetails;
+import com.codecompiler.repository.HrRepository;
 import com.codecompiler.service.AdminService;
 
 @Service

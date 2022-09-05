@@ -1,4 +1,4 @@
-package com.codecompiler.dao;
+package com.codecompiler.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;

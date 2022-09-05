@@ -1,4 +1,4 @@
-package com.codecompiler.dao;
+package com.codecompiler.repository;
 
 import java.util.ArrayList;
 import java.util.List;
