@@ -41,7 +41,7 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				List<MyCell> row = data.get(i);
 				Student student = new Student();
 				String studentId = UUID.randomUUID().toString();
-				String characters = "ABCDEFGHLMNOPQRSTUVWXYZabcdghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+				String characters = "ABCDEFGHLMNOPQRSTUVWXYZabcdghijklmnopqrstuvwxyz0123456789@#$*";
 				String pwd = RandomStringUtils.random(7, characters);
 				Student exsistingStudent = studentRepository.findByEmail(row.get(1).getContent());
 				if (exsistingStudent == null) {
@@ -51,6 +51,7 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 					student.setMobileNumber(row.get(2).getContent());
 					student.setContestLevel(row.get(3).getContent());
 					student.setPassword(pwd);
+					student.setRole("ROLE_STUDENT");
 					studentList.add(student);
 				} else {
 					exsistingStudent.setStatus(false);

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,67 +30,73 @@ import com.codecompiler.service.QuestionService1;
 @CrossOrigin(origins = "*")
 public class QuestionController {
 
+	private static final Logger logger = LogManager.getLogger(QuestionController.class);
+
 	@Autowired
 	private QuestionService1 questionService;
-	
+
 	@Autowired
 	private ContestService contestService;
-	
+
 	@Autowired
 	private ExcelConvertorService excelConvertorService;
 
-
 	@PostMapping(value = "/admin/questionUpload", headers = "content-type=multipart/*")
-	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file, @RequestParam("contestId") String contestId) {
-
+	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file,
+			@RequestParam("contestId") String contestId) {
+		logger.info("questionUpload: started");
 		if (excelConvertorService.checkExcelFormat(file)) {
 			try {
 				List<Question> allQuestions = questionService.saveFileForBulkQuestion(file, contestId);
+				logger.info("Bulk Question saved");
 				return new ResponseEntity<Object>(allQuestions, HttpStatus.OK);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error("Excel not uploaded :: " + e.getMessage());
 				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Excel not uploaded");
 			}
 		} else {
+			logger.error("Please check excel file format");
 			return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("Please check excel file format");
 		}
 	}
-	
+
 	@PostMapping("admin/saveQuestion")
 	public ResponseEntity<Object> saveQuestion(@RequestBody Question question) throws IOException {
-		Question savedQuestion = null;
-		String[] stringOfCidAndCl = new String[2];		
-		stringOfCidAndCl = question.getContestLevel().split("@");
-		String tempQid = question.getQuestionId();
+		logger.info("saveQuestion: started");
+		Question savedQuestion = new Question();
 		try {
-		if (tempQid == ("")) {			
-			tempQid = UUID.randomUUID().toString();
-			question.setQuestionId(tempQid);
-			question.setQuestionStatus("true");
-		}		
-		if(stringOfCidAndCl.length == 1) {
-			question.setContestLevel(stringOfCidAndCl[0]);			
-			savedQuestion = questionService.saveQuestion(question);
-			}else {			
-			Contest contest = new Contest(); // id, level
-			contest = contestService.findByContestId(stringOfCidAndCl[1]);
-			question.setContestLevel(stringOfCidAndCl[0]);
-			savedQuestion = questionService.saveQuestion(question);
-			QuestionStatus queStatus = new QuestionStatus();
-			queStatus.setQuestionId(savedQuestion.getQuestionId());
-			queStatus.setStatus(true);
-			contest.getQuestionStatus().add(queStatus);
-			contestService.saveContest(contest);
-		}
-		
-		}catch(Exception e) {
-			e.printStackTrace();
+			String[] stringOfCidAndCl = new String[2];
+			stringOfCidAndCl = question.getContestLevel().split("@");
+			String tempQid = question.getQuestionId();
+			if (tempQid == ("")) {
+				tempQid = UUID.randomUUID().toString();
+				question.setQuestionId(tempQid);
+				question.setQuestionStatus("true");
+			}
+			if (stringOfCidAndCl.length == 1) {
+				question.setContestLevel(stringOfCidAndCl[0]);
+				savedQuestion = questionService.saveQuestion(question);
+			} else {
+				Contest contest = new Contest(); // id, level
+				contest = contestService.findByContestId(stringOfCidAndCl[1]);
+				question.setContestLevel(stringOfCidAndCl[0]);
+				savedQuestion = questionService.saveQuestion(question);
+				QuestionStatus queStatus = new QuestionStatus();
+				queStatus.setQuestionId(savedQuestion.getQuestionId());
+				queStatus.setStatus(true);
+				contest.getQuestionStatus().add(queStatus);
+				contestService.saveContest(contest);
+			}
+		} catch (Exception e) {
+			logger.error("Questions not saved :: "+e.getMessage());
 		}
 		return new ResponseEntity<Object>(savedQuestion, HttpStatus.OK);
 	}
 
 	@PostMapping("admin/addSelectedAvailableQuestiontoContest")
-	private ResponseEntity<Object> addSelectedAvailableQueToContest(@RequestBody Map<String, List<String>> questionIdList) {
+	private ResponseEntity<Object> addSelectedAvailableQueToContest(
+			@RequestBody Map<String, List<String>> questionIdList) {
+		logger.info("addSelectedAvailableQuestiontoContest: started");
 		List<Question> questionDetails = new ArrayList<>();
 		try {
 			String contestId = questionIdList.get("contestId").get(0);
@@ -120,13 +128,13 @@ public class QuestionController {
 				}
 			}
 			contestService.saveContest(con);
+			logger.info("Question saved in Contest");
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("Question not saved List is null :: "+ex.getMessage());
 		}
-		
-		return new ResponseEntity<Object>(questionDetails, HttpStatus.OK);		
+		return new ResponseEntity<Object>(questionDetails, HttpStatus.OK);
 	}
-	
+
 	@DeleteMapping("admin/deleteQuestion") // cid, qid
 	private ResponseEntity<Object> deleteQuestion(@RequestBody ArrayList<String> contestAndQuestionId) {
 		try {
@@ -152,5 +160,5 @@ public class QuestionController {
 		}
 		return ResponseEntity.status(HttpStatus.OK).body("Question deleted successfully");
 	}
-	
+
 }
