@@ -15,9 +15,8 @@ public interface ExcelConvertorService {
 		String contentType = file.getContentType();
 		if (contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
 			return true;
-		} else {
-			return false;
-		}
+		} 
+		return false;
 	}
 	
 	public List<Student> convertExcelToListOfStudent(Map<Integer, List<MyCell>> data);
