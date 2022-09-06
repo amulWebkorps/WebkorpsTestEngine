@@ -40,7 +40,7 @@ public class EmailController {
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, "mail send successfully");
 		} catch (Exception e) {
 			log.error("Exception occured in sendMail :: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, "mail could not be sent");
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
 		}
 	}
 	
@@ -53,7 +53,7 @@ public class EmailController {
 			return ResponseHandler.generateResponse("succcess", HttpStatus.OK, sentMailStudentList);
 		} catch (Exception ex) {
 			log.error("Exception occured in sendMail :: "+ex.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, "No mail has been send yet");
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
 		}	
 		
 	}
