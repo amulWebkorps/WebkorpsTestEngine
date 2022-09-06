@@ -9,9 +9,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,12 +21,10 @@ import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.StudentService;
 
 @Service
-public class studentServiceImpl implements StudentService{
+public class StudentServiceImpl implements StudentService{
 
 	@Autowired
 	private StudentRepository studentRepository;
-	
-	@Autowired private MongoTemplate mongoTemplate;
 	
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
