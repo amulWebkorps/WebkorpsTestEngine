@@ -1,15 +1,13 @@
 package com.codecompiler.controller;
 
 
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,12 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.codecompiler.entity.Admin;
 import com.codecompiler.entity.User;
 import com.codecompiler.exception.UserAlreadyExistException;
+import com.codecompiler.reponse.ResponseHandler;
 import com.codecompiler.service.AdminService;
 import com.codecompiler.util.JwtUtil;
 
 import lombok.extern.slf4j.Slf4j;
-
-import com.codecompiler.reponse.ResponseHandler;
 
 @Controller
 @CrossOrigin(origins = "*")

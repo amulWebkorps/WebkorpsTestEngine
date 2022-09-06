@@ -76,30 +76,14 @@ public class ParticipantController {
 	@GetMapping("getParticipatorDetail")
 	public ResponseEntity<Object> getParticipatorDetail(@RequestParam String studentId) {
 		log.info("getParticipatorDetail started studentId :: "+studentId);
-		Map<String, Object> mp = new HashedMap<>();
 		try {
-			Student student = studentService.findById(studentId);
-			if (student != null && student.getQuestionId() != null) {
-				List<Question> questionDetail = new ArrayList<>();
-				for (String questionId : student.getQuestionId()) {
-					Question question = questionService.findByQuestionId(questionId);
-					Question questionTemp = new Question();
-					questionTemp.setQuestionId(question.getQuestionId());
-					questionTemp.setQuestion(question.getQuestion());
-					questionTemp.setSampleTestCase(question.getSampleTestCase());
-					questionDetail.add(questionTemp);
-				}
-				mp.put("studentDetail", student);
-				mp.put("questionSubmitedByStudent", questionDetail);
-			} else {
-				log.info("Student did not submit a single Question");
-				return ResponseHandler.generateResponse("error", HttpStatus.NOT_FOUND, "This student did not submit a single Question");
-			}
-		} catch (Exception e) {
+			Map<String, Object> mp = this.studentService.getParticipatorDetail(studentId);
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, mp);
+		} 
+		catch (Exception e) {
 			log.error("Exception occured in getParticipatorDetail :: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, "Check Student Id");
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
-		return ResponseHandler.generateResponse("success", HttpStatus.OK, mp);
 	}
 	
 	@GetMapping("admin/participatorOfContest")

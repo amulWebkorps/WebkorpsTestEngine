@@ -2,6 +2,7 @@ package com.codecompiler.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,4 +32,6 @@ public interface StudentService {
 	public Student finalSubmitContest(String emailId);
 	
 	public List<String> findAll();
+	
+	Map<String, Object> getParticipatorDetail( String studentId);
 }

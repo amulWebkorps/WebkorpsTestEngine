@@ -2,23 +2,35 @@ package com.codecompiler.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.codecompiler.entity.Contest;
+import com.codecompiler.entity.Language;
+import com.codecompiler.entity.Question;
+import com.codecompiler.entity.QuestionStatus;
 import com.codecompiler.repository.ContestRepository;
-import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.service.ContestService;
+import com.codecompiler.service.LanguageService;
+import com.codecompiler.service.QuestionService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class ContestServiceImpl implements ContestService {
 
 	@Autowired
 	private ContestRepository contestRepository;
 	
 	@Autowired
-	QuestionRepository questionRepository;
+	private QuestionService questionService;
+	
+	@Autowired
+	private LanguageService languageService;
 	
 	public Contest saveContest(Contest contest) {
 		return contestRepository.save(contest);				
@@ -59,5 +71,56 @@ public class ContestServiceImpl implements ContestService {
 		});		
 		return contestIdAndName;
 	}
+
+	@Override
+	public Map<String, Object> getContestDetail(String contestId) {
+		log.info("getContestDetail: started contestId = "+contestId);
+		Map<String, Object> contestDetail = new HashedMap<String, Object>();
+		ArrayList<String> qListStatusTrue = new ArrayList<>();
+		
+			Contest contestRecord = this.findByContestId(contestId);
+			contestDetail.put("contest", contestRecord);
+			ArrayList<QuestionStatus> questionStatusTemp = contestRecord.getQuestionStatus();
+			for (QuestionStatus questionStatus : questionStatusTemp) {
+				if (questionStatus.getStatus()) {
+					qListStatusTrue.add(questionStatus.getQuestionId());
+				}
+			}
+			List<Question> questionDetailList = questionService.findByQuestionIdIn(qListStatusTrue);
+			List<Question> totalQuestionWithStatusTrue = questionService.findAllQuestion();			
+			for (Question question : questionDetailList) 
+				totalQuestionWithStatusTrue.removeIf(x -> x.getQuestionId().equalsIgnoreCase(question.getQuestionId()));
+						
+			contestDetail.put("contestQuestionDetail", questionDetailList);			
+
+			List<Question> totalQuestionWithStatusTrueFormat = new ArrayList<>();
+			for (Question question : totalQuestionWithStatusTrue) {
+				Question formateQuestion = new Question();
+				formateQuestion.setQuestionId(question.getQuestionId());
+				formateQuestion.setQuestion(question.getQuestion());
+				totalQuestionWithStatusTrueFormat.add(formateQuestion);
+			}
+			contestDetail.put("totalAvailableQuestion", totalQuestionWithStatusTrueFormat);
+			return contestDetail;
+		
+	}
+
+	@Override
+	public Map<String, Object> contestPage(String contestId, String studentId, String selectlanguage) {
+		Language language = languageService.findByLanguage(selectlanguage);
+		Contest contestTime = this.findByContestId(contestId);
+		List<Question> contestQuestionsList = questionService.getAllQuestion(contestId, studentId);
+		Map<String, Object> mp = new HashedMap<String, Object>();
+		mp.put("QuestionList", contestQuestionsList);
+		mp.put("languageCode", language);
+		mp.put("contestId", contestId);
+		mp.put("studentId", studentId);
+		mp.put("contestTime", contestTime);
+		mp.put("nextQuestion", 0);
+		mp.put("previous", false);
+		mp.put("next", true);
+		return mp;
+	}
 	
+
 }

@@ -8,26 +8,36 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.entity.MyCell;
+import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCasesRecord;
+import com.codecompiler.exception.RecordNotFoundException;
+import com.codecompiler.exception.UserNotFoundException;
 import com.codecompiler.helper.ExcelPOIHelper;
+import com.codecompiler.reponse.ResponseHandler;
 import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.service.ExcelConvertorService;
+import com.codecompiler.service.QuestionService;
 import com.codecompiler.service.StudentService;
 
 @Service
-public class studentServiceImpl implements StudentService{
+public class StudentServiceImpl implements StudentService{
 
 	@Autowired
 	private StudentRepository studentRepository;
+	
+	@Autowired
+	private QuestionService questionService;
 	
 	@Autowired private MongoTemplate mongoTemplate;
 	
@@ -38,7 +48,11 @@ public class studentServiceImpl implements StudentService{
 	private ExcelConvertorService excelConvertorService;
 	
 	public Student findById(String studentId) {
-		return studentRepository.findById(studentId);		
+		Student student = studentRepository.findById(studentId);	
+		if(student==null) {
+			throw new UserNotFoundException("Student with id :: "+studentId+" does not found");
+		}
+		return 	student;
 	}
 	
 	public Student findByEmailAndPassword(String email, String password) {
@@ -104,8 +118,8 @@ public class studentServiceImpl implements StudentService{
 	}
 	
 	public Student finalSubmitContest(String emailId) {
-		Student student = studentRepository.findByEmail(emailId);
-		student.setPassword(null);
+		Student student = this.studentRepository.findByEmail(emailId);
+		student.setPassword(null); 
 		return studentRepository.save(student);
 	}
 
@@ -113,6 +127,27 @@ public class studentServiceImpl implements StudentService{
 	public List<String> findAll() {
 		List<Student> presentStudent = studentRepository.findEmailByStatus(false);
 		return presentStudent.stream().map(Student::getEmail).collect(Collectors.toList());
+	}
+
+	@Override
+	public Map<String, Object> getParticipatorDetail(String studentId) {
+			Student student = this.findById(studentId);
+			if(student.getQuestionId()==null) {
+				throw new RecordNotFoundException("Participant did not submit a single Question");
+			}
+			Map<String, Object> mp = new HashedMap<>();
+				List<Question> questionDetail = new ArrayList<>();
+				for (String questionId : student.getQuestionId()) {
+					Question question = questionService.findByQuestionId(questionId);
+					Question questionTemp = new Question();
+					questionTemp.setQuestionId(question.getQuestionId());
+					questionTemp.setQuestion(question.getQuestion());
+					questionTemp.setSampleTestCase(question.getSampleTestCase());
+					questionDetail.add(questionTemp);
+				mp.put("studentDetail", student);
+				mp.put("questionSubmitedByStudent", questionDetail);
+	}
+				return mp;
 	}
 
 }
