@@ -20,10 +20,10 @@ import com.codecompiler.helper.ExcelPOIHelper;
 import com.codecompiler.repository.ContestRepository;
 import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.service.ExcelConvertorService;
-import com.codecompiler.service.QuestionService1;
+import com.codecompiler.service.QuestionService;
 
 @Service
-public class QuestionServiceImpl implements QuestionService1 {
+public class QuestionServiceImpl implements QuestionService {
 
 	@Autowired
 	private ContestRepository contestRepository;

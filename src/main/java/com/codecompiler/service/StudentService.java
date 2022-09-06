@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.entity.Student;
 
-public interface StudentService1 {
+public interface StudentService {
 
 	public Student findById(String studentId);
 	

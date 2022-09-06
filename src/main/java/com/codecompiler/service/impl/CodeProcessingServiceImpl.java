@@ -16,17 +16,17 @@ import org.springframework.stereotype.Service;
 import com.codecompiler.entity.ResponseToFE;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
-import com.codecompiler.service.QuestionService1;
-import com.codecompiler.service.StudentService1;
+import com.codecompiler.service.QuestionService;
+import com.codecompiler.service.StudentService;
 
 @Service
 public class CodeProcessingServiceImpl implements CodeProcessingService {
 
 	@Autowired
-	private StudentService1 studentService;
+	private StudentService studentService;
 
 	@Autowired
-	private QuestionService1 questionService;
+	private QuestionService questionService;
 
 	private PrintWriter processCode(String code, String language) throws IOException {
 		FileWriter fl = null;

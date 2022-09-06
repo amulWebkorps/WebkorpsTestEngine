@@ -21,10 +21,10 @@ import com.codecompiler.entity.TestCasesRecord;
 import com.codecompiler.helper.ExcelPOIHelper;
 import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.service.ExcelConvertorService;
-import com.codecompiler.service.StudentService1;
+import com.codecompiler.service.StudentService;
 
 @Service
-public class studentServiceImpl implements StudentService1{
+public class studentServiceImpl implements StudentService{
 
 	@Autowired
 	private StudentRepository studentRepository;
