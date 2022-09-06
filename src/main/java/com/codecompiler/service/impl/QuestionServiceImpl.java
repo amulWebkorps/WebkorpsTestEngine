@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -16,9 +17,12 @@ import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.QuestionStatus;
 import com.codecompiler.entity.TestCases;
+import com.codecompiler.exception.RecordNotFoundException;
+import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.helper.ExcelPOIHelper;
 import com.codecompiler.repository.ContestRepository;
 import com.codecompiler.repository.QuestionRepository;
+import com.codecompiler.service.ContestService;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService;
 
@@ -34,11 +38,13 @@ public class QuestionServiceImpl implements QuestionService {
 	@Autowired
 	private ExcelConvertorService excelConvertorService;
 
+	@Autowired
+	private ContestService contestService;
+
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
 
 	public List<Question> getAllQuestion(String contestId, String studentId) {
-
 		Contest contest = contestRepository.findByContestId(contestId);
 		ArrayList<QuestionStatus> qStatusList = new ArrayList<>();
 		qStatusList = contest.getQuestionStatus();
@@ -54,7 +60,11 @@ public class QuestionServiceImpl implements QuestionService {
 	@Override
 	public List<Question> findAllQuestion() {
 		List<Question> totalQuestionWithStatusTrue = new ArrayList<>();
-		for (Question verifyQuestion : questionRepository.findAll()) {
+		List<Question> questions = questionRepository.findAll();
+		if(questions == null) {
+			throw new RecordNotFoundException("findAllQuestion:: Questions doesn't found");	
+		}
+		for (Question verifyQuestion : questions) {
 			if (verifyQuestion.getQuestionStatus() != null) {
 				if (verifyQuestion.getQuestionStatus().equals("true"))
 					totalQuestionWithStatusTrue.add(verifyQuestion);
@@ -63,49 +73,80 @@ public class QuestionServiceImpl implements QuestionService {
 		return totalQuestionWithStatusTrue;
 	}
 
-	public List<Question> findByQuestionIdIn(List<String> questionListStatusTrue) {
-		return questionRepository.findByQuestionIdIn(questionListStatusTrue);
-	}
-
-	public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId) {
-		List<Question> allTrueQuestions = new ArrayList<>();
-		try {
-			Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(),
-					file.getOriginalFilename());
-			allTrueQuestions = excelConvertorService.convertExcelToListOfQuestions(data);
-			questionRepository.saveAll(allTrueQuestions);
-			ArrayList<QuestionStatus> queStatusList = new ArrayList<>();
-			allTrueQuestions.forEach(latestUploadedQuestions -> {
-				QuestionStatus queStatus = new QuestionStatus();
-				queStatus.setQuestionId(latestUploadedQuestions.getQuestionId());
-				queStatus.setStatus(true);
-				queStatusList.add(queStatus);
-			});
-			Contest contest = contestRepository.findByContestId(contestId);
-			if (contest != null) {
-				contest.setQuestionStatus(queStatusList);
-				contestRepository.save(contest);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+	public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId) throws IOException{
+		if (!ExcelConvertorService.checkExcelFormat(file)) {
+			throw new UnSupportedFormatException("saveFileForBulkQuestion::Given file format is not supported");
 		}
+		Contest contest = contestRepository.findByContestId(contestId);
+		if (contest == null) {
+			throw new RecordNotFoundException("saveFileForBulkQuestion:: Content does not found for contestId: " + contestId);
+		} 
+		List<Question> allTrueQuestions = null;
+		Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(),
+				file.getOriginalFilename());
+		allTrueQuestions = excelConvertorService.convertExcelToListOfQuestions(data);
+		if(allTrueQuestions.isEmpty() || allTrueQuestions == null) {
+			throw new RecordNotFoundException("saveFileForBulkQuestion:: Data isn't present in the file");
+		}
+		allTrueQuestions = questionRepository.saveAll(allTrueQuestions);
+		saveContest(contest,allTrueQuestions);
 		return allTrueQuestions;
 	}
 
-	public Question saveQuestion(Question question) {
-		return questionRepository.save(question);
+	private void saveContest(Contest contest,List<Question> allTrueQuestions) {
+		ArrayList<QuestionStatus> queStatusList = null;
+		allTrueQuestions.forEach(latestUploadedQuestions -> {
+			QuestionStatus queStatus = new QuestionStatus();
+			queStatus.setQuestionId(latestUploadedQuestions.getQuestionId());
+			queStatus.setStatus(true);
+			queStatusList.add(queStatus);
+		});
+		contest.setQuestionStatus(queStatusList);
+		contestRepository.save(contest);
 	}
+
+
+
+	//point of discussion regarding contest save, length, question save 2 times , 
+	public Question saveQuestion(Question question) {
+		String[] stringOfCidAndCl = new String[2];
+		stringOfCidAndCl = question.getContestLevel().split("@");
+		String tempQid = question.getQuestionId();
+		if (tempQid.isBlank()) {
+			tempQid = UUID.randomUUID().toString();
+			question.setQuestionId(tempQid);
+			question.setQuestionStatus("true");
+		}
+		Question savedQuestion = new Question();
+		if (stringOfCidAndCl.length == 1) {
+			question.setContestLevel(stringOfCidAndCl[0]);
+			savedQuestion = questionRepository.save(question);
+		} else {
+			Contest contest = new Contest(); // id, level
+			contest = contestService.findByContestId(stringOfCidAndCl[1]);
+			question.setContestLevel(stringOfCidAndCl[0]);
+			savedQuestion = questionRepository.save(question);
+			QuestionStatus queStatus = new QuestionStatus();
+			queStatus.setQuestionId(savedQuestion.getQuestionId());
+			queStatus.setStatus(true);
+			contest.getQuestionStatus().add(queStatus);
+			contestService.saveContest(contest);
+		}
+		return savedQuestion;
+	}
+
+
 
 	public Question findByQuestionId(String questionId) {
 		return questionRepository.findByQuestionId(questionId);
 	}
 
 	public List<Question> findByContestLevel(String filterByString) {
-		ArrayList<Question> totalQuestionWithStatusTrue = new ArrayList<>();
-		for (Question verifyQuestion : questionRepository.findByContestLevel(filterByString)) {
-			if (verifyQuestion.getQuestionStatus() != null) {
-				if (verifyQuestion.getQuestionStatus().equals("true"))
-					totalQuestionWithStatusTrue.add(verifyQuestion);
+		ArrayList<Question> totalQuestionWithStatusTrue = null;
+		List<Question> questions = questionRepository.findByContestLevel(filterByString);
+		for (Question verifyQuestion : questions) {
+			if (verifyQuestion.getQuestionStatus() != null && verifyQuestion.getQuestionStatus().equals("true")) {
+				totalQuestionWithStatusTrue.add(verifyQuestion);
 			}
 		}
 		return totalQuestionWithStatusTrue;
@@ -114,8 +155,91 @@ public class QuestionServiceImpl implements QuestionService {
 	@Override
 	public List<TestCases> getTestCase(String questionId) {
 		Question questions = questionRepository.findByQuestionId(questionId);
-		List<TestCases> testCasesCollection = new ArrayList<>();
-		testCasesCollection.addAll(questions.getTestcases());
-		return testCasesCollection;
+		return questions.getTestcases();
+	}
+
+	@Override
+	public List<Question> getAllQuestions(Map<String, List<String>> questionIdList) {
+		String contestId = questionIdList.get("contestId").get(0);
+		if(contestId.isBlank()) {
+			throw new RecordNotFoundException("getAllQuestions:: contentId does not found in the questionIdList: "+ contestId);
+		}
+		List<Question> questionDetails = questionRepository.findByQuestionIdIn(questionIdList.get("questionsIds"));
+		if(questionDetails == null) {
+			throw new RecordNotFoundException("getAllQuestions:: Questions does not found");
+		}
+		Contest contest = saveContests(contestId,questionIdList);
+		return questionDetails;	
+	}
+
+	private Contest saveContests(String contestId,Map<String, List<String>> questionIdList) {
+		Contest contest = contestService.findByContestId(contestId);
+		if(contest == null) {
+			throw new RecordNotFoundException("saveContests:: Content does not found for contestId: " + contestId);
+		}
+		ArrayList<QuestionStatus> questionStatus = contest.getQuestionStatus();
+		if(questionStatus == null) {
+			throw new RecordNotFoundException("saveContests:: QuestionStatus does not found");
+		}
+		boolean flag = false;
+		for (String idToChangeStatus : questionIdList.get("questionsIds")) {
+			int index = 0;
+			for (QuestionStatus qs : questionStatus) {
+				if (idToChangeStatus.equals(qs.getQuestionId())) {
+					if (qs.getStatus() == false) {
+						contest.getQuestionStatus().get(index).setStatus(true);
+						flag = true;
+					} else if (qs.getStatus()) {
+						flag = true;
+					}
+				}
+				index++;
+			}
+			if (flag == false) {
+				QuestionStatus qsTemp = new QuestionStatus();
+				qsTemp.setQuestionId(idToChangeStatus);
+				qsTemp.setStatus(true);
+				contest.getQuestionStatus().add(qsTemp);
+			} else {
+				flag = false;
+			}
+		}
+		return contestService.saveContest(contest);
+	}
+
+	@Override
+	public void saveQuestionOrContest(ArrayList<String> contestAndQuestionId) {
+		if(contestAndQuestionId == null) {
+			throw new RecordNotFoundException("saveQuestionOrContest:: contestAndQuestionId does not found :"+contestAndQuestionId.size());
+		}
+		if (contestAndQuestionId.get(0).equals("questionForLevel")) {
+			Question questionStatusChange = findByQuestionId(contestAndQuestionId.get(1));
+			questionStatusChange.setQuestionStatus("false");
+			saveQuestion(questionStatusChange);
+		} else {
+			Contest contest = new Contest();
+			contest = contestService.findByContestId(contestAndQuestionId.get(0));
+			int index = 0;
+			for (QuestionStatus qs : contest.getQuestionStatus()) {
+				if (qs.getQuestionId().equals(contestAndQuestionId.get(1))) {
+					contest.getQuestionStatus().get(index).setStatus(false);
+				}
+				index++;
+			}
+			contestService.saveContest(contest);
+		}
+	}
+
+	@Override
+	public List<Question> filterQuestion(String filterByString) {
+		List<Question> totalQuestionByFilter = new ArrayList<Question>();
+		if(filterByString.isBlank()) {
+			throw new RecordNotFoundException("filterQuestion:: filterByString does not found :"+filterByString);
+		}
+		if (filterByString.equals("Level 1") || filterByString.equals("Level 2"))
+			totalQuestionByFilter = findByContestLevel(filterByString);
+		else
+			totalQuestionByFilter = findAllQuestion();
+		return totalQuestionByFilter;
 	}
 }

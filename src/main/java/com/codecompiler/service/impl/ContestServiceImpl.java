@@ -13,6 +13,7 @@ import com.codecompiler.entity.Language;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.QuestionStatus;
 import com.codecompiler.repository.ContestRepository;
+import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.LanguageService;
 import com.codecompiler.service.QuestionService;
@@ -25,6 +26,9 @@ public class ContestServiceImpl implements ContestService {
 
 	@Autowired
 	private ContestRepository contestRepository;
+	
+	@Autowired
+	private QuestionRepository questionRepository;
 	
 	@Autowired
 	private QuestionService questionService;
@@ -86,7 +90,7 @@ public class ContestServiceImpl implements ContestService {
 					qListStatusTrue.add(questionStatus.getQuestionId());
 				}
 			}
-			List<Question> questionDetailList = questionService.findByQuestionIdIn(qListStatusTrue);
+			List<Question> questionDetailList = questionRepository.findByQuestionIdIn(qListStatusTrue);
 			List<Question> totalQuestionWithStatusTrue = questionService.findAllQuestion();			
 			for (Question question : questionDetailList) 
 				totalQuestionWithStatusTrue.removeIf(x -> x.getQuestionId().equalsIgnoreCase(question.getQuestionId()));

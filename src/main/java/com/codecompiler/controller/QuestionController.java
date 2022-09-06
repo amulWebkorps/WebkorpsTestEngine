@@ -1,10 +1,8 @@
 package com.codecompiler.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,11 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Question;
-import com.codecompiler.entity.QuestionStatus;
-import com.codecompiler.service.ContestService;
-import com.codecompiler.service.ExcelConvertorService;
+import com.codecompiler.reponse.ResponseHandler;
 import com.codecompiler.service.QuestionService;
 
 @Controller
@@ -36,148 +31,75 @@ public class QuestionController {
 	@Autowired
 	private QuestionService questionService;
 
-	@Autowired
-	private ContestService contestService;
-
-	@Autowired
-	private ExcelConvertorService excelConvertorService;
 
 	@PostMapping(value = "/admin/questionUpload", headers = "content-type=multipart/*")
-	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file,
+	public ResponseEntity<Object> questionUpload(@RequestParam("file") MultipartFile file,
 			@RequestParam("contestId") String contestId) {
-		logger.info("questionUpload: started");
-		if (excelConvertorService.checkExcelFormat(file)) {
-			try {
-				List<Question> allQuestions = questionService.saveFileForBulkQuestion(file, contestId);
-				logger.info("Bulk Question saved");
-				return new ResponseEntity<Object>(allQuestions, HttpStatus.OK);
-			} catch (Exception e) {
-				logger.error("Excel not uploaded :: " + e.getMessage());
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Excel not uploaded");
-			}
-		} else {
-			logger.error("Please check excel file format");
-			return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("Please check excel file format");
+		logger.info("questionUpload :: started with contestId: " + contestId);
+		try {
+			List<Question> allQuestions = questionService.saveFileForBulkQuestion(file, contestId);
+			logger.info("questionUpload:: Bulk Question saved successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, allQuestions);
+		} catch (Exception e) {
+			logger.error("questionUpload:: Exception occured: " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
 		}
 	}
+
 
 	@PostMapping("admin/saveQuestion")
-	public ResponseEntity<Object> saveQuestion(@RequestBody Question question) throws IOException {
-		logger.info("saveQuestion: started");
-		Question savedQuestion = new Question();
+	public ResponseEntity<Object> saveQuestion(@RequestBody Question question){
+		logger.info("saveQuestion:: started with question: " + question);
 		try {
-			String[] stringOfCidAndCl = new String[2];
-			stringOfCidAndCl = question.getContestLevel().split("@");
-			String tempQid = question.getQuestionId();
-			if (tempQid == ("")) {
-				tempQid = UUID.randomUUID().toString();
-				question.setQuestionId(tempQid);
-				question.setQuestionStatus("true");
-			}
-			if (stringOfCidAndCl.length == 1) {
-				question.setContestLevel(stringOfCidAndCl[0]);
-				savedQuestion = questionService.saveQuestion(question);
-			} else {
-				Contest contest = new Contest(); // id, level
-				contest = contestService.findByContestId(stringOfCidAndCl[1]);
-				question.setContestLevel(stringOfCidAndCl[0]);
-				savedQuestion = questionService.saveQuestion(question);
-				QuestionStatus queStatus = new QuestionStatus();
-				queStatus.setQuestionId(savedQuestion.getQuestionId());
-				queStatus.setStatus(true);
-				contest.getQuestionStatus().add(queStatus);
-				contestService.saveContest(contest);
-			}
+			Question savedQuestion = questionService.saveQuestion(question);
+			logger.info("saveQuestion:: Question saved successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, savedQuestion);
 		} catch (Exception e) {
-			logger.error("Questions not saved :: "+e.getMessage());
+			logger.error("saveQuestion:: Exception occured: " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
-		return new ResponseEntity<Object>(savedQuestion, HttpStatus.OK);
 	}
 
+
 	@PostMapping("admin/addSelectedAvailableQuestiontoContest")
-	public ResponseEntity<Object> addSelectedAvailableQueToContest(
-			@RequestBody Map<String, List<String>> questionIdList) {
-		logger.info("addSelectedAvailableQuestiontoContest: started");
-		List<Question> questionDetails = new ArrayList<>();
+	public ResponseEntity<Object> addSelectedAvailableQueToContest(@RequestBody Map<String, List<String>> questionIdList) {
+		logger.info("addSelectedAvailableQueToContest:: started with questionIdList: "+questionIdList.size());
 		try {
-			String contestId = questionIdList.get("contestId").get(0);
-			Contest con = new Contest();
-			con = contestService.findByContestId(contestId);
-			questionDetails = questionService.findByQuestionIdIn(questionIdList.get("questionsIds"));
-			ArrayList<QuestionStatus> idWithstatus = con.getQuestionStatus();
-			boolean flag = false;
-			for (String idToChangeStatus : questionIdList.get("questionsIds")) {
-				int index = 0;
-				for (QuestionStatus qs : idWithstatus) {
-					if (idToChangeStatus.equals(qs.getQuestionId())) {
-						if (qs.getStatus() == false) {
-							con.getQuestionStatus().get(index).setStatus(true);
-							flag = true;
-						} else if (qs.getStatus() == true) {
-							flag = true;
-						}
-					}
-					index++;
-				}
-				if (flag == false) {
-					QuestionStatus qsTemp = new QuestionStatus();
-					qsTemp.setQuestionId(idToChangeStatus);
-					qsTemp.setStatus(true);
-					con.getQuestionStatus().add(qsTemp);
-				} else {
-					flag = false;
-				}
-			}
-			contestService.saveContest(con);
-			logger.info("Question saved in Contest");
+			List<Question> questionDetails = questionService.getAllQuestions(questionIdList);
+			logger.info("addSelectedAvailableQueToContest:: Question saved in Contest successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, questionDetails);
 		} catch (Exception ex) {
-			logger.error("Question not saved List is null :: "+ex.getMessage());
+			logger.error("addSelectedAvailableQueToContest:: Exception occured: "+ex.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 		}
-		return new ResponseEntity<Object>(questionDetails, HttpStatus.OK);
 	}
+
 
 	@DeleteMapping("admin/deleteQuestion") // cid, qid
 	public ResponseEntity<Object> deleteQuestion(@RequestBody ArrayList<String> contestAndQuestionId) {
-		logger.info("deleteQuestion: started");
+		logger.info("deleteQuestion:: started with contestAndQuestionId: " + contestAndQuestionId.toString());
 		try {
-			if (contestAndQuestionId.get(0).equals("questionForLevel")) {
-				Question questionStatusChange = questionService.findByQuestionId(contestAndQuestionId.get(1));
-				questionStatusChange.setQuestionStatus("false");
-				questionService.saveQuestion(questionStatusChange);
-			} else {
-				Contest contest = new Contest();
-				contest = contestService.findByContestId(contestAndQuestionId.get(0));
-				int index = 0;
-				for (QuestionStatus qs : contest.getQuestionStatus()) {
-					if (qs.getQuestionId().equals(contestAndQuestionId.get(1))) {
-						contest.getQuestionStatus().get(index).setStatus(false);
-					}
-					index++;
-				}
-				contestService.saveContest(contest);
-			}
+			questionService.saveQuestionOrContest(contestAndQuestionId);
+			logger.info("deleteQuestion:: saveQuestionOrContest saved successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, contestAndQuestionId);
 		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Please check Input ");
+			logger.info("deleteQuestion:: Exception occured : " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
-		return ResponseEntity.status(HttpStatus.OK).body("Question deleted successfully");
 	}
 
-	
+
 	@GetMapping("admin/filterQuestion")
 	public ResponseEntity<Object> filterQuestion(@RequestParam String filterByString) {
 		logger.info("filterQuestion: started filterByString = "+filterByString);
-		List<Question> totalQuestionByFilter = new ArrayList<>();
 		try {
-			if (filterByString.equals("Level 1") || filterByString.equals("Level 2"))
-				totalQuestionByFilter = questionService.findByContestLevel(filterByString);
-			else
-				totalQuestionByFilter = questionService.findAllQuestion();
+			List<Question> totalQuestionByFilter = questionService.filterQuestion(filterByString);
+			logger.info("filterQuestion:: totalQuestionByFilter size : " + totalQuestionByFilter.size());
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, totalQuestionByFilter);
 		} catch (Exception e) {
-			logger.error("Exception occured in getContestDetail :: "+e.getMessage());
-			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+			logger.error("filterQuestion:: Exception occured: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
-		logger.info("filterQuestion: ended");
-		return new ResponseEntity<Object>(totalQuestionByFilter, HttpStatus.OK);
 	}
+
 }
