@@ -1,14 +1,8 @@
 package com.codecompiler.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 import java.util.UUID;
 
-import org.apache.commons.collections4.map.HashedMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
@@ -18,212 +12,65 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.codecompiler.entity.Contest;
-import com.codecompiler.entity.HrDetails;
-import com.codecompiler.entity.Question;
-import com.codecompiler.entity.Student;
+import com.codecompiler.entity.Admin;
+import com.codecompiler.entity.User;
+import com.codecompiler.exception.UserAlreadyExistException;
 import com.codecompiler.service.AdminService;
-import com.codecompiler.service.ContestService;
-import com.codecompiler.service.ExcelConvertorService;
-import com.codecompiler.service.QuestionService1;
-import com.codecompiler.service.StudentService1;
 import com.codecompiler.util.JwtUtil;
+
+import lombok.extern.slf4j.Slf4j;
+
+import com.codecompiler.reponse.ResponseHandler;
 
 @Controller
 @CrossOrigin(origins = "*")
-public class UserController {
-
-	@Autowired
-	private StudentService1 studentService;
+@Slf4j
+public class AdminController {
 
 	@Autowired
 	private AdminService adminService;
-
-	@Autowired
-	private ContestService contestService;
+	
 	@Autowired
 	private JwtUtil jwtUtil;
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
-	@Autowired
-	private ExcelConvertorService excelConvertorService;
-
-	@Autowired
-	private QuestionService1 questionService;
-
-	Logger logger = LogManager.getLogger(UserController.class);
-
-	@GetMapping("public/doSignInForParticipator")
-	public ResponseEntity<Object> doSignIn(@RequestParam("email") String email,
-			@RequestParam("password") String password, @RequestParam("contestId") String contestId) {
-		
-		Authentication authObj;
-		Student studentExists = null;
-		try {
-			authObj = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-
-			studentExists = studentService.findByEmailAndPassword(email, password);
-			studentExists.setContestId(contestId);
-		} catch (BadCredentialsException e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("email and password does not match");
-		}
-		String token = jwtUtil.generateToken(authObj.getName());
-		HashMap<String, Object> hm = new HashMap<>();
-		hm.put("token", token);
-		hm.put("student", studentExists);
-		return new ResponseEntity<Object>(hm, HttpStatus.OK);
-	}
-
-	@GetMapping("public/admin/signIn")
-	public ResponseEntity<Object> doLogin(@RequestParam("email") String email,
-			@RequestParam("password") String password) {
+	@PostMapping("public/admin/signIn")
+	public ResponseEntity<Object> doLogin(@RequestBody User user) {
+		log.info("doLogin started user email ::"+user.getEmail());
 		Authentication authObj;
 		try {
-			authObj = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email.toLowerCase(), password));
+			authObj = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail().toLowerCase(), user.getPassword()));
 		} catch (BadCredentialsException e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("email and password does not match");
+			log.error("Exception occured in doLogin :: "+e.getMessage());
+			return ResponseHandler.generateResponse("failer", HttpStatus.UNAUTHORIZED, "email and password does not match");
 		}
 		String token = jwtUtil.generateToken(authObj.getName());
-		List<Contest> allContest = contestService.findAllContest();
-		return generateResponseForAdmin(allContest, token, HttpStatus.OK);
+		log.info("doLogin ended token generated successfully");
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, token);
 	}
 
 	@PostMapping("public/adminRegistration")
-	private ResponseEntity<Object> addHrDetails(@RequestBody HrDetails hrDetails) {
+	private ResponseEntity<Object> adminRegistration(@RequestBody Admin admin) {
+		log.info("adminRegistration started admin email ::"+admin.getEmail());
 		try {
-			HrDetails adminExists = adminService.findByEmail(hrDetails.getEmail().toLowerCase());
-			if (adminExists == null) {
-				hrDetails.sethId(UUID.randomUUID().toString());
-				hrDetails.setEmail(hrDetails.getEmail().toLowerCase());
-				hrDetails.setRole("ROLE_ADMIN");
-				adminService.saveHrDetails(hrDetails);
-				logger.error("Admin details saved successfully");
-			} else {
-				logger.error("Email Already Registered");
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email Already Registered");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return ResponseEntity.status(HttpStatus.OK).body("Admin registered successfully");
-	}
-
-	public ResponseEntity<Object> generateResponseForAdmin(List<Contest> presentContest, String token,
-			HttpStatus status) {
-		Map<String, Object> mp = new HashedMap<>();
-		mp.put("presentContest", presentContest);
-		mp.put("token", token);
-		return new ResponseEntity<Object>(mp, status);
-	}
-
-	@GetMapping("admin/participatorOfContest")
-	public ResponseEntity<Object> viewParticipators(@RequestParam String contestId) {
-		List<Student> studentTemp = new ArrayList<>();
-		List<Student> studentTempFormat = new ArrayList<>();			
-		try {
-			studentTemp = studentService.findByContestId(contestId);
-			for(Student student : studentTemp){
-				Student studentFormat = new Student();
-				studentFormat.setId(student.getId());
-				studentFormat.setEmail(student.getEmail());
-				studentTempFormat.add(studentFormat);
-			}
+				adminService.saveAdminDetails(admin);
+				log.info("Admin details saved successfully");
 			
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (UserAlreadyExistException e) 
+		{
+			log.error("Exception occured in adminRegistration :: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.CONFLICT, e.getMessage());
 		}
-		return new ResponseEntity<Object>(studentTempFormat, HttpStatus.OK);
+		catch (Exception e) {
+			log.error("Exception occured in adminRegistration :: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, "Admin registration failer");
+		}
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, "Admin registered successfully");
 	}
 
-	@GetMapping("getParticipatorDetail")
-	public ResponseEntity<Object> getparticipatordetail(@RequestParam String studentId) {
-		Map<String, Object> mp = new HashedMap<>();
-		try {
-			Student student = studentService.findById(studentId);
-			if (student != null && student.getQuestionId() != null) {
-				List<Question> questionDetail = new ArrayList<>();
-				for (String questionId : student.getQuestionId()) {
-					Question question = questionService.findByQuestionId(questionId);
-					Question questionTemp = new Question();
-					questionTemp.setQuestionId(question.getQuestionId());
-					questionTemp.setQuestion(question.getQuestion());
-					questionTemp.setSampleTestCase(question.getSampleTestCase());
-					questionDetail.add(questionTemp);
-				}
-				mp.put("studentDetail", student);
-				mp.put("questionSubmitedByStudent", questionDetail);
-			} else {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This student did not submit a single Question");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Student Id");
-		}
-		return new ResponseEntity<Object>(mp, HttpStatus.OK);
-	}
-
-	@PostMapping(value = "admin/studentUpload", headers = "content-type=multipart/*")
-	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file) {
-		if (excelConvertorService.checkExcelFormat(file)) {
-			try {
-				List<String> allStudents = studentService.saveFileForBulkParticipator(file);
-				return new ResponseEntity<Object>(allStudents, HttpStatus.OK);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Excel not uploaded");
-			}
-		} else {
-			return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("Please check excel file format");
-		}
-	}
-
-	@DeleteMapping("admin/deleteStudent")
-	private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {
-		try {
-			studentService.deleteByEmail(emailId);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Email Id");
-		}
-		return ResponseEntity.status(HttpStatus.OK).body("Student deleted successfully");
-
-	}
-	
-	@DeleteMapping("admin/finalSubmitContest")
-	public  ResponseEntity<Object> submitContest(@RequestParam String emailId) {
-		try {
-			 studentService.finalSubmitContest(emailId);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check EmailId");
-		}
-		return ResponseEntity.status(HttpStatus.OK).body("Test submitted successfully");
-	}
-
-	@GetMapping("admin/getAllParticipator")
-	public ResponseEntity<Object> getAllParticipator() {
-		List<String> allParticipator =  studentService.findAll();
-		try {
-			if (!allParticipator.isEmpty()) {
-				return new ResponseEntity<Object>(allParticipator, HttpStatus.OK);
-			} else
-				return new ResponseEntity<Object>("No Participator is in active state", HttpStatus.CONFLICT);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return ResponseEntity.status(HttpStatus.CONFLICT).body("No Participator is in active state");
-		}
-
-	}
 }

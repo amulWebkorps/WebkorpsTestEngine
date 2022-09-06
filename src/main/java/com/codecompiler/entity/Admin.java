@@ -4,15 +4,13 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection="HrInfo")
+@Document(collection="admin")
 @EntityScan
-public class HrDetails extends User{
+public class Admin extends User{
 	@Id
 	private String hId;
 	private String hName;
 	private String hNumber;
-
-
 
 	public String gethId() {
 		return hId;
