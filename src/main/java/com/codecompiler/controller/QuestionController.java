@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,7 +25,7 @@ import com.codecompiler.entity.Question;
 import com.codecompiler.entity.QuestionStatus;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.ExcelConvertorService;
-import com.codecompiler.service.QuestionService1;
+import com.codecompiler.service.QuestionService;
 
 @Controller
 @CrossOrigin(origins = "*")
@@ -33,7 +34,7 @@ public class QuestionController {
 	private static final Logger logger = LogManager.getLogger(QuestionController.class);
 
 	@Autowired
-	private QuestionService1 questionService;
+	private QuestionService questionService;
 
 	@Autowired
 	private ContestService contestService;
@@ -94,7 +95,7 @@ public class QuestionController {
 	}
 
 	@PostMapping("admin/addSelectedAvailableQuestiontoContest")
-	private ResponseEntity<Object> addSelectedAvailableQueToContest(
+	public ResponseEntity<Object> addSelectedAvailableQueToContest(
 			@RequestBody Map<String, List<String>> questionIdList) {
 		logger.info("addSelectedAvailableQuestiontoContest: started");
 		List<Question> questionDetails = new ArrayList<>();
@@ -136,7 +137,7 @@ public class QuestionController {
 	}
 
 	@DeleteMapping("admin/deleteQuestion") // cid, qid
-	private ResponseEntity<Object> deleteQuestion(@RequestBody ArrayList<String> contestAndQuestionId) {
+	public ResponseEntity<Object> deleteQuestion(@RequestBody ArrayList<String> contestAndQuestionId) {
 		logger.info("deleteQuestion: started");
 		try {
 			if (contestAndQuestionId.get(0).equals("questionForLevel")) {
@@ -162,4 +163,21 @@ public class QuestionController {
 		return ResponseEntity.status(HttpStatus.OK).body("Question deleted successfully");
 	}
 
+	
+	@GetMapping("admin/filterQuestion")
+	public ResponseEntity<Object> filterQuestion(@RequestParam String filterByString) {
+		logger.info("filterQuestion: started filterByString = "+filterByString);
+		List<Question> totalQuestionByFilter = new ArrayList<>();
+		try {
+			if (filterByString.equals("Level 1") || filterByString.equals("Level 2"))
+				totalQuestionByFilter = questionService.findByContestLevel(filterByString);
+			else
+				totalQuestionByFilter = questionService.findAllQuestion();
+		} catch (Exception e) {
+			logger.error("Exception occured in getContestDetail :: "+e.getMessage());
+			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		logger.info("filterQuestion: ended");
+		return new ResponseEntity<Object>(totalQuestionByFilter, HttpStatus.OK);
+	}
 }

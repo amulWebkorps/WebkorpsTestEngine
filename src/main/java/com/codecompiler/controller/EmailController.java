@@ -19,36 +19,37 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.codecompiler.entity.Student;
 import com.codecompiler.service.EmailService;
-import com.codecompiler.service.StudentService1;
+import com.codecompiler.service.StudentService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping("/admin")
 @CrossOrigin(origins = "*")
+@Slf4j
 public class EmailController {
-	
-	private static final Logger logger = LogManager.getLogger(EmailController.class);
 
 	@Autowired
 	private EmailService emailService;
 	
 	@Autowired
-	private StudentService1 studentService1;
+	private StudentService studentService;
 	
 	@PostMapping("sendMail")
 	public ResponseEntity<Object> sendMail(@RequestBody Map<String, List<String>> sendEmailDetails) {
-		logger.info("addContest: started sendEmailDetails size = "+sendEmailDetails.size());
+		log.info("addContest: started sendEmailDetails size = "+sendEmailDetails.size());
 		try {
 			for (String studentEmail : sendEmailDetails.get("studentEmails")) {
-				Student studentDetails = studentService1.findByEmail(studentEmail);
+				Student studentDetails = studentService.findByEmail(studentEmail);
 				this.emailService.sendMail(sendEmailDetails.get("contestId").get(0), studentDetails.getName(), studentDetails.getEmail(),"Webkorps Code Assesment Credentials", studentDetails.getPassword());
 				studentDetails.setStatus(true);
-				studentService1.saveStudent(studentDetails);
+				studentService.saveStudent(studentDetails);
 			}
 		} catch (Exception e) {
-			logger.error("Exception occured in sendMail :: "+e.getMessage());
+			log.error("Exception occured in sendMail :: "+e.getMessage());
 			return generateResponse("mail not sent", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		logger.info("Mail Send successfully");
+		log.info("Mail Send successfully");
 		return generateResponse("mail sent", HttpStatus.OK);
 	}
 
@@ -61,14 +62,14 @@ public class EmailController {
 	
 	@GetMapping("sentMailForParticipator")
 	public ResponseEntity<Object> sentMailForParticipator() {
-		logger.info("sentMailForParticipator: started");
+		log.info("sentMailForParticipator: started");
 		List<String> sentMailStudentList = new ArrayList<>();
 		try {
-			sentMailStudentList = studentService1.findEmailByStatus(true);
-			logger.info("sentMailForParticipator: Ended setMailStudentList Size :: "+ sentMailStudentList.size());
+			sentMailStudentList = studentService.findEmailByStatus(true);
+			log.info("sentMailForParticipator: Ended setMailStudentList Size :: "+ sentMailStudentList.size());
 			return new ResponseEntity<Object>(sentMailStudentList, HttpStatus.OK);
 		} catch (Exception ex) {
-			logger.error("Exception occured in sendMail :: "+ex.getMessage());
+			log.error("Exception occured in sendMail :: "+ex.getMessage());
 			return new ResponseEntity<Object>("no email sent", HttpStatus.INTERNAL_SERVER_ERROR);
 		}	
 		
