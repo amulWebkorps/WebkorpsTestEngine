@@ -1,12 +1,8 @@
 package com.codecompiler.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections4.map.HashedMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.codecompiler.entity.Student;
+import com.codecompiler.reponse.ResponseHandler;
 import com.codecompiler.service.EmailService;
 import com.codecompiler.service.StudentService;
 
@@ -39,38 +35,25 @@ public class EmailController {
 	public ResponseEntity<Object> sendMail(@RequestBody Map<String, List<String>> sendEmailDetails) {
 		log.info("addContest: started sendEmailDetails size = "+sendEmailDetails.size());
 		try {
-			for (String studentEmail : sendEmailDetails.get("studentEmails")) {
-				Student studentDetails = studentService.findByEmail(studentEmail);
-				this.emailService.sendMail(sendEmailDetails.get("contestId").get(0), studentDetails.getName(), studentDetails.getEmail(),"Webkorps Code Assesment Credentials", studentDetails.getPassword());
-				studentDetails.setStatus(true);
-				studentService.saveStudent(studentDetails);
-			}
+			emailService.sendMailToStudents(sendEmailDetails);
+			log.info("Mail Send successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, "mail send successfully");
 		} catch (Exception e) {
 			log.error("Exception occured in sendMail :: "+e.getMessage());
-			return generateResponse("mail not sent", HttpStatus.INTERNAL_SERVER_ERROR);
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, "mail could not be sent");
 		}
-		log.info("Mail Send successfully");
-		return generateResponse("mail sent", HttpStatus.OK);
-	}
-
-	private ResponseEntity<Object> generateResponse(String msg, HttpStatus status) {
-		Map<String, Object> mp = new HashedMap<>();
-		mp.put("message", msg);
-		mp.put("status", status);
-		return new ResponseEntity<Object>(mp, status);
 	}
 	
 	@GetMapping("sentMailForParticipator")
-	public ResponseEntity<Object> sentMailForParticipator() {
+	public ResponseEntity<Object> getAllSentMailsForParticipator() {
 		log.info("sentMailForParticipator: started");
-		List<String> sentMailStudentList = new ArrayList<>();
 		try {
-			sentMailStudentList = studentService.findEmailByStatus(true);
+			List<String> sentMailStudentList = studentService.findEmailByStatus(true);
 			log.info("sentMailForParticipator: Ended setMailStudentList Size :: "+ sentMailStudentList.size());
-			return new ResponseEntity<Object>(sentMailStudentList, HttpStatus.OK);
+			return ResponseHandler.generateResponse("succcess", HttpStatus.OK, sentMailStudentList);
 		} catch (Exception ex) {
 			log.error("Exception occured in sendMail :: "+ex.getMessage());
-			return new ResponseEntity<Object>("no email sent", HttpStatus.INTERNAL_SERVER_ERROR);
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, "No mail has been send yet");
 		}	
 		
 	}
