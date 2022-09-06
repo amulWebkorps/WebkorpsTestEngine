@@ -24,16 +24,6 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 	@Autowired
 	private StudentRepository studentRepository;
 
-	public boolean checkExcelFormat(MultipartFile file) {
-		// check that file inputStreamFileQuestion of excel type or not
-		String contentType = file.getContentType();
-		if (contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	public List<Student> convertExcelToListOfStudent(Map<Integer, List<MyCell>> data) {
 		List<Student> studentList = new ArrayList<>();
 		try {

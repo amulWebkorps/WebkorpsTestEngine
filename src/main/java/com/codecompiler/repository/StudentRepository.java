@@ -1,6 +1,5 @@
 package com.codecompiler.repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.codecompiler.entity.Student;
@@ -12,7 +11,7 @@ public interface StudentRepository extends UserRepository<Student> {
 
 	public Student findById(String studentId);
 
-	ArrayList<Student> findByContestId(String contestId);
+	List<Student> findByContestId(String contestId);
 	
 	List<Student> findEmailByStatus(Boolean True);
 	

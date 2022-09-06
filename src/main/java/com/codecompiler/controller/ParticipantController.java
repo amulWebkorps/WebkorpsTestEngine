@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
+import com.codecompiler.exception.RecordNotFoundException;
+import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.reponse.ResponseHandler;
-import com.codecompiler.service.ExcelConvertorService;
-import com.codecompiler.service.QuestionService;
 import com.codecompiler.service.StudentService;
 import com.codecompiler.util.JwtUtil;
 
@@ -40,12 +38,6 @@ public class ParticipantController {
 	private StudentService studentService;
 	
 	@Autowired
-	private QuestionService questionService;
-	
-	@Autowired
-	private ExcelConvertorService excelConvertorService;
-	
-	@Autowired
 	private AuthenticationManager authenticationManager;
 	
 	@Autowired
@@ -58,15 +50,15 @@ public class ParticipantController {
 		Authentication authObj;
 		Student studentExists = null;
 		try {
-			authObj = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+			authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
-			studentExists = studentService.findByEmailAndPassword(email, password);
+			studentExists = this.studentService.findByEmailAndPassword(email, password);
 			studentExists.setContestId(contestId);
 		} catch (BadCredentialsException e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("email and password does not match");
 		}
-		String token = jwtUtil.generateToken(authObj.getName());
+		String token = this.jwtUtil.generateToken(authObj.getName());
 		HashMap<String, Object> hm = new HashMap<>();
 		hm.put("token", token);
 		hm.put("student", studentExists);
@@ -91,17 +83,16 @@ public class ParticipantController {
 		List<Student> studentTemp = new ArrayList<>();
 		List<Student> studentTempFormat = new ArrayList<>();			
 		try {
-			studentTemp = studentService.findByContestId(contestId);
+			studentTemp = this.studentService.findByContestId(contestId);
 			for(Student student : studentTemp){
 				Student studentFormat = new Student();
 				studentFormat.setId(student.getId());
 				studentFormat.setEmail(student.getEmail());
 				studentTempFormat.add(studentFormat);
 			}
-			
 		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+			log.error("Exception occured in viewParticipators :: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 		return new ResponseEntity<Object>(studentTempFormat, HttpStatus.OK);
 	}
@@ -109,38 +100,43 @@ public class ParticipantController {
 
 	@PostMapping(value = "admin/studentUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file) {
-		if (excelConvertorService.checkExcelFormat(file)) {
+		
 			try {
-				List<String> allStudents = studentService.saveFileForBulkParticipator(file);
+				List<String> allStudents = this.studentService.saveFileForBulkParticipator(file);
 				return new ResponseEntity<Object>(allStudents, HttpStatus.OK);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Excel not uploaded");
+			}catch (UnSupportedFormatException e) {
+				log.error("Exception occured in upload :: "+e.getMessage());
+				return ResponseHandler.generateResponse("error", HttpStatus.UNSUPPORTED_MEDIA_TYPE, e.getMessage());
 			}
-		} else {
-			return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("Please check excel file format");
-		}
+			catch (Exception e) {
+				log.error("Exception occured in upload :: "+e.getMessage());
+				return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+			}
 	}
 	
 	@GetMapping("admin/getAllParticipator")
 	public ResponseEntity<Object> getAllParticipator() {
-		List<String> allParticipator =  studentService.findAll();
 		try {
-			if (!allParticipator.isEmpty()) {
-				return new ResponseEntity<Object>(allParticipator, HttpStatus.OK);
-			} else
-				return new ResponseEntity<Object>("No Participator is in active state", HttpStatus.CONFLICT);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return ResponseEntity.status(HttpStatus.CONFLICT).body("No Participator is in active state");
+			List<String> allParticipator =  this.studentService.findAll();
+				return ResponseHandler.generateResponse("success", HttpStatus.OK, allParticipator);
+		}
+		 catch (RecordNotFoundException ex) {
+			 log.error("Exception occured in getAllParticipator :: "+ex.getMessage());
+				return ResponseHandler.generateResponse("error", HttpStatus.NOT_FOUND, ex.getMessage());
+			}
+		catch (Exception ex) {
+			log.error("Exception occured in getAllParticipator :: "+ex.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 		}
 
 	}
 	
+	// This API should not be called
+	// This has to be handle my backend
 	@DeleteMapping("finalSubmitContest")
 	public  ResponseEntity<Object> submitContest(@RequestParam String emailId) {
 		try {
-			 studentService.finalSubmitContest(emailId);
+			 this.studentService.finalSubmitContest(emailId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check EmailId");
@@ -151,12 +147,14 @@ public class ParticipantController {
 	@DeleteMapping("admin/deleteStudent")
 	private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {
 		try {
-			studentService.deleteByEmail(emailId);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check Email Id");
+			this.studentService.deleteByEmail(emailId);
+			return ResponseHandler.generateResponse("error", HttpStatus.OK, "Student Deleted Successfully");
 		}
-		return ResponseEntity.status(HttpStatus.OK).body("Student deleted successfully");
+		catch (Exception ex) {
+			log.error("Exception occured in deleteStudent :: "+ex.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
+		
 
 	}
 	

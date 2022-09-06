@@ -16,7 +16,7 @@ public interface StudentService {
 	
 	public Student findByEmail(String studentEmail);
 	
-	public ArrayList<Student> findByContestId(String contestId);
+	public List<Student> findByContestId(String contestId);
 	
 	public Student saveStudent(Student studentDetails);
 	

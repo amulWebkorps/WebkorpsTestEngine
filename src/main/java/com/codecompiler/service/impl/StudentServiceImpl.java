@@ -18,6 +18,7 @@ import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCasesRecord;
 import com.codecompiler.exception.RecordNotFoundException;
+import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.exception.UserNotFoundException;
 import com.codecompiler.helper.ExcelPOIHelper;
 import com.codecompiler.repository.StudentRepository;
@@ -54,11 +55,15 @@ public class StudentServiceImpl implements StudentService{
 	}
 	
 	public Student findByEmail(String studentEmail) {
-		return studentRepository.findByEmail(studentEmail);
+		return studentRepository.findByEmail(studentEmail); 
 	}
 	
-	public ArrayList<Student> findByContestId(String contestId){
-		return studentRepository.findByContestId(contestId);
+	public List<Student> findByContestId(String contestId){
+		List<Student> students = studentRepository.findByContestId(contestId);
+		if(students==null) {
+			throw new RecordNotFoundException("No Student Found in Contest with id ::"+contestId);
+		}
+		return students;
 	}
 	
 	public Student saveStudent(Student studentDetails) {
@@ -72,6 +77,9 @@ public class StudentServiceImpl implements StudentService{
 
 	@Override
 	public List<String> saveFileForBulkParticipator(MultipartFile file) {
+		if (!ExcelConvertorService.checkExcelFormat(file)) {
+			throw new UnSupportedFormatException("Please check excel file format");
+		}
 		List<Student> uploadParticipator = new ArrayList<>();
 		try {
 			Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(), file.getOriginalFilename());
@@ -84,6 +92,10 @@ public class StudentServiceImpl implements StudentService{
 	}
 	
 	public Student deleteByEmail(String emailId) {		
+		Student student = studentRepository.findByEmail(emailId);
+		if(student==null) {
+			throw new UserNotFoundException("User with email :: "+emailId+" not found");
+		}
 		return studentRepository.deleteByEmail(emailId);
 	}
 	
@@ -119,7 +131,11 @@ public class StudentServiceImpl implements StudentService{
 	@Override
 	public List<String> findAll() {
 		List<Student> presentStudent = studentRepository.findEmailByStatus(false);
-		return presentStudent.stream().map(Student::getEmail).collect(Collectors.toList());
+		List<String> emailList = presentStudent.stream().map(Student::getEmail).collect(Collectors.toList());
+		if(emailList.isEmpty()) {
+			throw new RecordNotFoundException("No Participator is in active state");
+		}
+		return emailList;
 	}
 
 	@Override

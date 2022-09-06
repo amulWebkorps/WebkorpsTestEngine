@@ -11,7 +11,14 @@ import com.codecompiler.entity.Student;
 
 public interface ExcelConvertorService {
 
-	public boolean checkExcelFormat(MultipartFile file);
+	public static boolean checkExcelFormat(MultipartFile file) {
+		String contentType = file.getContentType();
+		if (contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 	public List<Student> convertExcelToListOfStudent(Map<Integer, List<MyCell>> data);
 	
