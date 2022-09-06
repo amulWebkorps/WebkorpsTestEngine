@@ -10,10 +10,6 @@ import javax.annotation.Resource;
 
 import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,7 +20,6 @@ import com.codecompiler.entity.TestCasesRecord;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UserNotFoundException;
 import com.codecompiler.helper.ExcelPOIHelper;
-import com.codecompiler.reponse.ResponseHandler;
 import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService;
@@ -35,12 +30,10 @@ public class StudentServiceImpl implements StudentService{
 
 	@Autowired
 	private StudentRepository studentRepository;
-	
+
 	@Autowired
 	private QuestionService questionService;
-	
-	@Autowired private MongoTemplate mongoTemplate;
-	
+
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
 	
