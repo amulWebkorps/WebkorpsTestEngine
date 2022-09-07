@@ -1,13 +1,13 @@
-package com.codecompiler.entity;
+package com.codecompiler.dto;
 
-public class MyCell {
+public class MyCellDTO {
 
 	private String content;
 
-    public MyCell() {
+    public MyCellDTO() {
     }
 
-    public MyCell(String content) {
+    public MyCellDTO(String content) {
         this.content = content;
     }
 

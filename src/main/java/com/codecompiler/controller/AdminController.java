@@ -28,7 +28,7 @@ public class AdminController {
 
 	@Autowired
 	private AdminService adminService;
-	
+
 	@Autowired
 	private JwtUtil jwtUtil;
 
@@ -54,9 +54,8 @@ public class AdminController {
 	private ResponseEntity<Object> adminRegistration(@RequestBody Admin admin) {
 		log.info("adminRegistration started admin email ::"+admin.getEmail());
 		try {
-				adminService.saveAdminDetails(admin);
-				log.info("Admin details saved successfully");
-			
+			adminService.saveAdminDetails(admin);
+			log.info("Admin details saved successfully");
 		} catch (UserAlreadyExistException e) 
 		{
 			log.error("Exception occured in adminRegistration :: "+e.getMessage());

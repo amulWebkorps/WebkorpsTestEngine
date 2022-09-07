@@ -22,7 +22,7 @@ public class AdminServiceImpl implements AdminService{
 	public Admin saveAdminDetails(Admin admin) {
 		log.info("saveAdminDetails started admin email ::"+admin.getEmail());
 		Admin existingAdmin = findByEmail(admin.getEmail().toLowerCase());
-		if(existingAdmin == null ) {
+		if(existingAdmin != null ) {
 			throw new UserAlreadyExistException("Admin with email :: "+admin.getEmail()+" already exist");
 		}
 		admin.sethId(UUID.randomUUID().toString());

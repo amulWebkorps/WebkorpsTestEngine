@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.MyCellDTO;
 import com.codecompiler.dto.TestCaseDTO;
-import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCases;
@@ -24,11 +24,11 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 	@Autowired
 	private StudentRepository studentRepository;
 
-	public List<Student> convertExcelToListOfStudent(Map<Integer, List<MyCell>> data) {
+	public List<Student> convertExcelToListOfStudent(Map<Integer, List<MyCellDTO>> data) {
 		List<Student> studentList = new ArrayList<>();
 		try {
 			for (int i = 1; i < data.size(); i++) {
-				List<MyCell> row = data.get(i);
+				List<MyCellDTO> row = data.get(i);
 				Student student = new Student();
 				String studentId = UUID.randomUUID().toString();
 				String characters = "ABCDEFGHLMNOPQRSTUVWXYZabcdghijklmnopqrstuvwxyz0123456789@#$*";
@@ -54,10 +54,10 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 		return studentList;
 	}
 
-	public List<Question> convertExcelToListOfQuestions(Map<Integer, List<MyCell>> data) {
+	public List<Question> convertExcelToListOfQuestions(Map<Integer, List<MyCellDTO>> data) {
 		List<Question> questionList = new ArrayList<>();
 		try {
-			List<MyCell> headerRow = data.get(0);
+			List<MyCellDTO> headerRow = data.get(0);
 			for (int i = 1; i < data.size(); i++) {
 				Question question = new Question();
 				TestCaseDTO sampleTestCases = new TestCaseDTO();
@@ -65,7 +65,7 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				List<TestCases> listTestCases = new ArrayList<>();
 				TestCases testCases = new TestCases();
 				String tempQid = UUID.randomUUID().toString();
-				List<MyCell> row = data.get(i);
+				List<MyCellDTO> row = data.get(i);
 				question.setContestLevel(row.get(0).getContent());
 				question.setQuestion(row.get(1).getContent());
 				sampleTestCases.setConstraints(row.get(2).getContent());

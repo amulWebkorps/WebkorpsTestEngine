@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.MyCellDTO;
 import com.codecompiler.dto.QuestionStatusDTO;
 import com.codecompiler.entity.Contest;
-import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.exception.RecordNotFoundException;
@@ -69,7 +69,7 @@ public class QuestionServiceImpl implements QuestionService {
 			throw new RecordNotFoundException("saveFileForBulkQuestion:: Content does not found for contestId: " + contestId);
 		} 
 		List<Question> allTrueQuestions = null;
-		Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(),
+		Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
 				file.getOriginalFilename());
 		allTrueQuestions = excelConvertorService.convertExcelToListOfQuestions(data);
 		if(allTrueQuestions.isEmpty() || allTrueQuestions == null) {

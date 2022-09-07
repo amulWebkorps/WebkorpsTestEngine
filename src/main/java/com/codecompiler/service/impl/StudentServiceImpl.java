@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.MyCellDTO;
 import com.codecompiler.dto.TestCaseDTO;
-import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
@@ -82,7 +82,7 @@ public class StudentServiceImpl implements StudentService{
 		}
 		List<Student> uploadParticipator = new ArrayList<>();
 		try {
-			Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(), file.getOriginalFilename());
+			Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(), file.getOriginalFilename());
 			uploadParticipator = excelConvertorService.convertExcelToListOfStudent(data);
 			studentRepository.saveAll(uploadParticipator);
 		} catch (IOException e) {

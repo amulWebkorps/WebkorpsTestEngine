@@ -19,13 +19,13 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.codecompiler.entity.MyCell;
+import com.codecompiler.dto.MyCellDTO;
 
 public class ExcelPOIHelper {
 
-	public Map<Integer, List<MyCell>> readExcel(InputStream inputStream, String fileLocation) throws IOException {
+	public Map<Integer, List<MyCellDTO>> readExcel(InputStream inputStream, String fileLocation) throws IOException {
 
-        Map<Integer, List<MyCell>> data = new HashMap<>();
+        Map<Integer, List<MyCellDTO>> data = new HashMap<>();
 
         if (fileLocation.endsWith(".xls")) {
             data = readHSSFWorkbook(inputStream);
@@ -42,7 +42,7 @@ public class ExcelPOIHelper {
           .filter(ls -> ls.size() < maxNrCols)
           .forEach(ls -> {
               IntStream.range(ls.size(), maxNrCols)
-                .forEach(i -> ls.add(new MyCell("")));
+                .forEach(i -> ls.add(new MyCellDTO("")));
           });
 
         return data;
@@ -66,8 +66,8 @@ public class ExcelPOIHelper {
         return content;
     }
 
-    private Map<Integer, List<MyCell>> readHSSFWorkbook(InputStream inputStream) throws IOException {
-        Map<Integer, List<MyCell>> data = new HashMap<>();
+    private Map<Integer, List<MyCellDTO>> readHSSFWorkbook(InputStream inputStream) throws IOException {
+        Map<Integer, List<MyCellDTO>> data = new HashMap<>();
         HSSFWorkbook workbook = null;
         try {
             workbook = new HSSFWorkbook(inputStream);
@@ -82,11 +82,11 @@ public class ExcelPOIHelper {
                         HSSFCell cell = row.getCell(j);
                         CellValue cellValue= evaluator.evaluate(cell);
                         if (cellValue != null) {
-                            MyCell myCell = new MyCell();
+                            MyCellDTO myCell = new MyCellDTO();
                             myCell.setContent(readCellContent(cellValue));
                             data.get(i).add(myCell);
                         } else {
-                            data.get(i).add(new MyCell(""));
+                            data.get(i).add(new MyCellDTO(""));
                         }
                     }
                 }
@@ -100,9 +100,9 @@ public class ExcelPOIHelper {
         return data;
     }
 
-    private Map<Integer, List<MyCell>> readXSSFWorkbook(InputStream inputStream) throws IOException {
+    private Map<Integer, List<MyCellDTO>> readXSSFWorkbook(InputStream inputStream) throws IOException {
         XSSFWorkbook workbook = null;
-        Map<Integer, List<MyCell>> data = new HashMap<>();
+        Map<Integer, List<MyCellDTO>> data = new HashMap<>();
         try {
             workbook = new XSSFWorkbook(inputStream);
             XSSFSheet sheet = workbook.getSheetAt(0);
@@ -116,11 +116,11 @@ public class ExcelPOIHelper {
                         XSSFCell cell = row.getCell(j);
                         CellValue cellValue= evaluator.evaluate(cell);
                         if (cellValue != null) {
-                            MyCell myCell = new MyCell();
+                            MyCellDTO myCell = new MyCellDTO();
                             myCell.setContent(readCellContent(cellValue));
                             data.get(i).add(myCell);
                         } else {
-                            data.get(i).add(new MyCell(""));
+                            data.get(i).add(new MyCellDTO(""));
                         }
                     }
                 }
