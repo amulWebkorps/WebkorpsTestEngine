@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -75,15 +76,15 @@ public class QuestionController {
 	}
 
 
-	@DeleteMapping("admin/deleteQuestion") // cid, qid
-	public ResponseEntity<Object> deleteQuestion(@RequestBody ArrayList<String> contestAndQuestionId) {
-		logger.info("deleteQuestion:: started with contestAndQuestionId: " + contestAndQuestionId.toString());
+	@PutMapping("admin/deleteQuestion") // cid, qid
+	public ResponseEntity<Object> updateQuestionStatus(@RequestBody ArrayList<String> contestAndQuestionId) {
+		logger.info("updateQuestionStatus:: started with contestAndQuestionId: " + contestAndQuestionId.toString());
 		try {
 			questionService.saveQuestionOrContest(contestAndQuestionId);
-			logger.info("deleteQuestion:: saveQuestionOrContest saved successfully");
+			logger.info("updateQuestionStatus:: saveQuestionOrContest saved successfully");
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, contestAndQuestionId);
 		} catch (Exception e) {
-			logger.info("deleteQuestion:: Exception occured : " + e.getMessage());
+			logger.info("updateQuestionStatus:: Exception occured : " + e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}

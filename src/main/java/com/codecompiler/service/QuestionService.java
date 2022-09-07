@@ -11,8 +11,6 @@ import com.codecompiler.entity.Question;
 import com.codecompiler.entity.TestCases;
 
 public interface QuestionService {
-
-	 public List<Question> getAllQuestion(String contestId, String studentId);
 	
 	 public List<Question> findAllQuestion();
 	 

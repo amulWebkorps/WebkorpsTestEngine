@@ -12,11 +12,11 @@ import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Language;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.QuestionStatus;
+import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.repository.ContestRepository;
 import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.LanguageService;
-import com.codecompiler.service.QuestionService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,9 +29,6 @@ public class ContestServiceImpl implements ContestService {
 	
 	@Autowired
 	private QuestionRepository questionRepository;
-	
-	@Autowired
-	private QuestionService questionService;
 	
 	@Autowired
 	private LanguageService languageService;
@@ -91,7 +88,7 @@ public class ContestServiceImpl implements ContestService {
 				}
 			}
 			List<Question> questionDetailList = questionRepository.findByQuestionIdIn(qListStatusTrue);
-			List<Question> totalQuestionWithStatusTrue = questionService.findAllQuestion();			
+			List<Question> totalQuestionWithStatusTrue = findAllQuestion();			
 			for (Question question : questionDetailList) 
 				totalQuestionWithStatusTrue.removeIf(x -> x.getQuestionId().equalsIgnoreCase(question.getQuestionId()));
 						
@@ -113,7 +110,7 @@ public class ContestServiceImpl implements ContestService {
 	public Map<String, Object> contestPage(String contestId, String studentId, String selectlanguage) {
 		Language language = languageService.findByLanguage(selectlanguage);
 		Contest contestTime = this.findByContestId(contestId);
-		List<Question> contestQuestionsList = questionService.getAllQuestion(contestId, studentId);
+		List<Question> contestQuestionsList = getAllQuestion(contestId, studentId);
 		Map<String, Object> mp = new HashedMap<String, Object>();
 		mp.put("QuestionList", contestQuestionsList);
 		mp.put("languageCode", language);
@@ -126,5 +123,32 @@ public class ContestServiceImpl implements ContestService {
 		return mp;
 	}
 	
+	public List<Question> getAllQuestion(String contestId, String studentId) {
+		Contest contest = contestRepository.findByContestId(contestId);
+		ArrayList<QuestionStatus> qStatusList = new ArrayList<>();
+		qStatusList = contest.getQuestionStatus();
+		ArrayList<String> qListStatusTrue = new ArrayList<>();
+		for (QuestionStatus questionStatus : qStatusList) {
+			if (questionStatus.getStatus()) {
+				qListStatusTrue.add(questionStatus.getQuestionId());
+			}
+		}
+		return questionRepository.findByQuestionIdIn(qListStatusTrue);
+	}
+	
+	public List<Question> findAllQuestion() {
+		List<Question> totalQuestionWithStatusTrue = new ArrayList<>();
+		List<Question> questions = questionRepository.findAll();
+		if(questions == null) {
+			throw new RecordNotFoundException("findAllQuestion:: Questions doesn't found");	
+		}
+		for (Question verifyQuestion : questions) {
+			if (verifyQuestion.getQuestionStatus() != null) {
+				if (verifyQuestion.getQuestionStatus().equals("true"))
+					totalQuestionWithStatusTrue.add(verifyQuestion);
+			}
+		}
+		return totalQuestionWithStatusTrue;
+	}
 
 }

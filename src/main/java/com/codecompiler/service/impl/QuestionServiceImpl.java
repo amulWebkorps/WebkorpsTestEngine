@@ -44,19 +44,6 @@ public class QuestionServiceImpl implements QuestionService {
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
 
-	public List<Question> getAllQuestion(String contestId, String studentId) {
-		Contest contest = contestRepository.findByContestId(contestId);
-		ArrayList<QuestionStatus> qStatusList = new ArrayList<>();
-		qStatusList = contest.getQuestionStatus();
-		ArrayList<String> qListStatusTrue = new ArrayList<>();
-		for (QuestionStatus questionStatus : qStatusList) {
-			if (questionStatus.getStatus()) {
-				qListStatusTrue.add(questionStatus.getQuestionId());
-			}
-		}
-		return questionRepository.findByQuestionIdIn(qListStatusTrue);
-	}
-
 	@Override
 	public List<Question> findAllQuestion() {
 		List<Question> totalQuestionWithStatusTrue = new ArrayList<>();
@@ -93,7 +80,7 @@ public class QuestionServiceImpl implements QuestionService {
 		return allTrueQuestions;
 	}
 
-	private void saveContest(Contest contest,List<Question> allTrueQuestions) {
+	public void saveContest(Contest contest,List<Question> allTrueQuestions) {
 		ArrayList<QuestionStatus> queStatusList = null;
 		allTrueQuestions.forEach(latestUploadedQuestions -> {
 			QuestionStatus queStatus = new QuestionStatus();
@@ -172,7 +159,7 @@ public class QuestionServiceImpl implements QuestionService {
 		return questionDetails;	
 	}
 
-	private Contest saveContests(String contestId,Map<String, List<String>> questionIdList) {
+	public Contest saveContests(String contestId,Map<String, List<String>> questionIdList) {
 		Contest contest = contestService.findByContestId(contestId);
 		if(contest == null) {
 			throw new RecordNotFoundException("saveContests:: Content does not found for contestId: " + contestId);
