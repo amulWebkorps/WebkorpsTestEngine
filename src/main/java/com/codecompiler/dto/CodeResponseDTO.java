@@ -1,8 +1,8 @@
-package com.codecompiler.entity;
+package com.codecompiler.dto;
 
 import java.util.ArrayList;
 
-public class ResponseToFE {
+public class CodeResponseDTO {
 
 	private String complilationMessage;
 	private ArrayList<Boolean> testCasesSuccess;
@@ -37,7 +37,7 @@ public class ResponseToFE {
 				+ ", successMessage=" + successMessage + "]";
 	}
 
-	public ResponseToFE() {
+	public CodeResponseDTO() {
 		super();
 		// TODO Auto-generated constructor stub
 	}

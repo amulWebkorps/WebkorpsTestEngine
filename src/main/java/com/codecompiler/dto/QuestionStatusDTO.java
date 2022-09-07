@@ -1,10 +1,10 @@
-package com.codecompiler.entity;
+package com.codecompiler.dto;
 
-public class QuestionStatus {
+public class QuestionStatusDTO {
 
 	private String questionId;
 	private boolean status;
-	public QuestionStatus() {
+	public QuestionStatusDTO() {
 		super();
 		}
 	public String getQuestionId() {

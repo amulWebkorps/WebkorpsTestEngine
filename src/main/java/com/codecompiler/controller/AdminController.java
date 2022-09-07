@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.codecompiler.entity.Admin;
-import com.codecompiler.entity.User;
 import com.codecompiler.exception.UserAlreadyExistException;
 import com.codecompiler.reponse.ResponseHandler;
 import com.codecompiler.service.AdminService;
@@ -37,11 +36,11 @@ public class AdminController {
 	private AuthenticationManager authenticationManager;
 
 	@PostMapping("public/admin/signIn")
-	public ResponseEntity<Object> doLogin(@RequestBody User user) {
-		log.info("doLogin started user email ::"+user.getEmail());
+	public ResponseEntity<Object> doLogin(@RequestBody Admin admin) {
+		log.info("doLogin started user email ::"+admin.getEmail());
 		Authentication authObj;
 		try {
-			authObj = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail().toLowerCase(), user.getPassword()));
+			authObj = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(admin.getEmail().toLowerCase(), admin.getPassword()));
 		} catch (BadCredentialsException e) {
 			log.error("Exception occured in doLogin :: "+e.getMessage());
 			return ResponseHandler.generateResponse("failer", HttpStatus.UNAUTHORIZED, "email and password does not match");

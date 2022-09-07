@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.codecompiler.dto.CodeResponseDTO;
 import com.codecompiler.entity.Language;
-import com.codecompiler.entity.ResponseToFE;
 import com.codecompiler.reponse.ResponseHandler;
 import com.codecompiler.service.CodeProcessingService;
 import com.codecompiler.service.LanguageService;
@@ -42,9 +42,9 @@ public class CodeCompilerController {
 	@PostMapping("runAndCompilerCode")
 	public ResponseEntity<Object> getCompiler(@RequestBody Map<String, Object> data) throws Exception {
 		log.info("getCompiler: started");
-		ResponseToFE responsef = codeProcessingService.compileCode(data);
+		CodeResponseDTO response = codeProcessingService.compileCode(data);
 		log.info("getCompiler: ended");
-		return ResponseHandler.generateResponse("success", HttpStatus.OK, responsef);
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
 	}
 
 }

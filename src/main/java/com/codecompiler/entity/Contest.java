@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.codecompiler.dto.QuestionStatusDTO;
+
 @Document(collection="ContestName")
 @EntityScan
 public class Contest {
@@ -17,7 +19,7 @@ public class Contest {
 	private  String contestName;
 	private  String contestDescription;
 	private  String contestLevel;
-	private ArrayList<QuestionStatus> questionStatus = new ArrayList<>();
+	private ArrayList<QuestionStatusDTO> questionStatus = new ArrayList<>();
 	private String contestTime;
 	
 	public Contest() {
@@ -47,10 +49,10 @@ public class Contest {
 	public void setContestLevel(String contestLevel) {
 		this.contestLevel = contestLevel;
 	}
-	public ArrayList<QuestionStatus> getQuestionStatus() {
+	public ArrayList<QuestionStatusDTO> getQuestionStatus() {
 		return questionStatus;
 	}
-	public void setQuestionStatus(ArrayList<QuestionStatus> questionStatus) {
+	public void setQuestionStatus(ArrayList<QuestionStatusDTO> questionStatus) {
 		this.questionStatus = questionStatus;
 	}
 	public String getContestTime() {

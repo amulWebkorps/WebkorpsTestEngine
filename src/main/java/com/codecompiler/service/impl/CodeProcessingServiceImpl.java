@@ -13,7 +13,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.codecompiler.entity.ResponseToFE;
+import com.codecompiler.dto.CodeResponseDTO;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
 import com.codecompiler.service.QuestionService;
@@ -51,8 +51,8 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	}
 
 	@Override
-	public ResponseToFE compileCode(Map<String, Object> data) throws IOException {
-		ResponseToFE responsef = new ResponseToFE();
+	public CodeResponseDTO compileCode(Map<String, Object> data) throws IOException {
+		CodeResponseDTO responsef = new CodeResponseDTO();
 		String studentId = (String) data.get("studentId");
 		ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
 		String complilationMessage = "";

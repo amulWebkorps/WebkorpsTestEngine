@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.codecompiler.dto.TestCaseDTO;
+
 @Document(collection="QuestionAndTestCases")
 @EntityScan
 public class Question {
@@ -17,7 +19,7 @@ public class Question {
 	private String question;
 	private  String contestLevel;	
 	private String questionStatus;
-	private List<SampleTestCase> sampleTestCase;
+	private List<TestCaseDTO> sampleTestCase;
 	private List<TestCases> testcases;
 
 	public Question() {
@@ -57,11 +59,11 @@ public class Question {
 		this.contestLevel = contestLevel;
 	}
 
-	public List<SampleTestCase> getSampleTestCase() {
+	public List<TestCaseDTO> getSampleTestCase() {
 		return sampleTestCase;
 	}
 
-	public void setSampleTestCase(List<SampleTestCase> sampleTestCase) {
+	public void setSampleTestCase(List<TestCaseDTO> sampleTestCase) {
 		this.sampleTestCase = sampleTestCase;
 	}
 

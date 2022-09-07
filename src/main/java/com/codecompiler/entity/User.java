@@ -1,7 +1,6 @@
 package com.codecompiler.entity;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 
 @EntityScan

@@ -8,10 +8,10 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.codecompiler.dto.QuestionStatusDTO;
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Language;
 import com.codecompiler.entity.Question;
-import com.codecompiler.entity.QuestionStatus;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.repository.ContestRepository;
 import com.codecompiler.repository.QuestionRepository;
@@ -81,8 +81,8 @@ public class ContestServiceImpl implements ContestService {
 		
 			Contest contestRecord = this.findByContestId(contestId);
 			contestDetail.put("contest", contestRecord);
-			ArrayList<QuestionStatus> questionStatusTemp = contestRecord.getQuestionStatus();
-			for (QuestionStatus questionStatus : questionStatusTemp) {
+			ArrayList<QuestionStatusDTO> questionStatusTemp = contestRecord.getQuestionStatus();
+			for (QuestionStatusDTO questionStatus : questionStatusTemp) {
 				if (questionStatus.getStatus()) {
 					qListStatusTrue.add(questionStatus.getQuestionId());
 				}
@@ -125,10 +125,10 @@ public class ContestServiceImpl implements ContestService {
 	
 	public List<Question> getAllQuestion(String contestId, String studentId) {
 		Contest contest = contestRepository.findByContestId(contestId);
-		ArrayList<QuestionStatus> qStatusList = new ArrayList<>();
+		ArrayList<QuestionStatusDTO> qStatusList = new ArrayList<>();
 		qStatusList = contest.getQuestionStatus();
 		ArrayList<String> qListStatusTrue = new ArrayList<>();
-		for (QuestionStatus questionStatus : qStatusList) {
+		for (QuestionStatusDTO questionStatus : qStatusList) {
 			if (questionStatus.getStatus()) {
 				qListStatusTrue.add(questionStatus.getQuestionId());
 			}

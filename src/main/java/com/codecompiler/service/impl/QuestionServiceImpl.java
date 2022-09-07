@@ -12,10 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.QuestionStatusDTO;
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
-import com.codecompiler.entity.QuestionStatus;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
@@ -81,9 +81,9 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	public void saveContest(Contest contest,List<Question> allTrueQuestions) {
-		ArrayList<QuestionStatus> queStatusList = null;
+		ArrayList<QuestionStatusDTO> queStatusList = new ArrayList<QuestionStatusDTO>();
 		allTrueQuestions.forEach(latestUploadedQuestions -> {
-			QuestionStatus queStatus = new QuestionStatus();
+			QuestionStatusDTO queStatus = new QuestionStatusDTO();
 			queStatus.setQuestionId(latestUploadedQuestions.getQuestionId());
 			queStatus.setStatus(true);
 			queStatusList.add(queStatus);
@@ -113,10 +113,10 @@ public class QuestionServiceImpl implements QuestionService {
 			contest = contestService.findByContestId(stringOfCidAndCl[1]);
 			question.setContestLevel(stringOfCidAndCl[0]);
 			savedQuestion = questionRepository.save(question);
-			QuestionStatus queStatus = new QuestionStatus();
-			queStatus.setQuestionId(savedQuestion.getQuestionId());
-			queStatus.setStatus(true);
-			contest.getQuestionStatus().add(queStatus);
+			QuestionStatusDTO questionStatus = new QuestionStatusDTO();
+			questionStatus.setQuestionId(savedQuestion.getQuestionId());
+			questionStatus.setStatus(true);
+			contest.getQuestionStatus().add(questionStatus);
 			contestService.saveContest(contest);
 		}
 		return savedQuestion;
@@ -164,14 +164,14 @@ public class QuestionServiceImpl implements QuestionService {
 		if(contest == null) {
 			throw new RecordNotFoundException("saveContests:: Content does not found for contestId: " + contestId);
 		}
-		ArrayList<QuestionStatus> questionStatus = contest.getQuestionStatus();
+		ArrayList<QuestionStatusDTO> questionStatus = contest.getQuestionStatus();
 		if(questionStatus == null) {
 			throw new RecordNotFoundException("saveContests:: QuestionStatus does not found");
 		}
 		boolean flag = false;
 		for (String idToChangeStatus : questionIdList.get("questionsIds")) {
 			int index = 0;
-			for (QuestionStatus qs : questionStatus) {
+			for (QuestionStatusDTO qs : questionStatus) {
 				if (idToChangeStatus.equals(qs.getQuestionId())) {
 					if (qs.getStatus() == false) {
 						contest.getQuestionStatus().get(index).setStatus(true);
@@ -183,7 +183,7 @@ public class QuestionServiceImpl implements QuestionService {
 				index++;
 			}
 			if (flag == false) {
-				QuestionStatus qsTemp = new QuestionStatus();
+				QuestionStatusDTO qsTemp = new QuestionStatusDTO();
 				qsTemp.setQuestionId(idToChangeStatus);
 				qsTemp.setStatus(true);
 				contest.getQuestionStatus().add(qsTemp);
@@ -207,7 +207,7 @@ public class QuestionServiceImpl implements QuestionService {
 			Contest contest = new Contest();
 			contest = contestService.findByContestId(contestAndQuestionId.get(0));
 			int index = 0;
-			for (QuestionStatus qs : contest.getQuestionStatus()) {
+			for (QuestionStatusDTO qs : contest.getQuestionStatus()) {
 				if (qs.getQuestionId().equals(contestAndQuestionId.get(1))) {
 					contest.getQuestionStatus().get(index).setStatus(false);
 				}

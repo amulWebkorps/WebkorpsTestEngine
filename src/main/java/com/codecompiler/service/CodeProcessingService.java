@@ -1,12 +1,12 @@
 package com.codecompiler.service;
 
-import com.codecompiler.entity.ResponseToFE;
-
 import java.io.IOException;
 import java.util.Map;
 
+import com.codecompiler.dto.CodeResponseDTO;
+
 public interface CodeProcessingService {
 
-	public ResponseToFE compileCode(Map<String, Object> data) throws IOException;
+	public CodeResponseDTO compileCode(Map<String, Object> data) throws IOException;
 
 }

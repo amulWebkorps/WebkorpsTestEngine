@@ -6,8 +6,11 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.codecompiler.dto.TestCaseDTO;
+
 @Document(collection = "StudentDetails")
 @EntityScan
+
 public class Student extends User{
 	@Id
 	private String id;
@@ -16,85 +19,74 @@ public class Student extends User{
 	private String contestLevel;
 	private String contestId;
 	private List<String> questionId;
-	private List<TestCasesRecord> testCasesRecord;
+	private List<TestCaseDTO> testCaseRecord;
 	private boolean status;
-	public Student() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
-	public String getContestLevel() {
-		return contestLevel;
-	}
-
-	public void setContestLevel(String contestLevel) {
-		this.contestLevel = contestLevel;
-	}
-
-
 	public String getId() {
 		return id;
 	}
-
 	public void setId(String id) {
 		this.id = id;
 	}
-
 	public String getName() {
 		return name;
 	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
-
-
 	public String getMobileNumber() {
 		return mobileNumber;
 	}
-
 	public void setMobileNumber(String mobileNumber) {
 		this.mobileNumber = mobileNumber;
 	}
-
-	public boolean isStatus() {
-		return status;
+	public String getContestLevel() {
+		return contestLevel;
 	}
-
-	public void setStatus(boolean status) {
-		this.status = status;
+	public void setContestLevel(String contestLevel) {
+		this.contestLevel = contestLevel;
 	}
-
 	public String getContestId() {
 		return contestId;
 	}
-
 	public void setContestId(String contestId) {
 		this.contestId = contestId;
 	}
-
 	public List<String> getQuestionId() {
 		return questionId;
 	}
-
-	public void setQuestionId(List<String> questionIds) {
-		this.questionId = questionIds;
+	public void setQuestionId(List<String> questionId) {
+		this.questionId = questionId;
 	}
-
-	public List<TestCasesRecord> getTestCasesRecord() {
-		return testCasesRecord;
+	public List<TestCaseDTO> getTestCaseRecord() {
+		return testCaseRecord;
 	}
-
-	public void setTestCasesRecord(List<TestCasesRecord> testCasesRecord) {
-		this.testCasesRecord = testCasesRecord;
+	public void setTestCaseRecord(List<TestCaseDTO> testCaseRecord) {
+		this.testCaseRecord = testCaseRecord;
 	}
-
+	public boolean isStatus() {
+		return status;
+	}
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+	public Student() { }
+	public Student(String id, String name, String mobileNumber, String contestLevel, String contestId,
+			List<String> questionId, List<TestCaseDTO> testCaseRecord, boolean status) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.mobileNumber = mobileNumber;
+		this.contestLevel = contestLevel;
+		this.contestId = contestId;
+		this.questionId = questionId;
+		this.testCaseRecord = testCaseRecord;
+		this.status = status;
+	}
 	@Override
 	public String toString() {
-		return "Student [id=" + id + ", name=" + name + ", email=" + super.getEmail() + ", mobileNumber=" + mobileNumber
-				+ ", password=" + super.getPassword() + ", contestLevel=" + contestLevel + ", contestId=" + contestId
-				+ ", questionId=" + questionId + ", testCasesRecord=" + testCasesRecord + ", status=" + status + "]";
+		return "Student [id=" + id + ", name=" + name + ", mobileNumber=" + mobileNumber + ", contestLevel="
+				+ contestLevel + ", contestId=" + contestId + ", questionId=" + questionId + ", testCaseRecord="
+				+ testCaseRecord + ", status=" + status + "]";
 	}
-
+	
 }

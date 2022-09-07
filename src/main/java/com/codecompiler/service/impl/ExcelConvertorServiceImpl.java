@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
-import com.codecompiler.entity.SampleTestCase;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.repository.StudentRepository;
@@ -60,8 +60,8 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 			List<MyCell> headerRow = data.get(0);
 			for (int i = 1; i < data.size(); i++) {
 				Question question = new Question();
-				SampleTestCase sampleTestCases = new SampleTestCase();
-				List<SampleTestCase> ListSampleTestCase = new ArrayList<>();
+				TestCaseDTO sampleTestCases = new TestCaseDTO();
+				List<TestCaseDTO> ListSampleTestCase = new ArrayList<>();
 				List<TestCases> listTestCases = new ArrayList<>();
 				TestCases testCases = new TestCases();
 				String tempQid = UUID.randomUUID().toString();

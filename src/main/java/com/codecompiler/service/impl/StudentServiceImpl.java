@@ -13,10 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.MyCell;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
-import com.codecompiler.entity.TestCasesRecord;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.exception.UserNotFoundException;
@@ -101,11 +101,11 @@ public class StudentServiceImpl implements StudentService{
 	
 	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
 			ArrayList<Boolean> testCasesSuccess, String complilationMessage) {
-		TestCasesRecord testCasesRecord = new TestCasesRecord();
-		List<TestCasesRecord> testCasesRecord1 = new ArrayList<>(); // need to remove in future
-		testCasesRecord.setQuestionId(questionIds);
-		testCasesRecord.setComplilationMessage(complilationMessage);
-		testCasesRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testcasesrecord and save that pass id in get method
+		TestCaseDTO testCaseRecord = new TestCaseDTO();
+		List<TestCaseDTO> testCasesRecord1 = new ArrayList<>(); // need to remove in future
+		testCaseRecord.setQuestionId(questionIds);
+		testCaseRecord.setComplilationMessage(complilationMessage);
+		testCaseRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testcasesrecord and save that pass id in get method
 		Student existingRecord = studentRepository.findById(studentId);
 		existingRecord.setContestId(contestId);
 		if (existingRecord.getQuestionId() != null) {
@@ -113,11 +113,11 @@ public class StudentServiceImpl implements StudentService{
 		} else {
 			existingRecord.setQuestionId(questionIds);
 		}
-		if (existingRecord.getTestCasesRecord() != null) {
-			existingRecord.getTestCasesRecord().add(testCasesRecord);
+		if (existingRecord.getTestCaseRecord() != null) {
+			existingRecord.getTestCaseRecord().add(testCaseRecord);
 		} else {
-			existingRecord.setTestCasesRecord(testCasesRecord1); // need to remove in future
-			existingRecord.getTestCasesRecord().add(testCasesRecord);
+			existingRecord.setTestCaseRecord(testCasesRecord1); // need to remove in future
+			existingRecord.getTestCaseRecord().add(testCaseRecord);
 		}		
 		return studentRepository.save(existingRecord);
 	}
