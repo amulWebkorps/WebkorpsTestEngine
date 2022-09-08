@@ -16,7 +16,7 @@ public class EmailServiceImpl implements EmailService {
 	@Value("${application.base-url}")
     private String baseUrl;
 	
-	Logger logger = LogManager.getLogger(EmailServiceImpl.class);
+	public static final Logger logger = LogManager.getLogger(EmailServiceImpl.class);
 	
 	private static final String CANDIDATE_EMAIL_TEMPLATE = "Hello \"%s\",%nGreeting of the day!!!%n%n"
 			+ "Please find your test link and credentials "

@@ -90,6 +90,7 @@ public class QuestionController {
 		} catch (Exception e) {
 			logger.error("Questions not saved :: "+e.getMessage());
 		}
+		logger.info("saveQuestion: ended");
 		return new ResponseEntity<Object>(savedQuestion, HttpStatus.OK);
 	}
 
@@ -130,8 +131,9 @@ public class QuestionController {
 			contestService.saveContest(con);
 			logger.info("Question saved in Contest");
 		} catch (Exception ex) {
-			logger.error("Question not saved List is null :: "+ex.getMessage());
+			logger.error("Question not saved, List is null :: "+ex.getMessage());
 		}
+		logger.info("addSelectedAvailableQuestiontoContest: ended");
 		return new ResponseEntity<Object>(questionDetails, HttpStatus.OK);
 	}
 
@@ -154,11 +156,13 @@ public class QuestionController {
 					index++;
 				}
 				contestService.saveContest(contest);
+				logger.info("Contest saved");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("QuestionId List are null :: "+e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Please check Input ");
 		}
+		logger.info("deleteQuestion: ended");
 		return ResponseEntity.status(HttpStatus.OK).body("Question deleted successfully");
 	}
 

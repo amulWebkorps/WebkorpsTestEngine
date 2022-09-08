@@ -8,10 +8,9 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,14 +27,14 @@ public class studentServiceImpl implements StudentService1{
 
 	@Autowired
 	private StudentRepository studentRepository;
-	
-	@Autowired private MongoTemplate mongoTemplate;
-	
+		
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
 	
 	@Autowired
 	private ExcelConvertorService excelConvertorService;
+	
+	public static final Logger logger = LogManager.getLogger(studentServiceImpl.class);
 	
 	public Student findById(String studentId) {
 		return studentRepository.findById(studentId);		
@@ -43,7 +42,6 @@ public class studentServiceImpl implements StudentService1{
 	
 	public Student findByEmailAndPassword(String email, String password) {
 		return studentRepository.findByEmailAndPassword(email, password);
-
 	}
 	
 	public Student findByEmail(String studentEmail) {
@@ -65,13 +63,15 @@ public class studentServiceImpl implements StudentService1{
 
 	@Override
 	public List<String> saveFileForBulkParticipator(MultipartFile file) {
+		logger.info("saveBulkParticipator: started");
 		List<Student> uploadParticipator = new ArrayList<>();
 		try {
 			Map<Integer, List<MyCell>> data = excelPOIHelper.readExcel(file.getInputStream(), file.getOriginalFilename());
 			uploadParticipator = excelConvertorService.convertExcelToListOfStudent(data);
 			studentRepository.saveAll(uploadParticipator);
+			logger.info("saveBulkParticipator: saved");
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Object is null"+e.getMessage());
 		}
 		return uploadParticipator.stream().map(Student::getEmail).collect(Collectors.toList());
 	}
@@ -103,8 +103,8 @@ public class studentServiceImpl implements StudentService1{
 		return studentRepository.save(existingRecord);
 	}
 	
-	public Student finalSubmitContest(String emailId) {
-		Student student = studentRepository.findByEmail(emailId);
+	public Student finalSubmitContest(String studentId) {
+		Student student = studentRepository.findById(studentId);
 		student.setPassword(null);
 		return studentRepository.save(student);
 	}
