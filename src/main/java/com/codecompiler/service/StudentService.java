@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.entity.Student;
 
 public interface StudentService {
@@ -16,7 +17,7 @@ public interface StudentService {
 	
 	public Student findByEmail(String studentEmail);
 	
-	public List<Student> findByContestId(String contestId);
+	public List<StudentDTO> findByContestId(String contestId);
 	
 	public Student saveStudent(Student studentDetails);
 	

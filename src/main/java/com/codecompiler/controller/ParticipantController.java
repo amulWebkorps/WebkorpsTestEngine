@@ -1,6 +1,5 @@
 package com.codecompiler.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
@@ -36,127 +36,124 @@ public class ParticipantController {
 
 	@Autowired
 	private StudentService studentService;
-	
+
 	@Autowired
 	private AuthenticationManager authenticationManager;
-	
+
 	@Autowired
 	private JwtUtil jwtUtil;
-	
-	@GetMapping("public/doSignInForParticipator")
+
+	@PostMapping("public/doSignInForParticipator")
 	public ResponseEntity<Object> doSignIn(@RequestParam("email") String email,
 			@RequestParam("password") String password, @RequestParam("contestId") String contestId) {
-		
-		Authentication authObj;
-		Student studentExists = null;
+		log.info("doSignIn:: Started : "+contestId);
 		try {
-			authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-
-			studentExists = this.studentService.findByEmailAndPassword(email, password);
+			Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+			Student studentExists  = this.studentService.findByEmailAndPassword(email, password);
+			String token = this.jwtUtil.generateToken(authObj.getName());
+			HashMap<String, Object> studentAuth = new HashMap<>();
+			studentAuth.put("token", token);
+			studentAuth.put("student", studentExists);
 			studentExists.setContestId(contestId);
+			log.info("doSignIn:: Particepant authenticate successfully :"+studentExists+" "+authObj);
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, studentAuth);
 		} catch (BadCredentialsException e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("email and password does not match");
+			log.info("Exception occurs in doSignIn: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,"email and password does not match");
 		}
-		String token = this.jwtUtil.generateToken(authObj.getName());
-		HashMap<String, Object> hm = new HashMap<>();
-		hm.put("token", token);
-		hm.put("student", studentExists);
-		return new ResponseEntity<Object>(hm, HttpStatus.OK);
 	}
-	
-	@GetMapping("getParticipatorDetail")
+
+	@GetMapping("admin/getParticipatorDetail")
 	public ResponseEntity<Object> getParticipatorDetail(@RequestParam String studentId) {
 		log.info("getParticipatorDetail started studentId :: "+studentId);
 		try {
-			Map<String, Object> mp = this.studentService.getParticipatorDetail(studentId);
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, mp);
+			Map<String, Object> participatorDetail = this.studentService.getParticipatorDetail(studentId);
+			log.info("getParticipatorDetail:: participatorDetail : "+participatorDetail.size());
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, participatorDetail);
 		} 
 		catch (Exception e) {
 			log.error("Exception occured in getParticipatorDetail :: "+e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
-	
+
 	@GetMapping("admin/participatorOfContest")
-	public ResponseEntity<Object> viewParticipators(@RequestParam String contestId) {
-		List<Student> studentTemp = new ArrayList<>();
-		List<Student> studentTempFormat = new ArrayList<>();			
+	public ResponseEntity<Object> viewParticipators(@RequestParam String contestId) {			
+		log.info("viewParticipators:: started with contestId: " + contestId);
 		try {
-			studentTemp = this.studentService.findByContestId(contestId);
-			for(Student student : studentTemp){
-				Student studentFormat = new Student();
-				studentFormat.setId(student.getId());
-				studentFormat.setEmail(student.getEmail());
-				studentTempFormat.add(studentFormat);
-			}
+			List<StudentDTO> studentDetails = this.studentService.findByContestId(contestId);
+			log.info("viewParticipators:: studentDetials fetch successfully: "+studentDetails.toString());
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, studentDetails);
 		} catch (Exception e) {
-			log.error("Exception occured in viewParticipators :: "+e.getMessage());
+			log.error("viewParticipators:: Exception occured in viewParticipators :: "+e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
-		return new ResponseEntity<Object>(studentTempFormat, HttpStatus.OK);
 	}
-	
+
 
 	@PostMapping(value = "admin/studentUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file) {
-		
-			try {
-				List<String> allStudents = this.studentService.saveFileForBulkParticipator(file);
-				return new ResponseEntity<Object>(allStudents, HttpStatus.OK);
-			}catch (UnSupportedFormatException e) {
-				log.error("Exception occured in upload :: "+e.getMessage());
-				return ResponseHandler.generateResponse("error", HttpStatus.UNSUPPORTED_MEDIA_TYPE, e.getMessage());
-			}
-			catch (Exception e) {
-				log.error("Exception occured in upload :: "+e.getMessage());
-				return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-			}
+		log.info("upload:: Started ");
+		try {
+			List<String> allStudents = this.studentService.saveFileForBulkParticipator(file);
+			log.info("upload:: File bulk students are saved succesfully : "+allStudents.size());
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, allStudents);
+		}catch (UnSupportedFormatException e) {
+			log.error("Exception occured in upload :: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.UNSUPPORTED_MEDIA_TYPE, e.getMessage());
+		}
+		catch (Exception e) {
+			log.error("Exception occured in upload :: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
 	}
-	
+
 	@GetMapping("admin/getAllParticipator")
 	public ResponseEntity<Object> getAllParticipator() {
+		log.info("getAllParticipator:: started");
 		try {
 			List<String> allParticipator =  this.studentService.findAll();
-				return ResponseHandler.generateResponse("success", HttpStatus.OK, allParticipator);
+			log.info("getAllParticipator:: participators found successfully"+allParticipator.size());
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, allParticipator);
 		}
-		 catch (RecordNotFoundException ex) {
-			 log.error("Exception occured in getAllParticipator :: "+ex.getMessage());
-				return ResponseHandler.generateResponse("error", HttpStatus.NOT_FOUND, ex.getMessage());
-			}
+		catch (RecordNotFoundException ex) {
+			log.error("Exception occured in getAllParticipator :: "+ex.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.NOT_FOUND, ex.getMessage());
+		}
 		catch (Exception ex) {
 			log.error("Exception occured in getAllParticipator :: "+ex.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 		}
 
 	}
-	
+
 	// This API should not be called
 	// This has to be handle my backend
 	@DeleteMapping("finalSubmitContest")
 	public  ResponseEntity<Object> submitContest(@RequestParam String emailId) {
+		log.info("submitContest:: has started");
 		try {
-			 this.studentService.finalSubmitContest(emailId);
+			this.studentService.finalSubmitContest(emailId);
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, "Test submitted successfully");
 		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check EmailId");
+			log.info("Exception occured in submitContest: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
-		return ResponseEntity.status(HttpStatus.OK).body("Test submitted successfully");
 	}
-	
+
 	@DeleteMapping("admin/deleteStudent")
 	private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {
+		log.info("deleteStudent:: has started with an email id: " + emailId);
 		try {
 			this.studentService.deleteByEmail(emailId);
+			log.info("Student Deleted Successfully");
 			return ResponseHandler.generateResponse("error", HttpStatus.OK, "Student Deleted Successfully");
 		}
 		catch (Exception ex) {
 			log.error("Exception occured in deleteStudent :: "+ex.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 		}
-		
 
 	}
-	
 
 }
