@@ -1,6 +1,5 @@
 package com.codecompiler.controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.JwtResponseDTO;
 import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
@@ -50,13 +50,12 @@ public class ParticipantController {
 		try {
 			Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getEmail(), student.getPassword()));
 			Student studentExists  = this.studentService.findByEmailAndPassword(student.getEmail(), student.getPassword());
-			String token = this.jwtUtil.generateToken(authObj.getName());
-			HashMap<String, Object> studentAuth = new HashMap<>();
-			studentAuth.put("token", token);
-			studentAuth.put("student", studentExists);
+			JwtResponseDTO jwtResponseDTO = new JwtResponseDTO();
 			studentExists.setContestId(contestId);
-			log.info("doSignIn:: Particepant authenticate successfully :"+studentExists+" "+authObj);
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, studentAuth);
+			jwtResponseDTO.setToken(this.jwtUtil.generateToken(authObj.getName()));
+			jwtResponseDTO.setStudent(studentExists);
+			log.info("doSignIn:: Particepant authenticate successfully :"+jwtResponseDTO);
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, jwtResponseDTO);
 		} catch (BadCredentialsException e) {
 			log.info("Exception occurs in doSignIn: "+e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,"email and password does not match");
