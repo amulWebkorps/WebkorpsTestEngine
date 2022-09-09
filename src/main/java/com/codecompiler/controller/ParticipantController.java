@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,12 +45,11 @@ public class ParticipantController {
 	private JwtUtil jwtUtil;
 
 	@PostMapping("public/doSignInForParticipator")
-	public ResponseEntity<Object> doSignIn(@RequestParam("email") String email,
-			@RequestParam("password") String password, @RequestParam("contestId") String contestId) {
+	public ResponseEntity<Object> doSignIn(@RequestBody Student student ,@RequestParam("contestId") String contestId) {
 		log.info("doSignIn:: Started : "+contestId);
 		try {
-			Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-			Student studentExists  = this.studentService.findByEmailAndPassword(email, password);
+			Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getEmail(), student.getPassword()));
+			Student studentExists  = this.studentService.findByEmailAndPassword(student.getEmail(), student.getPassword());
 			String token = this.jwtUtil.generateToken(authObj.getName());
 			HashMap<String, Object> studentAuth = new HashMap<>();
 			studentAuth.put("token", token);
