@@ -124,6 +124,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 						testCasesSuccess, complilationMessage);
 				prSubmitted.flush();
 				prSubmitted.close();
+				responsef.setTestCasesSuccess(testCasesSuccess);
 				responsef.setSuccessMessage("Code Submitted Successfully");
 				return responsef;
 			}	
