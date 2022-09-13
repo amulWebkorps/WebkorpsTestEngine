@@ -30,8 +30,5 @@ public class UserDetailServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("No user found with Email : "+username);
         }
         return new ApplicationUserDetails(user);
-	}
-	
-
-	
+	}	
 }
