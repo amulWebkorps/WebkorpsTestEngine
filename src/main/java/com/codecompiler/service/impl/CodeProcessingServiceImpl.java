@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +30,10 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	@Autowired
 	private QuestionService questionService;
 
+	public static final Logger logger = LogManager.getLogger(CodeProcessingServiceImpl.class);
+	
 	private PrintWriter processCode(String code, String language) throws IOException {
+		logger.info("process code: started");
 		FileWriter fl = null;
 		if (language.equalsIgnoreCase("java")) {
 			String fileNameInLocal = "Main.java";
@@ -47,12 +52,14 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		pr.write(code);
 		pr.flush();
 		pr.close();
+		logger.info("process code: ended");
 		return pr;
 	}
 
 	@Override
 	public CodeResponseDTO compileCode(Map<String, Object> data) throws IOException {
 		CodeResponseDTO responsef = new CodeResponseDTO();
+		logger.info("compile code: started");
 		String studentId = (String) data.get("studentId");
 		ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
 		String complilationMessage = "";
@@ -111,7 +118,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				} else {
 					testCasesSuccess.add(false);
 				}
-				complilationMessage += line + "\n";
 			}			
 			if (flag == 1) {
 				List<String> questionIds = new ArrayList<>();
@@ -126,12 +132,14 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				prSubmitted.close();
 				responsef.setTestCasesSuccess(testCasesSuccess);
 				responsef.setSuccessMessage("Code Submitted Successfully");
+				logger.info("Code Submitted Successfully");
 				return responsef;
 			}	
 			responsef.setTestCasesSuccess(testCasesSuccess);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Object is null "+e.getMessage());
 		}
+		logger.info("compile code: ended");
 		return responsef;
 	}
 }

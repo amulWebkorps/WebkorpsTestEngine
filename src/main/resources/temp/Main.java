@@ -1,7 +1,9 @@
-#include <stdio.h>
- #include <stdlib.h>
- int main(int argc, char *argv[]) {
- double n = atof(argv[1]);
- printf("%f",n);
- return 0;
- }
+public class Main{
+  public static void main(String args[]){
+	int n = Integer.parseInt(args[0]); // taking parameter from command line and convert to int
+ 
+ bvsghvsghvshgvh
+ 	//write your code here
+       
+  }
+}
