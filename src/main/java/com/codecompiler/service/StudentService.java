@@ -1,5 +1,6 @@
 package com.codecompiler.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,11 +29,11 @@ public interface StudentService {
 	public Student deleteByEmail(String emailId);
 		
 	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
-			ArrayList<Boolean> testCasesSuccess, String complilationMessage);
+			ArrayList<Boolean> testCasesSuccess, String complilationMessage,String fileName);
 	
 	public Student finalSubmitContest(String emailId);
 	
 	public List<String> findAll();
 	
-	Map<String, Object> getParticipatorDetail( String studentId);
+	Map<String, Object> getParticipatorDetail( String studentId) throws IOException;
 }

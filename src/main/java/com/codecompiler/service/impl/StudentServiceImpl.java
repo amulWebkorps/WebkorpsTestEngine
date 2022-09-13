@@ -1,5 +1,9 @@
 package com.codecompiler.service.impl;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -118,11 +122,12 @@ public class StudentServiceImpl implements StudentService{
 	}
 
 	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
-			ArrayList<Boolean> testCasesSuccess, String complilationMessage) {
+			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName) {
 		log.info("updateStudentDetails: has started");
 		TestCaseDTO testCaseRecord = new TestCaseDTO();
 		List<TestCaseDTO> testCasesRecord1 = new ArrayList<>(); // need to remove in future
 		testCaseRecord.setQuestionId(questionIds);
+		testCaseRecord.setFileName(fileName);
 		testCaseRecord.setComplilationMessage(complilationMessage);
 		testCaseRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testcasesrecord and save that pass id in get method
 		Student existingRecord = studentRepository.findById(studentId);
@@ -159,13 +164,26 @@ public class StudentServiceImpl implements StudentService{
 	}
 
 	@Override
-	public Map<String, Object> getParticipatorDetail(String studentId) {
+	public Map<String, Object> getParticipatorDetail(String studentId) throws IOException  {
 		log.info("getParticipatorDetail:: has started with studentId: " + studentId);
 		Student student = this.findById(studentId);
+		
 		if(student.getQuestionId()==null) {
 			throw new RecordNotFoundException("Participant did not submit a single Question");
 		}
 		log.info("getParticipatorDetail:: student :"+student.toString());
+		List<TestCaseDTO> testCaseDTO = student.getTestCaseRecord();
+		List<TestCaseDTO> testCaseDTOTemp = new ArrayList<>();
+		for(TestCaseDTO editTestCaseDTO : testCaseDTO) {
+		BufferedReader br = new BufferedReader(new FileReader(new File("src/main/resources/CodeSubmittedByCandidate/" + editTestCaseDTO.getFileName())));
+		String line;
+		String code="";
+		while ((line = br.readLine()) != null)
+			code += line + "\n";
+		editTestCaseDTO.setFileName(code);
+		testCaseDTOTemp.add(editTestCaseDTO);
+		}
+		student.setTestCaseRecord(testCaseDTOTemp);
 		Map<String, Object> mp = new HashedMap<>();
 		List<Question> questionDetail = new ArrayList<>();
 		for (String questionId : student.getQuestionId()) {
@@ -175,6 +193,7 @@ public class StudentServiceImpl implements StudentService{
 			questionTemp.setQuestion(question.getQuestion());
 			questionTemp.setSampleTestCase(question.getSampleTestCase());
 			questionDetail.add(questionTemp);
+			
 			mp.put("studentDetail", student);
 			mp.put("questionSubmitedByStudent", questionDetail);
 		}

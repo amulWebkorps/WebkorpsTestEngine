@@ -62,7 +62,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		String language = (String) data.get("language");
 		String questionId = (String) data.get("questionId");
 		int flag = Integer.parseInt((String) data.get("flag"));
-		String SubmittedCodeFileName = questionId + "_" + studentId;
+		String submittedCodeFileName = questionId + "_" + studentId;
 		String code = (String) data.get("code");
 		String command = null;
 		PrintWriter pr = processCode(code, language);
@@ -117,11 +117,11 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				List<String> questionIds = new ArrayList<>();
 				questionIds.add(questionId);
 				FileWriter flSubmitted = new FileWriter(
-						"src/main/resources/CodeSubmittedByCandidate/" + SubmittedCodeFileName);
+						"src/main/resources/CodeSubmittedByCandidate/" + submittedCodeFileName);
 				PrintWriter prSubmitted = new PrintWriter(flSubmitted);
 				prSubmitted.write((String) data.get("code"));
 				studentService.updateStudentDetails(studentId, (String) data.get("contestId"), questionIds,
-						testCasesSuccess, complilationMessage);
+						testCasesSuccess, complilationMessage,submittedCodeFileName);
 				prSubmitted.flush();
 				prSubmitted.close();
 				responsef.setTestCasesSuccess(testCasesSuccess);

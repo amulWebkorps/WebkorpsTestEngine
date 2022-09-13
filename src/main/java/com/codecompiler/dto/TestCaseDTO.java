@@ -21,6 +21,7 @@ public class TestCaseDTO {
 	private List<String> questionId;
 	private String complilationMessage;
 	private ArrayList<Boolean> testCasesSuccess;
+	private String fileName;
 	public String getConstraints() {
 		return constraints;
 	}
