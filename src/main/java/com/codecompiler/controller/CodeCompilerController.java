@@ -1,5 +1,6 @@
 package com.codecompiler.controller;
 
+
 import java.util.List;
 import java.util.Map;
 
@@ -33,17 +34,17 @@ public class CodeCompilerController {
 
 	@GetMapping("showAllLanguage")
 	public ResponseEntity<Object> showAllLanguage() {
-		log.info("showAllLanguage: started.");
+		//log.info("showAllLanguage: started.");
 		List<Language> language = languageService.findAllLanguage();
-		log.info("showAllLanguage ended total languages ::"+language.size());
+		//log.info("showAllLanguage ended total languages ::"+language.size());
 		return ResponseHandler.generateResponse("success", HttpStatus.OK, language);
 	}
 
 	@PostMapping("runAndCompilerCode")
 	public ResponseEntity<Object> getCompiler(@RequestBody Map<String, Object> data) throws Exception {
-		log.info("getCompiler: started");
+		//log.info("getCompiler: started");
 		CodeResponseDTO response = codeProcessingService.compileCode(data);
-		log.info("getCompiler: ended");
+		//log.info("getCompiler: ended");
 		return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
 	}
 

@@ -129,7 +129,7 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	public List<Question> findByContestLevel(String filterByString) {
-		ArrayList<Question> totalQuestionWithStatusTrue = null;
+		ArrayList<Question> totalQuestionWithStatusTrue = new ArrayList<Question>();
 		List<Question> questions = questionRepository.findByContestLevel(filterByString);
 		for (Question verifyQuestion : questions) {
 			if (verifyQuestion.getQuestionStatus() != null && verifyQuestion.getQuestionStatus().equals("true")) {

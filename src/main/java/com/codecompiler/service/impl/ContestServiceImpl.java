@@ -75,7 +75,7 @@ public class ContestServiceImpl implements ContestService {
 
 	@Override
 	public Map<String, Object> getContestDetail(String contestId) {
-		log.info("getContestDetail: started contestId = "+contestId);
+	//	log.info("getContestDetail: started contestId = "+contestId);
 		Map<String, Object> contestDetail = new HashedMap<String, Object>();
 		ArrayList<String> qListStatusTrue = new ArrayList<>();
 		
