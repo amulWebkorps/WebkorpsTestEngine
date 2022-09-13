@@ -68,13 +68,13 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		PrintWriter pr = processCode(code, language);
 		try {
 			if (language.equalsIgnoreCase("java")) {
-				command = "javac.exe Main.java";
+				command = "javac Main.java";
 			} else if (language.equalsIgnoreCase("python")) {
 				command = "src/main/resources/temp/HelloPython.py";
 			} else if (language.equalsIgnoreCase("cpp")) {
-				command = "g++.exe HelloCPP.cpp -o exeofCPP";
+				command = "g++ HelloCPP.cpp -o exeofCPP";
 			} else if (language.equalsIgnoreCase("c")) {
-				command = "gcc.exe HelloC.c -o exeofc";
+				command = "gcc HelloC.c -o exeofc";
 			}
 			pro = Runtime.getRuntime().exec(command, null, new File("src/main/resources/temp/"));
 
@@ -87,13 +87,13 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				return responsef;
 			}
 			if (language.equalsIgnoreCase("java")) {
-				command = "java.exe Main ";
+				command = "java Main ";
 			} else if (language.equalsIgnoreCase("python")) {
 				command = "py HelloPython.py ";
 			} else if (language.equalsIgnoreCase("cpp")) {
-				command = "src/main/resources/temp/" + "exeofCPP.exe ";
+				command = "src/main/resources/temp/" + "exeofCPP ";
 			} else if (language.equalsIgnoreCase("c")) {
-				command = "src/main/resources/temp/exeofc.exe ";
+				command = "src/main/resources/temp/exeofc ";
 			}
 			List<TestCases> testCases = questionService.getTestCase(questionId);
 
@@ -124,6 +124,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 						testCasesSuccess, complilationMessage);
 				prSubmitted.flush();
 				prSubmitted.close();
+				responsef.setTestCasesSuccess(testCasesSuccess);
 				responsef.setSuccessMessage("Code Submitted Successfully");
 				return responsef;
 			}	

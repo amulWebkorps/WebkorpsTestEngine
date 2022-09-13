@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.dto.MyCellDTO;
+import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
@@ -26,7 +27,10 @@ import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService;
 import com.codecompiler.service.StudentService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class StudentServiceImpl implements StudentService{
 
 	@Autowired
@@ -37,39 +41,50 @@ public class StudentServiceImpl implements StudentService{
 
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
-	
+
 	@Autowired
 	private ExcelConvertorService excelConvertorService;
-	
+
 	public Student findById(String studentId) {
+		log.info("findById:: has started with studentId: " + studentId);
 		Student student = studentRepository.findById(studentId);	
 		if(student==null) {
 			throw new UserNotFoundException("Student with id :: "+studentId+" does not found");
 		}
+		log.info("findById:: ended with Student: "+student.toString());
 		return 	student;
 	}
-	
+
 	public Student findByEmailAndPassword(String email, String password) {
 		return studentRepository.findByEmailAndPassword(email, password);
 
 	}
-	
+
 	public Student findByEmail(String studentEmail) {
 		return studentRepository.findByEmail(studentEmail); 
 	}
-	
-	public List<Student> findByContestId(String contestId){
+
+	public List<StudentDTO> findByContestId(String contestId){
+		log.info("findByContestId:: has started with contestId: " + contestId);
 		List<Student> students = studentRepository.findByContestId(contestId);
 		if(students==null) {
 			throw new RecordNotFoundException("No Student Found in Contest with id ::"+contestId);
 		}
-		return students;
+		List<StudentDTO> studentDetails = new ArrayList<StudentDTO>();
+		for(Student student : students){
+			StudentDTO studentDto = new StudentDTO();
+			studentDto.setId(student.getId());
+			studentDto.setEmail(student.getEmail());
+			studentDetails.add(studentDto);
+		}
+		log.info("findByContestId:: has been ended with studentDetails"+studentDetails.size());
+		return studentDetails;
 	}
-	
+
 	public Student saveStudent(Student studentDetails) {
 		return studentRepository.save(studentDetails);				
 	}
-	
+
 	public List<String> findEmailByStatus(Boolean True) {
 		List<Student> sentMail = studentRepository.findEmailByStatus(True);
 		return 	sentMail.stream().map(Student::getEmail).collect(Collectors.toList());
@@ -77,6 +92,7 @@ public class StudentServiceImpl implements StudentService{
 
 	@Override
 	public List<String> saveFileForBulkParticipator(MultipartFile file) {
+		log.info("saveFileForBulkParticipator:: has started");
 		if (!ExcelConvertorService.checkExcelFormat(file)) {
 			throw new UnSupportedFormatException("Please check excel file format");
 		}
@@ -85,22 +101,25 @@ public class StudentServiceImpl implements StudentService{
 			Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(), file.getOriginalFilename());
 			uploadParticipator = excelConvertorService.convertExcelToListOfStudent(data);
 			studentRepository.saveAll(uploadParticipator);
+			log.info("saveFileForBulkParticipator:: bulk participators saved successfully");
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.info("Exception occurs in saveFileForBulkParticipator: "+e.getMessage());
 		}
 		return uploadParticipator.stream().map(Student::getEmail).collect(Collectors.toList());
 	}
-	
+
 	public Student deleteByEmail(String emailId) {		
+		log.info("deleteByEmail:: started with an email: "+emailId);
 		Student student = studentRepository.findByEmail(emailId);
 		if(student==null) {
 			throw new UserNotFoundException("User with email :: "+emailId+" not found");
 		}
 		return studentRepository.deleteByEmail(emailId);
 	}
-	
+
 	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
 			ArrayList<Boolean> testCasesSuccess, String complilationMessage) {
+		log.info("updateStudentDetails: has started");
 		TestCaseDTO testCaseRecord = new TestCaseDTO();
 		List<TestCaseDTO> testCasesRecord1 = new ArrayList<>(); // need to remove in future
 		testCaseRecord.setQuestionId(questionIds);
@@ -108,6 +127,7 @@ public class StudentServiceImpl implements StudentService{
 		testCaseRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testcasesrecord and save that pass id in get method
 		Student existingRecord = studentRepository.findById(studentId);
 		existingRecord.setContestId(contestId);
+		log.info("updateStudentDetails:: existingRecord: " + existingRecord);
 		if (existingRecord.getQuestionId() != null) {
 			existingRecord.getQuestionId().addAll(questionIds);
 		} else {
@@ -121,7 +141,7 @@ public class StudentServiceImpl implements StudentService{
 		}		
 		return studentRepository.save(existingRecord);
 	}
-	
+
 	public Student finalSubmitContest(String emailId) {
 		Student student = this.studentRepository.findByEmail(emailId);
 		student.setPassword(null); 
@@ -140,23 +160,25 @@ public class StudentServiceImpl implements StudentService{
 
 	@Override
 	public Map<String, Object> getParticipatorDetail(String studentId) {
-			Student student = this.findById(studentId);
-			if(student.getQuestionId()==null) {
-				throw new RecordNotFoundException("Participant did not submit a single Question");
-			}
-			Map<String, Object> mp = new HashedMap<>();
-				List<Question> questionDetail = new ArrayList<>();
-				for (String questionId : student.getQuestionId()) {
-					Question question = questionService.findByQuestionId(questionId);
-					Question questionTemp = new Question();
-					questionTemp.setQuestionId(question.getQuestionId());
-					questionTemp.setQuestion(question.getQuestion());
-					questionTemp.setSampleTestCase(question.getSampleTestCase());
-					questionDetail.add(questionTemp);
-				mp.put("studentDetail", student);
-				mp.put("questionSubmitedByStudent", questionDetail);
-	}
-				return mp;
+		log.info("getParticipatorDetail:: has started with studentId: " + studentId);
+		Student student = this.findById(studentId);
+		if(student.getQuestionId()==null) {
+			throw new RecordNotFoundException("Participant did not submit a single Question");
+		}
+		log.info("getParticipatorDetail:: student :"+student.toString());
+		Map<String, Object> mp = new HashedMap<>();
+		List<Question> questionDetail = new ArrayList<>();
+		for (String questionId : student.getQuestionId()) {
+			Question question = questionService.findByQuestionId(questionId);
+			Question questionTemp = new Question();
+			questionTemp.setQuestionId(question.getQuestionId());
+			questionTemp.setQuestion(question.getQuestion());
+			questionTemp.setSampleTestCase(question.getSampleTestCase());
+			questionDetail.add(questionTemp);
+			mp.put("studentDetail", student);
+			mp.put("questionSubmitedByStudent", questionDetail);
+		}
+		return mp;
 	}
 
 }
