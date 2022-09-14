@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
 	@Autowired
 	private QuestionService questionService;
-	
+
 	private static String compilationCommand(String language) {
 		String command = null;
 		if (language.equalsIgnoreCase("java")) {
@@ -46,7 +45,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		}
 		return command;
 	}
-	
+
 	private static String interpretationCommand(String language) {
 		String command = null;
 		if (language.equalsIgnoreCase("java")) {
@@ -60,7 +59,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		}
 		return command;
 	}
-	
+
 	private void saveCodeTemporary(String code, String language) throws IOException {
 		log.info("saveCodeTemporary: started");
 		FileWriter fl = null;
@@ -87,27 +86,44 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	private static String getMessagesFromProcessInputStream(InputStream inputStream) throws IOException {
 		log.info("getMessagesFromProcessInputStream :: started");
 		String message = "";
-		BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));		
-		String line =null;
+		BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+		String line = null;
 		while ((line = in.readLine()) != null) {
-			message += line  + "\n";
+			message += line + "\n";
 		}
 		log.info("getMessagesFromProcessInputStream :: end");
 		return message;
 	}
-	
 
+	private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO,ArrayList<Boolean> testCasesSuccess,String complilationMessage) throws IOException {
+		log.info("saveSubmittedCode :: started");
+		List<String> questionIds = new ArrayList<>();
+		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
+		questionIds.add(codeDetailsDTO.getQuestionId());
+		String submittedCodeFileName = codeDetailsDTO.getQuestionId() + "_" + codeDetailsDTO.getStudentId();
+		FileWriter flSubmitted = new FileWriter(
+				"src/main/resources/CodeSubmittedByCandidate/" + submittedCodeFileName);
+		PrintWriter prSubmitted = new PrintWriter(flSubmitted);
+		prSubmitted.write(codeDetailsDTO.getCode());
+		studentService.updateStudentDetails(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(), questionIds,
+				testCasesSuccess, complilationMessage, submittedCodeFileName);
+		prSubmitted.flush();
+		prSubmitted.close();
+		codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+		codeResponseDTO.setSuccessMessage("Code Submitted Successfully");
+		log.info("saveSubmittedCode ::ended & Code Submitted Successfully");
+		return codeResponseDTO;
+	}
+	
 	@Override
 	public CodeResponseDTO compileCode(CodeDetailsDTO codeDetailsDTO) throws IOException {
 		log.info("compile code: started");
-		String studentId = codeDetailsDTO.getStudentId();
 		String language = codeDetailsDTO.getLanguage();
 		String questionId = codeDetailsDTO.getQuestionId();
 		int flag = codeDetailsDTO.getFlag();
 		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
 		ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
 		Process pro = null;
-		String submittedCodeFileName = questionId + "_" + studentId;
 		saveCodeTemporary(codeDetailsDTO.getCode(), language);
 		try {
 			String compilationCommand = compilationCommand(language);
@@ -115,6 +131,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 			String complilationMessage = getMessagesFromProcessInputStream(pro.getErrorStream());
 			if (!complilationMessage.isEmpty() && flag == 0) {
 				codeResponseDTO.setComplilationMessage(complilationMessage);
+				log.info("compile code :: compilation error :: " +complilationMessage);
 				return codeResponseDTO;
 			}
 			String interpretationCommand = interpretationCommand(language);
@@ -122,48 +139,37 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 			String exceptionMessage = getMessagesFromProcessInputStream(pro.getErrorStream());
 			if (!exceptionMessage.isEmpty() && flag == 0) {
 				codeResponseDTO.setComplilationMessage(exceptionMessage);
+				log.info("compile code :: exception occured :: " +exceptionMessage);
 				return codeResponseDTO;
 			}
 			List<TestCases> testCases = questionService.getTestCase(questionId);
 			for (TestCases testCase : testCases) {
 				String input = testCase.getInput();
-				pro = Runtime.getRuntime().exec(interpretationCommand + input, null, new File("src/main/resources/temp/"));
+				pro = Runtime.getRuntime().exec(interpretationCommand + input, null,
+						new File("src/main/resources/temp/"));
 				String interpretationMessage = getMessagesFromProcessInputStream(pro.getInputStream());
 				interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
-				if (interpretationMessage.contains(testCase.getOutput()) || interpretationMessage.equals(testCase.getOutput())) {
+				if (interpretationMessage.contains(testCase.getOutput())
+						|| interpretationMessage.equals(testCase.getOutput())) {
 					testCasesSuccess.add(true);
 				} else {
 					testCasesSuccess.add(false);
 				}
-			}			
+			}
 			if (flag == 1) {
-				List<String> questionIds = new ArrayList<>();
-				questionIds.add(questionId);
-				FileWriter flSubmitted = new FileWriter(
-						"src/main/resources/CodeSubmittedByCandidate/" + submittedCodeFileName);
-				PrintWriter prSubmitted = new PrintWriter(flSubmitted);
-				prSubmitted.write(codeDetailsDTO.getCode());
-				studentService.updateStudentDetails(studentId, codeDetailsDTO.getContestId(), questionIds,
-						testCasesSuccess, complilationMessage,submittedCodeFileName);
-				prSubmitted.flush();
-				prSubmitted.close();
-				codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
-				codeResponseDTO.setSuccessMessage("Code Submitted Successfully");
-				log.info("Code Submitted Successfully");
-				return codeResponseDTO;
-			}	
+				return saveSubmittedCode(codeDetailsDTO, testCasesSuccess, complilationMessage);
+			}
 			codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
 		} catch (IOException e) {
 			codeResponseDTO.setComplilationMessage(e.getMessage());
-			log.error("Object is null "+e.getMessage());
+			log.error("Object is null " + e.getMessage());
+		} catch (Exception e) {
+			log.error("Object is null " + e.getMessage());
+			codeResponseDTO.setComplilationMessage("Something wents wrong. Please contact to HR");
 		}
-catch(Exception e) {
-	log.error("Object is null "+e.getMessage());
-	codeResponseDTO.setComplilationMessage("Something wents wrong. Please contact to HR");
-		}
-		
+
 		log.info("compile code: ended");
-		
+
 		return codeResponseDTO;
 	}
 }
