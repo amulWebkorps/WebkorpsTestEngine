@@ -100,15 +100,13 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	@Override
 	public CodeResponseDTO compileCode(CodeDetailsDTO codeDetailsDTO) throws IOException {
 		log.info("compile code: started");
-		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
 		String studentId = codeDetailsDTO.getStudentId();
-		ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
-		Process pro = null;
-		BufferedReader in = null;
-		String line = null;
 		String language = codeDetailsDTO.getLanguage();
 		String questionId = codeDetailsDTO.getQuestionId();
 		int flag = codeDetailsDTO.getFlag();
+		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
+		ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
+		Process pro = null;
 		String submittedCodeFileName = questionId + "_" + studentId;
 		saveCodeTemporary(codeDetailsDTO.getCode(), language);
 		try {
@@ -119,9 +117,14 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				codeResponseDTO.setComplilationMessage(complilationMessage);
 				return codeResponseDTO;
 			}
-			
-			List<TestCases> testCases = questionService.getTestCase(questionId);
 			String interpretationCommand = interpretationCommand(language);
+			pro = Runtime.getRuntime().exec(interpretationCommand, null, new File("src/main/resources/temp/"));
+			String exceptionMessage = getMessagesFromProcessInputStream(pro.getErrorStream());
+			if (!exceptionMessage.isEmpty() && flag == 0) {
+				codeResponseDTO.setComplilationMessage(exceptionMessage);
+				return codeResponseDTO;
+			}
+			List<TestCases> testCases = questionService.getTestCase(questionId);
 			for (TestCases testCase : testCases) {
 				String input = testCase.getInput();
 				pro = Runtime.getRuntime().exec(interpretationCommand + input, null, new File("src/main/resources/temp/"));
@@ -151,8 +154,14 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 			}	
 			codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
 		} catch (IOException e) {
+			codeResponseDTO.setComplilationMessage(e.getMessage());
 			log.error("Object is null "+e.getMessage());
 		}
+catch(Exception e) {
+	log.error("Object is null "+e.getMessage());
+	codeResponseDTO.setComplilationMessage("Something wents wrong. Please contact to HR");
+		}
+		
 		log.info("compile code: ended");
 		
 		return codeResponseDTO;
