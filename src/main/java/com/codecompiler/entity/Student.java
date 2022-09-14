@@ -1,6 +1,7 @@
 package com.codecompiler.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
@@ -18,7 +19,7 @@ public class Student extends User{
 	private String mobileNumber;
 	private String contestLevel;
 	private String contestId;
-	private List<String> questionId;
+	private Set<String> questionId;
 	private List<TestCaseDTO> testCaseRecord;
 	private boolean status;
 	public String getId() {
@@ -51,10 +52,10 @@ public class Student extends User{
 	public void setContestId(String contestId) {
 		this.contestId = contestId;
 	}
-	public List<String> getQuestionId() {
+	public Set<String> getQuestionId() {
 		return questionId;
 	}
-	public void setQuestionId(List<String> questionId) {
+	public void setQuestionId(Set<String> questionId) {
 		this.questionId = questionId;
 	}
 	public List<TestCaseDTO> getTestCaseRecord() {
@@ -71,7 +72,7 @@ public class Student extends User{
 	}
 	public Student() { }
 	public Student(String id, String name, String mobileNumber, String contestLevel, String contestId,
-			List<String> questionId, List<TestCaseDTO> testCaseRecord, boolean status) {
+			Set<String> questionId, List<TestCaseDTO> testCaseRecord, boolean status) {
 		super();
 		this.id = id;
 		this.name = name;

@@ -8,13 +8,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.codecompiler.dto.CodeDetailsDTO;
 import com.codecompiler.dto.CodeResponseDTO;
+import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
 import com.codecompiler.service.QuestionService;
@@ -97,15 +100,22 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
 	private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO,ArrayList<Boolean> testCasesSuccess,String complilationMessage) throws IOException {
 		log.info("saveSubmittedCode :: started");
-		List<String> questionIds = new ArrayList<>();
-		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
-		questionIds.add(codeDetailsDTO.getQuestionId());
+//		List<String> questionIds = new ArrayList<>();
 		String submittedCodeFileName = codeDetailsDTO.getQuestionId() + "_" + codeDetailsDTO.getStudentId();
+		Student student= studentService.findById(codeDetailsDTO.getStudentId());
+		Set<String> studentQuestionIds = student.getQuestionId();
+		System.out.println("student question ids::"+studentQuestionIds);
+		if(studentQuestionIds==null) {
+			studentQuestionIds = new HashSet<>();
+		}
+			studentQuestionIds.add(codeDetailsDTO.getQuestionId());
+		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
+		
 		FileWriter flSubmitted = new FileWriter(
 				"src/main/resources/CodeSubmittedByCandidate/" + submittedCodeFileName);
 		PrintWriter prSubmitted = new PrintWriter(flSubmitted);
 		prSubmitted.write(codeDetailsDTO.getCode());
-		studentService.updateStudentDetails(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(), questionIds,
+		studentService.updateStudentDetails(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(), studentQuestionIds,
 				testCasesSuccess, complilationMessage, submittedCodeFileName);
 		prSubmitted.flush();
 		prSubmitted.close();

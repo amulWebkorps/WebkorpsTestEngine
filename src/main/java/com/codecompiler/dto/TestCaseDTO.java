@@ -2,6 +2,7 @@ package com.codecompiler.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ public class TestCaseDTO {
 	private  String constraints;
 	private  String input;
 	private  String output;
-	private List<String> questionId;
+	private Set<String> questionId;
 	private String complilationMessage;
 	private ArrayList<Boolean> testCasesSuccess;
 	private String fileName;
@@ -40,10 +41,10 @@ public class TestCaseDTO {
 	public void setOutput(String output) {
 		this.output = output;
 	}
-	public List<String> getQuestionId() {
+	public Set<String> getQuestionId() {
 		return questionId;
 	}
-	public void setQuestionId(List<String> questionId) {
+	public void setQuestionId(Set<String> questionId) {
 		this.questionId = questionId;
 	}
 	public String getComplilationMessage() {
