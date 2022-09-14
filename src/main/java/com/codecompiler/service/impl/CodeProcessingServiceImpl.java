@@ -4,24 +4,27 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Stream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.codecompiler.dto.CodeDetailsDTO;
 import com.codecompiler.dto.CodeResponseDTO;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
 import com.codecompiler.service.QuestionService;
 import com.codecompiler.service.StudentService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class CodeProcessingServiceImpl implements CodeProcessingService {
 
 	@Autowired
@@ -29,11 +32,37 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
 	@Autowired
 	private QuestionService questionService;
-
-	public static final Logger logger = LogManager.getLogger(CodeProcessingServiceImpl.class);
 	
-	private PrintWriter processCode(String code, String language) throws IOException {
-		logger.info("process code: started");
+	private static String compilationCommand(String language) {
+		String command = null;
+		if (language.equalsIgnoreCase("java")) {
+			command = "javac Main.java";
+		} else if (language.equalsIgnoreCase("python")) {
+			command = "src/main/resources/temp/HelloPython.py";
+		} else if (language.equalsIgnoreCase("cpp")) {
+			command = "g++ HelloCPP.cpp -o exeofCPP";
+		} else if (language.equalsIgnoreCase("c")) {
+			command = "gcc HelloC.c -o exeofc";
+		}
+		return command;
+	}
+	
+	private static String interpretationCommand(String language) {
+		String command = null;
+		if (language.equalsIgnoreCase("java")) {
+			command = "java Main ";
+		} else if (language.equalsIgnoreCase("python")) {
+			command = "py HelloPython.py ";
+		} else if (language.equalsIgnoreCase("cpp")) {
+			command = "src/main/resources/temp/" + "exeofCPP ";
+		} else if (language.equalsIgnoreCase("c")) {
+			command = "src/main/resources/temp/exeofc ";
+		}
+		return command;
+	}
+	
+	private void saveCodeTemporary(String code, String language) throws IOException {
+		log.info("saveCodeTemporary: started");
 		FileWriter fl = null;
 		if (language.equalsIgnoreCase("java")) {
 			String fileNameInLocal = "Main.java";
@@ -52,68 +81,53 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		pr.write(code);
 		pr.flush();
 		pr.close();
-		logger.info("process code: ended");
-		return pr;
+		log.info("saveCodeTemporary: ended");
 	}
 
+	private static String getMessagesFromProcessInputStream(InputStream inputStream) throws IOException {
+		log.info("getMessagesFromProcessInputStream :: started");
+		String message = "";
+		BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));		
+		String line =null;
+		while ((line = in.readLine()) != null) {
+			message += line  + "\n";
+		}
+		log.info("getMessagesFromProcessInputStream :: end");
+		return message;
+	}
+	
+
 	@Override
-	public CodeResponseDTO compileCode(Map<String, Object> data) throws IOException {
-		CodeResponseDTO responsef = new CodeResponseDTO();
-		logger.info("compile code: started");
-		String studentId = (String) data.get("studentId");
+	public CodeResponseDTO compileCode(CodeDetailsDTO codeDetailsDTO) throws IOException {
+		log.info("compile code: started");
+		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
+		String studentId = codeDetailsDTO.getStudentId();
 		ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
-		String complilationMessage = "";
 		Process pro = null;
 		BufferedReader in = null;
 		String line = null;
-		String language = (String) data.get("language");
-		String questionId = (String) data.get("questionId");
-		int flag = Integer.parseInt((String) data.get("flag"));
+		String language = codeDetailsDTO.getLanguage();
+		String questionId = codeDetailsDTO.getQuestionId();
+		int flag = codeDetailsDTO.getFlag();
 		String submittedCodeFileName = questionId + "_" + studentId;
-		String code = (String) data.get("code");
-		String command = null;
-		PrintWriter pr = processCode(code, language);
+		saveCodeTemporary(codeDetailsDTO.getCode(), language);
 		try {
-			if (language.equalsIgnoreCase("java")) {
-				command = "javac Main.java";
-			} else if (language.equalsIgnoreCase("python")) {
-				command = "src/main/resources/temp/HelloPython.py";
-			} else if (language.equalsIgnoreCase("cpp")) {
-				command = "g++ HelloCPP.cpp -o exeofCPP";
-			} else if (language.equalsIgnoreCase("c")) {
-				command = "gcc HelloC.c -o exeofc";
-			}
-			pro = Runtime.getRuntime().exec(command, null, new File("src/main/resources/temp/"));
-
-			in = new BufferedReader(new InputStreamReader(pro.getErrorStream()));
-			while ((line = in.readLine()) != null) {
-				complilationMessage += line;
-			}
+			String compilationCommand = compilationCommand(language);
+			pro = Runtime.getRuntime().exec(compilationCommand, null, new File("src/main/resources/temp/"));
+			String complilationMessage = getMessagesFromProcessInputStream(pro.getErrorStream());
 			if (!complilationMessage.isEmpty() && flag == 0) {
-				responsef.setComplilationMessage(complilationMessage);
-				return responsef;
+				codeResponseDTO.setComplilationMessage(complilationMessage);
+				return codeResponseDTO;
 			}
-			if (language.equalsIgnoreCase("java")) {
-				command = "java Main ";
-			} else if (language.equalsIgnoreCase("python")) {
-				command = "py HelloPython.py ";
-			} else if (language.equalsIgnoreCase("cpp")) {
-				command = "src/main/resources/temp/" + "exeofCPP ";
-			} else if (language.equalsIgnoreCase("c")) {
-				command = "src/main/resources/temp/exeofc ";
-			}
+			
 			List<TestCases> testCases = questionService.getTestCase(questionId);
-
+			String interpretationCommand = interpretationCommand(language);
 			for (TestCases testCase : testCases) {
 				String input = testCase.getInput();
-				pro = Runtime.getRuntime().exec(command + input, null, new File("src/main/resources/temp/"));
-				in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
-				String output = "";
-				while ((line = in.readLine()) != null) {
-					output += line + "\n";
-				}
-				output = output.substring(0, output.length() - 1);
-				if (output.contains(testCase.getOutput()) || output.equals(testCase.getOutput())) {
+				pro = Runtime.getRuntime().exec(interpretationCommand + input, null, new File("src/main/resources/temp/"));
+				String interpretationMessage = getMessagesFromProcessInputStream(pro.getInputStream());
+				interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
+				if (interpretationMessage.contains(testCase.getOutput()) || interpretationMessage.equals(testCase.getOutput())) {
 					testCasesSuccess.add(true);
 				} else {
 					testCasesSuccess.add(false);
@@ -125,21 +139,22 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				FileWriter flSubmitted = new FileWriter(
 						"src/main/resources/CodeSubmittedByCandidate/" + submittedCodeFileName);
 				PrintWriter prSubmitted = new PrintWriter(flSubmitted);
-				prSubmitted.write((String) data.get("code"));
-				studentService.updateStudentDetails(studentId, (String) data.get("contestId"), questionIds,
+				prSubmitted.write(codeDetailsDTO.getCode());
+				studentService.updateStudentDetails(studentId, codeDetailsDTO.getContestId(), questionIds,
 						testCasesSuccess, complilationMessage,submittedCodeFileName);
 				prSubmitted.flush();
 				prSubmitted.close();
-				responsef.setTestCasesSuccess(testCasesSuccess);
-				responsef.setSuccessMessage("Code Submitted Successfully");
-				logger.info("Code Submitted Successfully");
-				return responsef;
+				codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+				codeResponseDTO.setSuccessMessage("Code Submitted Successfully");
+				log.info("Code Submitted Successfully");
+				return codeResponseDTO;
 			}	
-			responsef.setTestCasesSuccess(testCasesSuccess);
+			codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
 		} catch (IOException e) {
-			logger.error("Object is null "+e.getMessage());
+			log.error("Object is null "+e.getMessage());
 		}
-		logger.info("compile code: ended");
-		return responsef;
+		log.info("compile code: ended");
+		
+		return codeResponseDTO;
 	}
 }

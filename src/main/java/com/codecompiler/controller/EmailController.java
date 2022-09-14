@@ -33,26 +33,26 @@ public class EmailController {
 	
 	@PostMapping("sendMail")
 	public ResponseEntity<Object> sendMail(@RequestBody Map<String, List<String>> sendEmailDetails) {
-		//log.info("addContest: started sendEmailDetails size = "+sendEmailDetails.size());
+		log.info("addContest: started sendEmailDetails size = "+sendEmailDetails.size());
 		try {
 			emailService.sendMailToStudents(sendEmailDetails);
-			//log.info("Mail Send successfully");
+			log.info("Mail Send successfully");
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, "mail send successfully");
 		} catch (Exception e) {
-			//log.error("Exception occured in sendMail :: "+e.getMessage());
+			log.error("Exception occured in sendMail :: "+e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
 		}
 	}
 	
 	@GetMapping("sentMailForParticipator")
 	public ResponseEntity<Object> getAllSentMailsForParticipator() {
-		//log.info("sentMailForParticipator: started");
+		log.info("sentMailForParticipator: started");
 		try {
 			List<String> sentMailStudentList = studentService.findEmailByStatus(true);
-		//	log.info("sentMailForParticipator: Ended setMailStudentList Size :: "+ sentMailStudentList.size());
+			log.info("sentMailForParticipator: Ended setMailStudentList Size :: "+ sentMailStudentList.size());
 			return ResponseHandler.generateResponse("succcess", HttpStatus.OK, sentMailStudentList);
 		} catch (Exception ex) {
-			//log.error("Exception occured in sendMail :: "+ex.getMessage());
+			log.error("Exception occured in sendMail :: "+ex.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
 		}	
 		

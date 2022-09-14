@@ -2,7 +2,6 @@ package com.codecompiler.controller;
 
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.codecompiler.dto.CodeDetailsDTO;
 import com.codecompiler.dto.CodeResponseDTO;
 import com.codecompiler.entity.Language;
 import com.codecompiler.reponse.ResponseHandler;
@@ -34,17 +34,17 @@ public class CodeCompilerController {
 
 	@GetMapping("showAllLanguage")
 	public ResponseEntity<Object> showAllLanguage() {
-		//log.info("showAllLanguage: started.");
+		log.info("showAllLanguage: started.");
 		List<Language> language = languageService.findAllLanguage();
-		//log.info("showAllLanguage ended total languages ::"+language.size());
+		log.info("showAllLanguage ended total languages ::"+language.size());
 		return ResponseHandler.generateResponse("success", HttpStatus.OK, language);
 	}
 
 	@PostMapping("runAndCompilerCode")
-	public ResponseEntity<Object> getCompiler(@RequestBody Map<String, Object> data) throws Exception {
-		//log.info("getCompiler: started");
-		CodeResponseDTO response = codeProcessingService.compileCode(data);
-		//log.info("getCompiler: ended");
+	public ResponseEntity<Object> getCompiler(@RequestBody CodeDetailsDTO codeDetailsDTO ) throws Exception {
+		log.info("getCompiler: started");
+		CodeResponseDTO response = codeProcessingService.compileCode(codeDetailsDTO);
+		log.info("getCompiler: ended");
 		return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
 	}
 

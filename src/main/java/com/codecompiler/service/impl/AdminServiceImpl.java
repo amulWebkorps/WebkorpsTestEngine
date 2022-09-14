@@ -20,7 +20,7 @@ public class AdminServiceImpl implements AdminService{
 	AdminRepository adminRepository;
 
 	public Admin saveAdminDetails(Admin admin) {
-		//log.info("saveAdminDetails started admin email ::"+admin.getEmail());
+		log.info("saveAdminDetails started admin email ::"+admin.getEmail());
 		Admin existingAdmin = findByEmail(admin.getEmail().toLowerCase());
 		if(existingAdmin != null ) {
 			throw new UserAlreadyExistException("Admin with email :: "+admin.getEmail()+" already exist");
