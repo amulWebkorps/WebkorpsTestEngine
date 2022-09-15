@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -121,7 +122,7 @@ public class StudentServiceImpl implements StudentService{
 		return studentRepository.deleteByEmail(emailId);
 	}
 
-	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
+	public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
 			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName) {
 		log.info("updateStudentDetails: has started");
 		TestCaseDTO testCaseRecord = new TestCaseDTO();
@@ -192,10 +193,10 @@ public class StudentServiceImpl implements StudentService{
 			questionTemp.setQuestion(question.getQuestion());
 			questionTemp.setSampleTestCase(question.getSampleTestCase());
 			questionDetail.add(questionTemp);
-			
-			mp.put("studentDetail", student);
-			mp.put("questionSubmitedByStudent", questionDetail);
+
 		}
+		mp.put("studentDetail", student);
+		mp.put("questionSubmitedByStudent", questionDetail);
 		return mp;
 	}
 

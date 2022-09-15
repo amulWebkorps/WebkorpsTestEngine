@@ -37,32 +37,32 @@ public class AdminController {
 
 	@PostMapping("public/admin/signIn")
 	public ResponseEntity<Object> doLogin(@RequestBody Admin admin) {
-		//log.info("doLogin started user email ::"+admin.getEmail());
+		log.info("doLogin started user email ::"+admin.getEmail());
 		Authentication authObj;
 		try {
 			authObj = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(admin.getEmail().toLowerCase(), admin.getPassword()));
 		} catch (BadCredentialsException e) {
-			//log.error("Exception occured in doLogin :: "+e.getMessage());
+			log.error("Exception occured in doLogin :: "+e.getMessage());
 			return ResponseHandler.generateResponse("failer", HttpStatus.UNAUTHORIZED, "email and password does not match");
 		}
 		String token = jwtUtil.generateToken(authObj.getName());
-		//log.info("doLogin ended token generated successfully");
+		log.info("doLogin ended token generated successfully");
 		return ResponseHandler.generateResponse("success", HttpStatus.OK, token);
 	}
 
 	@PostMapping("public/adminRegistration")
 	private ResponseEntity<Object> adminRegistration(@RequestBody Admin admin) {
-		//log.info("adminRegistration started admin email ::"+admin.getEmail());
+		log.info("adminRegistration started admin email ::"+admin.getEmail());
 		try {
 			adminService.saveAdminDetails(admin);
-		//	log.info("Admin details saved successfully");
+			log.info("Admin details saved successfully");
 		} catch (UserAlreadyExistException e) 
 		{
-			//log.error("Exception occured in adminRegistration :: "+e.getMessage());
+			log.error("Exception occured in adminRegistration :: "+e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.CONFLICT, e.getMessage());
 		}
 		catch (Exception e) {
-			//log.error("Exception occured in adminRegistration :: "+e.getMessage());
+			log.error("Exception occured in adminRegistration :: "+e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, "Admin registration failer");
 		}
 		return ResponseHandler.generateResponse("success", HttpStatus.OK, "Admin registered successfully");

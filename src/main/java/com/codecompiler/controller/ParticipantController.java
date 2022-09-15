@@ -65,14 +65,14 @@ public class ParticipantController {
 
 	@GetMapping("admin/getParticipatorDetail")
 	public ResponseEntity<Object> getParticipatorDetail(@RequestParam String studentId) {
-		//log.info("getParticipatorDetail started studentId :: "+studentId);
+		log.info("getParticipatorDetail started studentId :: "+studentId);
 		try {
 			Map<String, Object> participatorDetail = this.studentService.getParticipatorDetail(studentId);
 			log.info("getParticipatorDetail:: participatorDetail : "+participatorDetail.size());
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, participatorDetail);
 		} 
 		catch (Exception e) {
-			//log.error("Exception occured in getParticipatorDetail :: "+e.getMessage());
+			log.error("Exception occured in getParticipatorDetail :: "+e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
@@ -150,7 +150,7 @@ public class ParticipantController {
 			return ResponseHandler.generateResponse("error", HttpStatus.OK, "Student Deleted Successfully");
 		}
 		catch (Exception ex) {
-			//log.error("Exception occured in deleteStudent :: "+ex.getMessage());
+			log.error("Exception occured in deleteStudent :: "+ex.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 		}
 
