@@ -37,7 +37,7 @@ public class AdminController {
 
 	@PostMapping("public/admin/signIn")
 	public ResponseEntity<Object> doLogin(@RequestBody Admin admin) {
-		log.info("doLogin started user email ::"+admin.getEmail());
+		log.info("doLogin started user email :: "+admin.getEmail());
 		Authentication authObj;
 		try {
 			authObj = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(admin.getEmail().toLowerCase(), admin.getPassword()));

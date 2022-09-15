@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -76,20 +78,22 @@ public class QuestionServiceImpl implements QuestionService {
 			throw new RecordNotFoundException("saveFileForBulkQuestion:: Data isn't present in the file");
 		}
 		allTrueQuestions = questionRepository.saveAll(allTrueQuestions);
-		saveContest(contest,allTrueQuestions);
-		return allTrueQuestions;
+		List<String> questionsInContest = saveContest(contest,allTrueQuestions);
+		return questionRepository.findByQuestionIdIn(questionsInContest);
 	}
 
-	public void saveContest(Contest contest,List<Question> allTrueQuestions) {
+	public List<String> saveContest(Contest contest,List<Question> allTrueQuestions) {
 		ArrayList<QuestionStatusDTO> queStatusList = new ArrayList<QuestionStatusDTO>();
 		allTrueQuestions.forEach(latestUploadedQuestions -> {
 			QuestionStatusDTO queStatus = new QuestionStatusDTO();
 			queStatus.setQuestionId(latestUploadedQuestions.getQuestionId());
 			queStatus.setStatus(true);
+			queStatusList.addAll(contest.getQuestionStatus());
 			queStatusList.add(queStatus);
 		});
 		contest.setQuestionStatus(queStatusList);
 		contestRepository.save(contest);
+		return contest.getQuestionStatus().stream().map(QuestionStatusDTO::getQuestionId).collect(Collectors.toList());
 	}
 
 
