@@ -166,8 +166,7 @@ public class StudentServiceImpl implements StudentService{
 	@Override
 	public Map<String, Object> getParticipatorDetail(String studentId) throws IOException  {
 		log.info("getParticipatorDetail:: has started with studentId: " + studentId);
-		Student student = this.findById(studentId);
-		
+		Student student = this.findById(studentId);		
 		if(student.getQuestionId()==null) {
 			throw new RecordNotFoundException("Participant did not submit a single Question");
 		}

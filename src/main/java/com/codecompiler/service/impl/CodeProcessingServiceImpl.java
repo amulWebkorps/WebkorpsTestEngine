@@ -127,7 +127,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				PrintWriter prSubmitted = new PrintWriter(flSubmitted);
 				prSubmitted.write((String) data.get("code"));
 				studentService.updateStudentDetails(studentId, (String) data.get("contestId"), questionIds,
-						testCasesSuccess, complilationMessage,submittedCodeFileName);
+						testCasesSuccess, complilationMessage, submittedCodeFileName);
 				prSubmitted.flush();
 				prSubmitted.close();
 				responsef.setTestCasesSuccess(testCasesSuccess);
