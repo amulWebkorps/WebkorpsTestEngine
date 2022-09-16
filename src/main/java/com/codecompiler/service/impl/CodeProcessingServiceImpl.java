@@ -19,9 +19,11 @@ import org.springframework.stereotype.Service;
 
 import com.codecompiler.dto.CodeDetailsDTO;
 import com.codecompiler.dto.CodeResponseDTO;
+import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
+import com.codecompiler.service.ContestService;
 import com.codecompiler.service.QuestionService;
 import com.codecompiler.service.StudentService;
 
@@ -36,6 +38,9 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
 	@Autowired
 	private QuestionService questionService;
+
+	@Autowired
+	private ContestService contestService;
 
 	private static String compilationCommand(String language) {
 		String command = null;
@@ -100,25 +105,24 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		return message;
 	}
 
-	private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO,ArrayList<Boolean> testCasesSuccess,String complilationMessage) throws IOException {
+	private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO, ArrayList<Boolean> testCasesSuccess,
+			String complilationMessage) throws IOException {
 		log.info("saveSubmittedCode :: started");
-//		List<String> questionIds = new ArrayList<>();
 		String submittedCodeFileName = codeDetailsDTO.getQuestionId() + "_" + codeDetailsDTO.getStudentId();
-		Student student= studentService.findById(codeDetailsDTO.getStudentId());
+		Student student = studentService.findById(codeDetailsDTO.getStudentId());
 		Set<String> studentQuestionIds = student.getQuestionId();
-		System.out.println("student question ids::"+studentQuestionIds);
-		if(studentQuestionIds==null) {
+		log.info("student question ids::" + studentQuestionIds);
+		if (studentQuestionIds == null) {
 			studentQuestionIds = new HashSet<>();
 		}
-			studentQuestionIds.add(codeDetailsDTO.getQuestionId());
+		studentQuestionIds.add(codeDetailsDTO.getQuestionId());
 		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
-		
-		FileWriter flSubmitted = new FileWriter(
-				"src/main/resources/CodeSubmittedByCandidate/" + submittedCodeFileName);
+
+		FileWriter flSubmitted = new FileWriter("src/main/resources/CodeSubmittedByCandidate/" + submittedCodeFileName);
 		PrintWriter prSubmitted = new PrintWriter(flSubmitted);
 		prSubmitted.write(codeDetailsDTO.getCode());
-		studentService.updateStudentDetails(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(), studentQuestionIds,
-				testCasesSuccess, complilationMessage, submittedCodeFileName);
+		studentService.updateStudentDetails(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(),
+				studentQuestionIds, testCasesSuccess, complilationMessage, submittedCodeFileName);
 		prSubmitted.flush();
 		prSubmitted.close();
 		codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
@@ -126,7 +130,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		log.info("saveSubmittedCode ::ended & Code Submitted Successfully");
 		return codeResponseDTO;
 	}
-	
+
 	@Override
 	public CodeResponseDTO compileCode(CodeDetailsDTO codeDetailsDTO) throws IOException {
 		log.info("compile code: started");
@@ -143,7 +147,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 			String complilationMessage = getMessagesFromProcessInputStream(pro.getErrorStream());
 			if (!complilationMessage.isEmpty() && flag == 0) {
 				codeResponseDTO.setComplilationMessage(complilationMessage);
-				log.info("compile code :: compilation error :: " +complilationMessage);
+				log.info("compile code :: compilation error :: " + complilationMessage);
 				return codeResponseDTO;
 			}
 			String interpretationCommand = interpretationCommand(language);
@@ -151,7 +155,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 			String exceptionMessage = getMessagesFromProcessInputStream(pro.getErrorStream());
 			if (!exceptionMessage.isEmpty() && flag == 0) {
 				codeResponseDTO.setComplilationMessage(exceptionMessage);
-				log.info("compile code :: exception occured :: " +exceptionMessage);
+				log.info("compile code :: exception occured :: " + exceptionMessage);
 				return codeResponseDTO;
 			}
 			List<TestCases> testCases = questionService.getTestCase(questionId);
@@ -168,6 +172,13 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 					testCasesSuccess.add(false);
 				}
 			}
+			/*
+			 * Contest contestDetails =
+			 * contestService.findByContestId(codeDetailsDTO.getContestId()); &&
+			 * (codeDetailsDTO.getTimeOut() || contestDetails.getQuestionStatus()
+			 * .get(contestDetails.getQuestionStatus().size() -
+			 * 1).getQuestionId().equals(questionId))
+			 */
 			if (flag == 1) {
 				return saveSubmittedCode(codeDetailsDTO, testCasesSuccess, complilationMessage);
 			}
