@@ -1,5 +1,7 @@
 package com.codecompiler.service.impl;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ public class AdminServiceImpl implements AdminService{
 		admin.sethId(UUID.randomUUID().toString());
 		admin.setEmail(admin.getEmail().toLowerCase());
 		admin.setRole("ROLE_ADMIN");
+		admin.setDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));		
 		return adminRepository.save(admin);				
 	}
 	

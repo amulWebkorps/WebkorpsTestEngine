@@ -1,5 +1,7 @@
 package com.codecompiler.entity;
 
+import java.time.LocalDate;
+
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,6 +13,7 @@ public class Admin extends User{
 	private String hId;
 	private String hName;
 	private String hNumber;
+	private String  date;
 
 	public String gethId() {
 		return hId;
@@ -29,6 +32,12 @@ public class Admin extends User{
 	}
 	public void sethNumber(String hNumber) {
 		this.hNumber = hNumber;
+	}
+	public String getDate() {
+		return date;
+	}
+	public void setDate(String date) {
+		this.date = date;
 	}
 
 
