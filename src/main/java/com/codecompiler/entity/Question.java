@@ -21,6 +21,7 @@ public class Question {
 	private String questionStatus;
 	private List<TestCaseDTO> sampleTestCase;
 	private List<TestCases> testcases;
+	private String createdDate;
 
 	public Question() {
 		super();
@@ -74,12 +75,19 @@ public class Question {
 	public void setTestcases(List<TestCases> testcases) {
 		this.testcases = testcases;
 	}
+	
+	public String getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(String createdDate) {
+		this.createdDate = createdDate;
+	}
 
 	@Override
 	public String toString() {
 		return "Question [questionId=" + questionId + ", question=" + question + ", contestLevel=" + contestLevel
 				+ ", questionStatus=" + questionStatus + ", sampleTestCase=" + sampleTestCase + ", testcases="
-				+ testcases + "]";
+				+ testcases + ", createdDate=" + createdDate + "]";
 	}
-		
 }

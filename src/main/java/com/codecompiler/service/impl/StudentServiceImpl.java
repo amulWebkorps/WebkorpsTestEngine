@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -133,6 +135,7 @@ public class StudentServiceImpl implements StudentService{
 		testCaseRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testcasesrecord and save that pass id in get method
 		Student existingRecord = studentRepository.findById(studentId);
 		existingRecord.setContestId(contestId);
+		existingRecord.setParticipateDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
 		log.info("updateStudentDetails:: existingRecord: " + existingRecord);
 		if (existingRecord.getQuestionId() != null) {
 			existingRecord.getQuestionId().addAll(questionIds);

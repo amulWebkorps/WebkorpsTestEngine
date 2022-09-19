@@ -21,6 +21,7 @@ public class Contest {
 	private  String contestLevel;
 	private ArrayList<QuestionStatusDTO> questionStatus = new ArrayList<>();
 	private String contestTime;
+	private String date;
 	
 	public Contest() {
 		super();		
@@ -61,12 +62,20 @@ public class Contest {
 	public void setContestTime(String contestTime) {
 		this.contestTime = contestTime;
 	}
+	
+	public String getDate() {
+		return date;
+	}
+	public void setDate(String date) {
+		this.date = date;
+	}
 	@Override
 	public String toString() {
 		return "Contest [contestId=" + contestId + ", contestName=" + contestName + ", contestDescription="
 				+ contestDescription + ", contestLevel=" + contestLevel + ", questionStatus=" + questionStatus
-				+ ", contestTime=" + contestTime + "]";
+				+ ", contestTime=" + contestTime + ", date=" + date + "]";
 	}
+	
 	
 	
 }

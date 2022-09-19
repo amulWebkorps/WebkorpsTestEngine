@@ -1,6 +1,8 @@
 package com.codecompiler.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +53,7 @@ public class QuestionController {
 	public ResponseEntity<Object> saveQuestion(@RequestBody Question question){
 		logger.info("saveQuestion:: started with question: " + question);
 		try {
+			question.setCreatedDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
 			Question savedQuestion = questionService.saveQuestion(question);
 			logger.info("saveQuestion:: Question saved successfully");
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, savedQuestion);

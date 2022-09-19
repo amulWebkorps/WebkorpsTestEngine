@@ -15,4 +15,5 @@ public class ContestDTO {
 	private  String contestLevel;
 	private ArrayList<QuestionStatusDTO> questionStatus = new ArrayList<>();
 	private String contestTime;
+	private String date;
 }

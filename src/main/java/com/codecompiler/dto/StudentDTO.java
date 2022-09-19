@@ -21,4 +21,5 @@ public class StudentDTO extends User{
 	private List<String> questionId;
 	private List<TestCaseDTO> testCaseRecord;
 	private boolean status;
+	private String participateDate;	
 }

@@ -1,5 +1,7 @@
 package com.codecompiler.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +60,7 @@ public class ContestController {
 	public ResponseEntity<Object> addContest(@RequestBody Contest contest) {
 		log.info("addContest: started contestName = "+contest.getContestName());
 		try {
+			contest.setDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
 			contest = contestService.saveContest(contest);
 			log.info("Contest added successfully");
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, contest);

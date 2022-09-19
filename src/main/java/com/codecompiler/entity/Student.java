@@ -22,6 +22,7 @@ public class Student extends User{
 	private Set<String> questionId;
 	private List<TestCaseDTO> testCaseRecord;
 	private boolean status;
+	private String participateDate;
 	public String getId() {
 		return id;
 	}
@@ -70,9 +71,18 @@ public class Student extends User{
 	public void setStatus(boolean status) {
 		this.status = status;
 	}
-	public Student() { }
+	public String getParticipateDate() {
+		return participateDate;
+	}
+	public Student() {
+		super();		
+	}
+	public void setParticipateDate(String participateDate) {
+		this.participateDate = participateDate;
+	}
+	
 	public Student(String id, String name, String mobileNumber, String contestLevel, String contestId,
-			Set<String> questionId, List<TestCaseDTO> testCaseRecord, boolean status) {
+			Set<String> questionId, List<TestCaseDTO> testCaseRecord, boolean status, String participateDate) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -82,12 +92,12 @@ public class Student extends User{
 		this.questionId = questionId;
 		this.testCaseRecord = testCaseRecord;
 		this.status = status;
+		this.participateDate = participateDate;
 	}
 	@Override
 	public String toString() {
 		return "Student [id=" + id + ", name=" + name + ", mobileNumber=" + mobileNumber + ", contestLevel="
 				+ contestLevel + ", contestId=" + contestId + ", questionId=" + questionId + ", testCaseRecord="
-				+ testCaseRecord + ", status=" + status + "]";
-	}
-	
+				+ testCaseRecord + ", status=" + status + ", participateDate=" + participateDate + "]";
+	}		
 }

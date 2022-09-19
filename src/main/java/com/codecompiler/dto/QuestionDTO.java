@@ -17,4 +17,5 @@ public class QuestionDTO {
 	private String questionStatus;
 	private List<TestCaseDTO> sampleTestCase;
 	private List<TestCases> testcases;
+	private String createdDate;
 }
