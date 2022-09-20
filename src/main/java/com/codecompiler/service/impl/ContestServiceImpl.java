@@ -8,6 +8,7 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.codecompiler.dto.QuestionStatusDTO;
@@ -113,6 +114,7 @@ public class ContestServiceImpl implements ContestService {
 	}
 
 	@Override
+	@Cacheable(value = "contest", key = "#selectlanguage")
 	public Map<String, Object> contestPage(String contestId, String studentId, String selectlanguage) {
 		Language language = languageService.findByLanguage(selectlanguage);
 		Contest contestTime = this.findByContestId(contestId);

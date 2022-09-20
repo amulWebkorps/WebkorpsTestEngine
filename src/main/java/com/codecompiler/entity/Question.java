@@ -1,5 +1,6 @@
 package com.codecompiler.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -12,7 +13,7 @@ import com.codecompiler.dto.TestCaseDTO;
 
 @Document(collection="QuestionAndTestCases")
 @EntityScan
-public class Question {
+public class Question implements Serializable{
 
 	@org.springframework.data.annotation.Id
 	private String questionId;	
