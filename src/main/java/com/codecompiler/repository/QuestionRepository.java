@@ -22,6 +22,6 @@ public interface QuestionRepository extends MongoRepository<Question,Integer>{
    
    public List<Question> findByQuestionStatus(Boolean True);
    
-   public List<Question> findByContestLevelAndQuestionStatus(String contestLevel, Boolean True);
+   public List<Question> findByContestLevelAndQuestionStatus(String contestLevel, String True);
 }
 

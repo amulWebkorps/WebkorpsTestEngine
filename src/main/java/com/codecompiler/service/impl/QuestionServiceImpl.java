@@ -78,7 +78,7 @@ public class QuestionServiceImpl implements QuestionService {
 			List<String> questionsInContest = saveContest(contest,allTrueQuestions);
 			return 	questionRepository.findByQuestionIdIn(questionsInContest);
 		} else {
-			return questionRepository.findByContestLevelAndQuestionStatus(contestLevel, true);
+			return questionRepository.findByContestLevelAndQuestionStatus(contestLevel, "true");
 		}
 	}
 
