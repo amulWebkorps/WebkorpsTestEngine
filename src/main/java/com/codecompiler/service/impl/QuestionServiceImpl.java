@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -62,24 +61,25 @@ public class QuestionServiceImpl implements QuestionService {
 		return totalQuestionWithStatusTrue;
 	}
 
-	public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId) throws IOException{
+	public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId, String contestLevel) throws IOException{
 		if (!ExcelConvertorService.checkExcelFormat(file)) {
 			throw new UnSupportedFormatException("saveFileForBulkQuestion::Given file format is not supported");
 		}
 		Contest contest = contestRepository.findByContestId(contestId);
-		if (contest == null) {
-			throw new RecordNotFoundException("saveFileForBulkQuestion:: Content does not found for contestId: " + contestId);
-		} 
 		List<Question> allTrueQuestions = null;
 		Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
 				file.getOriginalFilename());
 		allTrueQuestions = excelConvertorService.convertExcelToListOfQuestions(data);
 		if(allTrueQuestions.isEmpty() || allTrueQuestions == null) {
 			throw new RecordNotFoundException("saveFileForBulkQuestion:: Data isn't present in the file");
-		}
+		} 
 		allTrueQuestions = questionRepository.saveAll(allTrueQuestions);
-		List<String> questionsInContest = saveContest(contest,allTrueQuestions);
-		return questionRepository.findByQuestionIdIn(questionsInContest);
+		if (contest != null) {
+			List<String> questionsInContest = saveContest(contest,allTrueQuestions);
+			return 	questionRepository.findByQuestionIdIn(questionsInContest);
+		} else {
+			return questionRepository.findByContestLevelAndQuestionStatus(contestLevel, true);
+		}
 	}
 
 	public List<String> saveContest(Contest contest,List<Question> allTrueQuestions) {

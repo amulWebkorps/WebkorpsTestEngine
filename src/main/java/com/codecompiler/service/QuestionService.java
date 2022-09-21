@@ -16,7 +16,7 @@ public interface QuestionService {
 	 
 	 public Question saveQuestion(Question question);
 	 
-	 public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId) throws IOException;
+	 public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId, String contestLevel) throws IOException;
 	 
 	 public Question findByQuestionId(String questionId);
 	 
