@@ -37,7 +37,9 @@ public class ContestServiceImpl implements ContestService {
 	
 	public static final Logger logger = LogManager.getLogger(ContestServiceImpl.class);
 	
-	public Contest saveContest(Contest contest) {
+	public Contest saveContest(Contest contest){
+//		if(!contest.getContestName().isBlank())
+//		 throw new NullPointerException();
 		return contestRepository.save(contest);				
 	}
 	
@@ -54,10 +56,21 @@ public class ContestServiceImpl implements ContestService {
 	
 	@Override
 	public Contest findByContestId(String contestId) {
-		return contestRepository.findByContestId(contestId);			
+		if(contestId == null) 
+			throw new NullPointerException();
+		else if (contestId.isBlank()) 
+			throw new IllegalArgumentException();			
+		Contest contest = contestRepository.findByContestId(contestId);
+		if(contest == null)
+			throw new RecordNotFoundException("Contest not exist");
+		return contest;			
 	}
 
 	public void deleteContest(String contestId) {
+		if(contestId == null) 
+			throw new NullPointerException();
+		else if (contestId.isBlank()) 
+			throw new IllegalArgumentException();
 		contestRepository.deleteById(contestId);		
 	}
 
@@ -72,10 +85,14 @@ public class ContestServiceImpl implements ContestService {
 			contestRecord.setContestName(eachContestRecord.getContestName());
 			contestRecord.setContestLevel(eachContestRecord.getContestLevel());
 			contestRecord.setContestDescription(eachContestRecord.getContestDescription());
+			contestRecord.setDate(eachContestRecord.getDate());
 			contestRecord.setContestTime(eachContestRecord.getContestTime());
 			contestIdAndName.add(contestRecord);
 		});	
 		logger.info("getAllContest: ended");
+		if(contestIdAndName.isEmpty()) {
+			 throw new RecordNotFoundException("Records unavailable");
+		}
 		return contestIdAndName;
 	}
 
