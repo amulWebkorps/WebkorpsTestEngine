@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -74,6 +75,10 @@ public class QuestionServiceImpl implements QuestionService {
 		if(allTrueQuestions.isEmpty() || allTrueQuestions == null) {
 			throw new RecordNotFoundException("saveFileForBulkQuestion:: Data isn't present in the file");
 		} 
+		List<Question> allQuestions = questionRepository.findAll();
+		List<Question> commonQuestions = allTrueQuestions.stream().filter(trueQuestion -> allQuestions.stream().anyMatch(question -> question.getQuestion().equalsIgnoreCase(trueQuestion.getQuestion()))).collect(Collectors.toList());
+		for (Question commonQuestion : commonQuestions) 
+			allTrueQuestions.removeIf(x -> x.getQuestion().equalsIgnoreCase(commonQuestion.getQuestion()));
 		allTrueQuestions = questionRepository.saveAll(allTrueQuestions);
 		if (contest != null) {
 			List<String> questionsInContest = saveContest(contest,allTrueQuestions);
