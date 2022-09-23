@@ -78,8 +78,8 @@ public class ContestController {
 			log.info("getContestDetail: ended contestDetails size ::"+contestDetail.size());
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, contestDetail);
 		} catch (Exception ex) {
-			log.error("Exception occured in getContestDetail :: "+ex.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.OK, ex.getMessage());
+			log.error("Exception occured in getContestDetail :: "+ex.getMessage());			
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 		}
 		
 	}
@@ -94,7 +94,7 @@ public class ContestController {
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, contestService.contestPage(contestId, studentId, selectlanguage));
 		}catch (Exception e) {
 			log.error("Exception occured in contestPage :: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.OK, e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 		
 	}

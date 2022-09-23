@@ -20,6 +20,7 @@ import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.exception.RecordNotFoundException;
+import com.codecompiler.exception.SavedQuestionStatusFalseException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.helper.ExcelPOIHelper;
 import com.codecompiler.repository.ContestRepository;
@@ -111,7 +112,7 @@ public class QuestionServiceImpl implements QuestionService {
 		Question savedQuestion = new Question();
 		if (stringOfCidAndCl.length == 1) {
 			question.setContestLevel(stringOfCidAndCl[0]);
-			savedQuestion = questionRepository.save(question);
+			savedQuestion = questionRepository.save(question);		
 		} else {
 			Contest contest = new Contest(); // id, level
 			contest = contestService.findByContestId(stringOfCidAndCl[1]);
@@ -123,13 +124,23 @@ public class QuestionServiceImpl implements QuestionService {
 			contest.getQuestionStatus().add(questionStatus);
 			contestService.saveContest(contest);
 		}
+//		if(savedQuestion.getQuestionStatus().equals("false")) {
+//			throw new SavedQuestionStatusFalseException("saveQuestions:: recently saved question status expected true but it is false: "+ savedQuestion.getQuestionId());
+//		}
 		return savedQuestion;
 	}
 
 
 
 	public Question findByQuestionId(String questionId) {
-		return questionRepository.findByQuestionId(questionId);
+		if(questionId == null) 
+			throw new NullPointerException();
+		else if (questionId.isBlank()) 
+			throw new IllegalArgumentException();	
+		Question question = questionRepository.findByQuestionId(questionId);
+		if(question == null)
+			 throw new RecordNotFoundException(questionId +" not exist");
+		return question;
 	}
 
 	public List<Question> findByContestLevel(String filterByString) {
@@ -232,5 +243,9 @@ public class QuestionServiceImpl implements QuestionService {
 		else
 			totalQuestionByFilter = findAllQuestion();
 		return totalQuestionByFilter;
+	}
+	
+	public void  deleteQuestionTestCase(Question question) {
+		questionRepository.delete(question);		 
 	}
 }

@@ -30,4 +30,5 @@ public interface QuestionService {
 
 	public List<Question> filterQuestion(String filterByString);
 	 
+	public void deleteQuestionTestCase(Question question);
 }
