@@ -1,6 +1,8 @@
 package com.codecompiler.dto;
 
-public class QuestionStatusDTO {
+import java.io.Serializable;
+
+public class QuestionStatusDTO implements Serializable {
 
 	private String questionId;
 	private boolean status;

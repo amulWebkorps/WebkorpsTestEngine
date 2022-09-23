@@ -1,5 +1,6 @@
 package com.codecompiler.entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.annotation.Generated;
@@ -12,7 +13,7 @@ import com.codecompiler.dto.QuestionStatusDTO;
 
 @Document(collection="ContestName")
 @EntityScan
-public class Contest {
+public class Contest implements Serializable {
 	@Id
 	@Generated(value = "uuid")	
 	private String contestId;

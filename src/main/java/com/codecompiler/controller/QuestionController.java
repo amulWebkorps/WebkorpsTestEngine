@@ -36,10 +36,10 @@ public class QuestionController {
 
 	@PostMapping(value = "/admin/questionUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> questionUpload(@RequestParam("file") MultipartFile file,
-			@RequestParam("contestId") String contestId) {
+			@RequestParam("contestId") String contestId, @RequestParam("contestLevel") String contestLevel) {
 		logger.info("questionUpload :: started with contestId: " + contestId);
 		try {
-			List<Question> allQuestions = questionService.saveFileForBulkQuestion(file, contestId);
+			List<Question> allQuestions = questionService.saveFileForBulkQuestion(file, contestId, contestLevel);
 			logger.info("questionUpload:: Bulk Question saved successfully");
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, allQuestions);
 		} catch (Exception e) {

@@ -1,9 +1,11 @@
 package com.codecompiler.entity;
 
+import java.io.Serializable;
+
 import org.springframework.data.annotation.Id;
 
 
-public class TestCases {
+public class TestCases implements Serializable{
 
 	@Id 
 	private int id;

@@ -1,7 +1,7 @@
 package com.codecompiler.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import lombok.Getter;
@@ -13,7 +13,7 @@ import lombok.ToString;
 @Getter
 @NoArgsConstructor
 @ToString
-public class TestCaseDTO {
+public class TestCaseDTO implements Serializable {
 
 	
 	private  String constraints;
