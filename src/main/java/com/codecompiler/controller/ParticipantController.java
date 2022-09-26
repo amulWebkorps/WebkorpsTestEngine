@@ -127,20 +127,6 @@ public class ParticipantController {
 
 	}
 
-	// This API should not be called
-	// This has to be handle my backend
-	@PutMapping("admin/finalSubmitContest")
-	public  ResponseEntity<Object> submitContest(@RequestParam String emailId) {
-		log.info("submitContest:: has started");
-		try {
-			this.studentService.finalSubmitContest(emailId);
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, "Test submitted successfully");
-		} catch (Exception e) {
-			log.info("Exception occured in submitContest: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-		}
-	}
-
 	@DeleteMapping("admin/deleteStudent")
 	private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {
 		log.info("deleteStudent:: has started with an email id: " + emailId);
