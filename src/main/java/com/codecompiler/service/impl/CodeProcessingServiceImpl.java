@@ -111,12 +111,12 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		log.info("saveSubmittedCode :: started");
 		String submittedCodeFileName = codeDetailsDTO.getQuestionsAndCode().get(index).getQuestionId() + "_"
 				+ codeDetailsDTO.getStudentId();
-		Student student = studentService.findById(codeDetailsDTO.getStudentId());
-		Set<String> studentQuestionIds = student.getQuestionId();
-		log.info("student question ids::" + studentQuestionIds);
-		if (studentQuestionIds == null) {
-			studentQuestionIds = new HashSet<>();
-		}
+		//Student student = studentService.findById(codeDetailsDTO.getStudentId());
+		Set<String> studentQuestionIds = new HashSet<>();
+		/*
+		 * log.info("student question ids::" + studentQuestionIds); if
+		 * (studentQuestionIds == null) { studentQuestionIds = new HashSet<>(); }
+		 */
 		studentQuestionIds.add(codeDetailsDTO.getQuestionsAndCode().get(index).getQuestionId());
 		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
 
@@ -139,11 +139,11 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		List<QuestionAndCodeDTO> questionIds = codeDetailsDTO.getQuestionsAndCode();
 		int flag = codeDetailsDTO.getFlag();
 		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
-		ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
 		Process pro = null;
 		for (int i = 0; i < questionIds.size(); i++) {
 			saveCodeTemporary(questionIds.get(i).getCode(), language);
 			try {
+				ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
 				String compilationCommand = compilationCommand(language);
 				pro = Runtime.getRuntime().exec(compilationCommand, null, new File("src/main/resources/temp/"));
 				String complilationMessage = getMessagesFromProcessInputStream(pro.getErrorStream());

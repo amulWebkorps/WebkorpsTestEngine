@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -29,6 +30,7 @@ import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.exception.UserNotFoundException;
 import com.codecompiler.helper.ExcelPOIHelper;
+import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService;
@@ -143,10 +145,11 @@ public class StudentServiceImpl implements StudentService{
 			existingRecord.setQuestionId(questionIds);
 		}
 		if (existingRecord.getTestCaseRecord() != null) {
+			existingRecord.getTestCaseRecord().removeIf(x -> x.getQuestionId().equals(questionIds));
 			existingRecord.getTestCaseRecord().add(testCaseRecord);
 		} else {
-			existingRecord.setTestCaseRecord(testCasesRecord1); // need to remove in future
-			existingRecord.getTestCaseRecord().add(testCaseRecord);
+			testCasesRecord1.add(testCaseRecord);
+			existingRecord.setTestCaseRecord(testCasesRecord1);
 		}		
 		return studentRepository.save(existingRecord);
 	}
