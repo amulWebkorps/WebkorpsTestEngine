@@ -93,16 +93,13 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	public List<String> saveContest(Contest contest, List<Question> allTrueQuestions) {
-		ArrayList<QuestionStatusDTO> queStatusList = new ArrayList<QuestionStatusDTO>();
 		if (!allTrueQuestions.isEmpty()) {
 			allTrueQuestions.forEach(latestUploadedQuestions -> {
 				QuestionStatusDTO queStatus = new QuestionStatusDTO();
 				queStatus.setQuestionId(latestUploadedQuestions.getQuestionId());
 				queStatus.setStatus(true);
-				queStatusList.addAll(contest.getQuestionStatus());
-				queStatusList.add(queStatus);
+				contest.getQuestionStatus().add(queStatus);
 			});
-			contest.setQuestionStatus(queStatusList);
 			contestRepository.save(contest);
 		}
 		return contest.getQuestionStatus().stream().map(QuestionStatusDTO::getQuestionId).collect(Collectors.toList());

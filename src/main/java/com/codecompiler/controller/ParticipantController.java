@@ -49,8 +49,8 @@ public class ParticipantController {
 	public ResponseEntity<Object> doSignIn(@RequestBody Student student ,@RequestParam("contestId") String contestId) {
 		log.info("doSignIn:: Started : "+contestId);
 		try {
-			Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getEmail(), student.getPassword()));
-			Student studentExists  = this.studentService.findByEmailAndPassword(student.getEmail(), student.getPassword());
+			Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getEmail().toLowerCase(), student.getPassword()));
+			Student studentExists  = this.studentService.findByEmailAndPassword(student.getEmail().toLowerCase(), student.getPassword());
 			JwtResponseDTO jwtResponseDTO = new JwtResponseDTO();
 			studentExists.setContestId(contestId);
 			jwtResponseDTO.setToken(this.jwtUtil.generateToken(authObj.getName()));
