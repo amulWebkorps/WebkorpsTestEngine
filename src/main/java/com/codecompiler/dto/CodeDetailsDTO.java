@@ -12,4 +12,5 @@ public class CodeDetailsDTO {
 	private int flag;
 	private String contestId;
 	private List<QuestionAndCodeDTO> questionsAndCode;
+	private Boolean timeOut;
 }

@@ -12,19 +12,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.codecompiler.dto.CodeDetailsDTO;
 import com.codecompiler.dto.CodeResponseDTO;
 import com.codecompiler.dto.QuestionAndCodeDTO;
-import com.codecompiler.entity.Contest;
-import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
-import com.codecompiler.service.ContestService;
 import com.codecompiler.service.QuestionService;
 import com.codecompiler.service.StudentService;
 
@@ -39,9 +34,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
 	@Autowired
 	private QuestionService questionService;
-
-	@Autowired
-	private ContestService contestService;
 
 	private static String compilationCommand(String language) {
 		String command = null;
@@ -107,16 +99,11 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	}
 
 	private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO, int index,ArrayList<Boolean> testCasesSuccess,
-			String complilationMessage) throws IOException {
+			String complilationMessage, Boolean timeOut, int testCasesSize) throws IOException {
 		log.info("saveSubmittedCode :: started");
 		String submittedCodeFileName = codeDetailsDTO.getQuestionsAndCode().get(index).getQuestionId() + "_"
 				+ codeDetailsDTO.getStudentId();
-		//Student student = studentService.findById(codeDetailsDTO.getStudentId());
 		Set<String> studentQuestionIds = new HashSet<>();
-		/*
-		 * log.info("student question ids::" + studentQuestionIds); if
-		 * (studentQuestionIds == null) { studentQuestionIds = new HashSet<>(); }
-		 */
 		studentQuestionIds.add(codeDetailsDTO.getQuestionsAndCode().get(index).getQuestionId());
 		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
 
@@ -124,7 +111,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		PrintWriter prSubmitted = new PrintWriter(flSubmitted);
 		prSubmitted.write(codeDetailsDTO.getQuestionsAndCode().get(index).getCode());
 		studentService.updateStudentDetails(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(),
-				studentQuestionIds, testCasesSuccess, complilationMessage, submittedCodeFileName);
+				studentQuestionIds, testCasesSuccess, complilationMessage, submittedCodeFileName, timeOut, testCasesSize);
 		prSubmitted.flush();
 		prSubmitted.close();
 		codeResponseDTO.setSuccessMessage("Code Submitted Successfully");
@@ -175,7 +162,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 					}
 				}
 				if (flag == 1) {
-					codeResponseDTO = saveSubmittedCode(codeDetailsDTO, i, testCasesSuccess, complilationMessage);
+					codeResponseDTO = saveSubmittedCode(codeDetailsDTO, i, testCasesSuccess, complilationMessage, codeDetailsDTO.getTimeOut(), testCases.size());
 				}
 				codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
 			} catch (IOException e) {

@@ -23,7 +23,7 @@ public class Student extends User{
 	private List<TestCaseDTO> testCaseRecord;
 	private boolean status;
 	private String participateDate;
-	private String percentage;
+	private double percentage;
 	
 	public String getId() {
 		return id;
@@ -82,11 +82,11 @@ public class Student extends User{
 	public void setParticipateDate(String participateDate) {
 		this.participateDate = participateDate;
 	}
-	public String getPercentage() {
+	public double getPercentage() {
 		return percentage;
 	}
-	public void setPercentage(String percentage) {
-		this.percentage = percentage;
+	public void setPercentage(double percentage2) {
+		this.percentage = percentage2;
 	}
 	public Student(String id, String name, String mobileNumber, String contestLevel, String contestId,
 			Set<String> questionId, List<TestCaseDTO> testCaseRecord, boolean status, String participateDate) {

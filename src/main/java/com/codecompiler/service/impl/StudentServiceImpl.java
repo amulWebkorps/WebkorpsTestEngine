@@ -2,7 +2,6 @@ package com.codecompiler.service.impl;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -11,7 +10,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -30,7 +28,6 @@ import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.exception.UserNotFoundException;
 import com.codecompiler.helper.ExcelPOIHelper;
-import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService;
@@ -127,7 +124,7 @@ public class StudentServiceImpl implements StudentService{
 	}
 
 	public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
-			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName) {
+			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName, Boolean timeOut, int testCasesSize) {
 		log.info("updateStudentDetails: has started");
 		TestCaseDTO testCaseRecord = new TestCaseDTO();
 		List<TestCaseDTO> testCasesRecord1 = new ArrayList<>(); // need to remove in future
@@ -138,6 +135,7 @@ public class StudentServiceImpl implements StudentService{
 		Student existingRecord = studentRepository.findById(studentId);
 		existingRecord.setContestId(contestId);
 		existingRecord.setParticipateDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+		double percentage = ((100 * testCasesSuccess.size()) / testCasesSize);
 		log.info("updateStudentDetails:: existingRecord: " + existingRecord);
 		if (existingRecord.getQuestionId() != null) {
 			existingRecord.getQuestionId().addAll(questionIds);
@@ -150,7 +148,11 @@ public class StudentServiceImpl implements StudentService{
 		} else {
 			testCasesRecord1.add(testCaseRecord);
 			existingRecord.setTestCaseRecord(testCasesRecord1);
-		}		
+		}
+		if (timeOut) {
+			existingRecord.setPassword("");
+			existingRecord.setPercentage(percentage);
+		}
 		return studentRepository.save(existingRecord);
 	}
 

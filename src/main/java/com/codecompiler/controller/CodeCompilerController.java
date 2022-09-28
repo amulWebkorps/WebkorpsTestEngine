@@ -9,9 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.codecompiler.dto.CodeDetailsDTO;
 import com.codecompiler.dto.CodeResponseDTO;
@@ -19,7 +17,6 @@ import com.codecompiler.entity.Language;
 import com.codecompiler.reponse.ResponseHandler;
 import com.codecompiler.service.CodeProcessingService;
 import com.codecompiler.service.LanguageService;
-import com.codecompiler.service.StudentService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,9 +30,6 @@ public class CodeCompilerController {
 
 	@Autowired
 	private LanguageService languageService;
-	
-	@Autowired
-	private StudentService studentService;
 
 	@GetMapping("showAllLanguage")
 	public ResponseEntity<Object> showAllLanguage() {
