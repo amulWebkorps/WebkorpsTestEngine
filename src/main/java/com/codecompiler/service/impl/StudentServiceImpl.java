@@ -162,7 +162,7 @@ public class StudentServiceImpl implements StudentService{
 	}
 
 	public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
-			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName) {
+			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName, Boolean timeOut, int testCasesSize) {
 		log.info("updateStudentDetails: has started");
 		TestCaseDTO testCaseRecord = new TestCaseDTO();
 		List<TestCaseDTO> testCasesRecord1 = new ArrayList<>(); // need to remove in future
@@ -173,6 +173,7 @@ public class StudentServiceImpl implements StudentService{
 		Student existingRecord = studentRepository.findById(studentId);
 		existingRecord.setContestId(contestId);
 		existingRecord.setParticipateDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+		double percentage = ((100 * testCasesSuccess.size()) / testCasesSize);
 		log.info("updateStudentDetails:: existingRecord: " + existingRecord);
 		if (existingRecord.getQuestionId() != null) {
 			existingRecord.getQuestionId().addAll(questionIds);
@@ -180,11 +181,16 @@ public class StudentServiceImpl implements StudentService{
 			existingRecord.setQuestionId(questionIds);
 		}
 		if (existingRecord.getTestCaseRecord() != null) {
+			existingRecord.getTestCaseRecord().removeIf(x -> x.getQuestionId().equals(questionIds));
 			existingRecord.getTestCaseRecord().add(testCaseRecord);
 		} else {
-			existingRecord.setTestCaseRecord(testCasesRecord1); // need to remove in future
-			existingRecord.getTestCaseRecord().add(testCaseRecord);
-		}		
+			testCasesRecord1.add(testCaseRecord);
+			existingRecord.setTestCaseRecord(testCasesRecord1);
+		}
+		if (timeOut) {
+			existingRecord.setPassword("");
+			existingRecord.setPercentage(percentage);
+		}
 		return studentRepository.save(existingRecord);
 	}
 

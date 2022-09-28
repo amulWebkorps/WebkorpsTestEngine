@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -113,7 +114,7 @@ public class QuestionServiceImpl implements QuestionService {
 		Question savedQuestion = new Question();
 		if (stringOfCidAndCl.length == 1) {
 			question.setContestLevel(stringOfCidAndCl[0]);
-			savedQuestion = questionRepository.save(question);		
+			savedQuestion = questionRepository.save(question);
 		} else {
 			Contest contest = new Contest(); // id, level
 			contest = contestService.findByContestId(stringOfCidAndCl[1]);
@@ -184,20 +185,20 @@ public class QuestionServiceImpl implements QuestionService {
 		}
 
 		List<Question> questionDetails = questionRepository.findByQuestionIdIn(questionIdList.get("questionsIds"));
-		if (questionDetails == null) {
+		if  (questionDetails == null) {
 			throw new RecordNotFoundException("getAllQuestions:: Questions does not found");
 		}
 		Contest contest = saveContests(contestId, questionIdList);
 		return questionDetails;
 	}
 
-	public Contest saveContests(String contestId, Map<String, List<String>> questionIdList) {
+	public Contest saveContests(String contestId,  Map<String, List<String>> questionIdList) {
 		Contest contest = contestService.findByContestId(contestId);
-		if (contest == null) {
+		if  (contest == null) {
 			throw new RecordNotFoundException("saveContests:: Content does not found for contestId: " + contestId);
 		}
 		ArrayList<QuestionStatusDTO> questionStatus = contest.getQuestionStatus();
-		if (questionStatus == null) {
+		if  (questionStatus == null) {
 			throw new RecordNotFoundException("saveContests:: QuestionStatus does not found");
 		}
 		boolean flag = false;

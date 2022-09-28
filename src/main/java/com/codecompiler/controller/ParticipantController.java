@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,8 +48,8 @@ public class ParticipantController {
 	public ResponseEntity<Object> doSignIn(@RequestBody Student student ,@RequestParam("contestId") String contestId) {
 		log.info("doSignIn:: Started : "+contestId);
 		try {
-			Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getEmail(), student.getPassword()));
-			Student studentExists  = this.studentService.findByEmailAndPassword(student.getEmail(), student.getPassword());
+			Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getEmail().toLowerCase(), student.getPassword()));
+			Student studentExists  = this.studentService.findByEmailAndPassword(student.getEmail().toLowerCase(), student.getPassword());
 			JwtResponseDTO jwtResponseDTO = new JwtResponseDTO();
 			studentExists.setContestId(contestId);
 			jwtResponseDTO.setToken(this.jwtUtil.generateToken(authObj.getName()));
@@ -125,20 +124,6 @@ public class ParticipantController {
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 		}
 
-	}
-
-	// This API should not be called
-	// This has to be handle my backend
-	@PutMapping("admin/finalSubmitContest")
-	public  ResponseEntity<Object> submitContest(@RequestParam String emailId) {
-		log.info("submitContest:: has started");
-		try {
-			this.studentService.finalSubmitContest(emailId);
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, "Test submitted successfully");
-		} catch (Exception e) {
-			log.info("Exception occured in submitContest: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-		}
 	}
 
 	@DeleteMapping("admin/deleteStudent")
