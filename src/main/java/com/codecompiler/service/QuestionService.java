@@ -15,7 +15,7 @@ public interface QuestionService {
 	 public List<Question> findAllQuestion();
 	 
 	 public Question saveQuestion(Question question);
-	 
+	
 	 public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId, String contestLevel) throws IOException;
 	 
 	 public Question findByQuestionId(String questionId);
@@ -30,5 +30,5 @@ public interface QuestionService {
 
 	public List<Question> filterQuestion(String filterByString);
 	 
-	public void deleteQuestionTestCase(Question question);
+	public void deleteQuestionForTestCase(Question question);
 }

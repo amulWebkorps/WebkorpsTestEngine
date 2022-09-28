@@ -12,7 +12,7 @@ import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.entity.Student;
 
 public interface StudentService {
-
+    
 	public Student findById(String studentId);
 	
 	public Student findByEmailAndPassword(String email, String password);
@@ -32,7 +32,7 @@ public interface StudentService {
 	public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
 			ArrayList<Boolean> testCasesSuccess, String complilationMessage,String fileName);
 	
-	public Student finalSubmitContest(String emailId);
+	public Student finalSubmitContest(String emailId); 
 	
 	public List<String> findAll();
 	

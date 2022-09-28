@@ -68,9 +68,15 @@ public class Student extends User{
 	public boolean isStatus() {
 		return status;
 	}
+	
+	public boolean getStatus() {
+		return status;
+	}
+	
 	public void setStatus(boolean status) {
 		this.status = status;
 	}
+		
 	public String getParticipateDate() {
 		return participateDate;
 	}

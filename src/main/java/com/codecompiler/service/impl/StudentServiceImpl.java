@@ -2,7 +2,6 @@ package com.codecompiler.service.impl;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -25,6 +24,7 @@ import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
+import com.codecompiler.exception.RecordMisMatchedException;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.exception.UserNotFoundException;
@@ -53,7 +53,11 @@ public class StudentServiceImpl implements StudentService{
 	private ExcelConvertorService excelConvertorService;
 
 	public Student findById(String studentId) {
-		log.info("findById:: has started with studentId: " + studentId);
+		log.info("findById:: has started with studentId: " + studentId);		
+		if(studentId == null) 
+			throw new NullPointerException();
+		else if (studentId.isBlank()) 
+			throw new IllegalArgumentException();	
 		Student student = studentRepository.findById(studentId);	
 		if(student==null) {
 			throw new UserNotFoundException("Student with id :: "+studentId+" does not found");
@@ -63,18 +67,38 @@ public class StudentServiceImpl implements StudentService{
 	}
 
 	public Student findByEmailAndPassword(String email, String password) {
-		return studentRepository.findByEmailAndPassword(email, password);
-
+		if(email == null || password == null)
+			throw new NullPointerException();
+		if(email.isBlank() || password.isBlank()) 
+			throw new IllegalArgumentException("Method parameter should not be blank or should not contain whitespace only");
+		Student student = studentRepository.findByEmailAndPassword(email, password);
+		if(student==null) {
+			throw new UserNotFoundException("Student with id :: "+email+" does not found");
+		}
+		return student;
 	}
 
 	public Student findByEmail(String studentEmail) {
-		return studentRepository.findByEmail(studentEmail); 
+		if(studentEmail == null) 
+			throw new NullPointerException();
+		else if (studentEmail.isBlank()) 
+			throw new IllegalArgumentException();
+		Student student = studentRepository.findByEmail(studentEmail);
+		if(student == null) {
+			throw new UserNotFoundException("Student with id :: " +studentEmail+ " does not found");
+		}
+		return student; 
 	}
 
 	public List<StudentDTO> findByContestId(String contestId){
+		if(contestId == null) 
+			throw new NullPointerException();
+		else if (contestId.isBlank()) 
+			throw new IllegalArgumentException();
+		
 		log.info("findByContestId:: has started with contestId: " + contestId);
 		List<Student> students = studentRepository.findByContestId(contestId);
-		if(students==null) {
+		if(students==null || students.size() == 0) {
 			throw new RecordNotFoundException("No Student Found in Contest with id ::"+contestId);
 		}
 		List<StudentDTO> studentDetails = new ArrayList<StudentDTO>();
@@ -89,11 +113,21 @@ public class StudentServiceImpl implements StudentService{
 	}
 
 	public Student saveStudent(Student studentDetails) {
+		if(studentDetails == null) {
+		 throw new NullPointerException();	
+		}
+		if(studentDetails.getEmail() == null)
+			throw new IllegalArgumentException("Student entity must contain email id");
 		return studentRepository.save(studentDetails);				
 	}
 
 	public List<String> findEmailByStatus(Boolean True) {
+		if(True == null) {
+			 throw new NullPointerException();	
+			}
 		List<Student> sentMail = studentRepository.findEmailByStatus(True);
+		if(sentMail == null || sentMail.size() < 1)
+			throw new RecordNotFoundException("No matching record found");
 		return 	sentMail.stream().map(Student::getEmail).collect(Collectors.toList());
 	}
 
@@ -117,10 +151,13 @@ public class StudentServiceImpl implements StudentService{
 
 	public Student deleteByEmail(String emailId) {		
 		log.info("deleteByEmail:: started with an email: "+emailId);
+		if(emailId == null) 
+			throw new NullPointerException();
+		else if (emailId.isBlank()) 
+			throw new IllegalArgumentException();
 		Student student = studentRepository.findByEmail(emailId);
-		if(student==null) {
-			throw new UserNotFoundException("User with email :: "+emailId+" not found");
-		}
+		if(student == null) 
+			throw new UserNotFoundException("User with email :: "+emailId+" not found");		
 		return studentRepository.deleteByEmail(emailId);
 	}
 
@@ -152,9 +189,14 @@ public class StudentServiceImpl implements StudentService{
 	}
 
 	public Student finalSubmitContest(String emailId) {
+		if(emailId == null) 
+			throw new NullPointerException();
+		else if (emailId.isBlank()) 
+			throw new IllegalArgumentException();
 		Student student = this.studentRepository.findByEmail(emailId);
 		student.setPassword(null); 
-		return studentRepository.save(student);
+		Student studentChanges = studentRepository.save(student);	
+		return studentChanges;
 	}
 
 	@Override
