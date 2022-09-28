@@ -152,15 +152,15 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 					log.info("compile code :: compilation error :: " + complilationMessage);
 					return codeResponseDTO;
 				}
+				List<TestCases> testCases = questionService.getTestCase(questionIds.get(i).getQuestionId());
 				String interpretationCommand = interpretationCommand(language);
-				pro = Runtime.getRuntime().exec(interpretationCommand, null, new File("src/main/resources/temp/"));
+				pro = Runtime.getRuntime().exec(interpretationCommand + testCases.get(0).getInput(), null, new File("src/main/resources/temp/"));
 				String exceptionMessage = getMessagesFromProcessInputStream(pro.getErrorStream());
 				if (!exceptionMessage.isEmpty() && flag == 0) {
 					codeResponseDTO.setComplilationMessage(exceptionMessage);
 					log.info("compile code :: exception occured :: " + exceptionMessage);
 					return codeResponseDTO;
 				}
-				List<TestCases> testCases = questionService.getTestCase(questionIds.get(i).getQuestionId());
 				for (TestCases testCase : testCases) {
 					String input = testCase.getInput();
 					pro = Runtime.getRuntime().exec(interpretationCommand + input, null,
