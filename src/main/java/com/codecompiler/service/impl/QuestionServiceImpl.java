@@ -254,4 +254,9 @@ public class QuestionServiceImpl implements QuestionService {
 	public void deleteQuestionTestCase(Question question) {
 		questionRepository.delete(question);
 	}
+	
+	public List<List<TestCases>> findByQuestionIdIn(List<String> questionsIds) {
+		return questionRepository.findByQuestionIdIn(questionsIds).stream().map(Question::getTestcases).collect(Collectors.toList());
+	}
+	
 }

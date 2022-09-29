@@ -30,9 +30,9 @@ public interface StudentService {
 	public Student deleteByEmail(String emailId);
 		
 	public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
-			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName, Boolean timeOut, int testCasesSize);
+			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName);
 	
-	public Student finalSubmitContest(String emailId);
+	public Student finalSubmitContest(String emailId, Double percentage);
 	
 	public List<String> findAll();
 	

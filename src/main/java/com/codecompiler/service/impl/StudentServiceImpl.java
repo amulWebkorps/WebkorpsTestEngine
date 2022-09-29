@@ -124,7 +124,7 @@ public class StudentServiceImpl implements StudentService{
 	}
 
 	public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
-			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName, Boolean timeOut, int testCasesSize) {
+			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName) {
 		log.info("updateStudentDetails: has started");
 		TestCaseDTO testCaseRecord = new TestCaseDTO();
 		List<TestCaseDTO> testCasesRecord1 = new ArrayList<>(); // need to remove in future
@@ -135,7 +135,6 @@ public class StudentServiceImpl implements StudentService{
 		Student existingRecord = studentRepository.findById(studentId);
 		existingRecord.setContestId(contestId);
 		existingRecord.setParticipateDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
-		double percentage = ((100 * testCasesSuccess.size()) / testCasesSize);
 		log.info("updateStudentDetails:: existingRecord: " + existingRecord);
 		if (existingRecord.getQuestionId() != null) {
 			existingRecord.getQuestionId().addAll(questionIds);
@@ -149,16 +148,13 @@ public class StudentServiceImpl implements StudentService{
 			testCasesRecord1.add(testCaseRecord);
 			existingRecord.setTestCaseRecord(testCasesRecord1);
 		}
-		if (timeOut) {
-			existingRecord.setPassword("");
-			existingRecord.setPercentage(percentage);
-		}
 		return studentRepository.save(existingRecord);
 	}
 
-	public Student finalSubmitContest(String emailId) {
+	public Student finalSubmitContest(String emailId, Double percentage) {
 		Student student = this.studentRepository.findByEmail(emailId);
 		student.setPassword(null); 
+		student.setPercentage(percentage);
 		return studentRepository.save(student);
 	}
 

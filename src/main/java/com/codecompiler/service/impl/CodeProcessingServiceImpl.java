@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -99,7 +101,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	}
 
 	private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO, int index,ArrayList<Boolean> testCasesSuccess,
-			String complilationMessage, Boolean timeOut, int testCasesSize) throws IOException {
+			String complilationMessage) throws IOException {
 		log.info("saveSubmittedCode :: started");
 		String submittedCodeFileName = codeDetailsDTO.getQuestionsAndCode().get(index).getQuestionId() + "_"
 				+ codeDetailsDTO.getStudentId();
@@ -111,7 +113,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		PrintWriter prSubmitted = new PrintWriter(flSubmitted);
 		prSubmitted.write(codeDetailsDTO.getQuestionsAndCode().get(index).getCode());
 		studentService.updateStudentDetails(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(),
-				studentQuestionIds, testCasesSuccess, complilationMessage, submittedCodeFileName, timeOut, testCasesSize);
+				studentQuestionIds, testCasesSuccess, complilationMessage, submittedCodeFileName);
 		prSubmitted.flush();
 		prSubmitted.close();
 		codeResponseDTO.setSuccessMessage("Code Submitted Successfully");
@@ -127,6 +129,8 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		int flag = codeDetailsDTO.getFlag();
 		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
 		Process pro = null;
+		int count = 0;
+		Double percentage = 0.00;
 		for (int i = 0; i < questionIds.size(); i++) {
 			saveCodeTemporary(questionIds.get(i).getCode(), language);
 			try {
@@ -157,12 +161,13 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 					if (interpretationMessage.contains(testCase.getOutput())
 							|| interpretationMessage.equals(testCase.getOutput())) {
 						testCasesSuccess.add(true);
+						count++;
 					} else {
 						testCasesSuccess.add(false);
 					}
 				}
 				if (flag == 1) {
-					codeResponseDTO = saveSubmittedCode(codeDetailsDTO, i, testCasesSuccess, complilationMessage, codeDetailsDTO.getTimeOut(), testCases.size());
+					codeResponseDTO = saveSubmittedCode(codeDetailsDTO, i, testCasesSuccess, complilationMessage);
 				}
 				codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
 			} catch (IOException e) {
@@ -173,8 +178,20 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				codeResponseDTO.setComplilationMessage("Something wents wrong. Please contact to HR");
 			}
 		}
+		if (codeDetailsDTO.getTimeOut()) {
+			percentage = generatePercentage(questionIds, count);
+			studentService.finalSubmitContest(codeDetailsDTO.getStudentId(), percentage);
+		}
 		log.info("compile code: ended");
 
 		return codeResponseDTO;
+	}
+	
+	public Double generatePercentage(List<QuestionAndCodeDTO> questionIds, int count) {
+		List<String> questionId = questionIds.stream().map(id -> id.getQuestionId()).collect(Collectors.toList());
+		List<List<TestCases>> testCases = questionService.findByQuestionIdIn(questionId);
+		List<Stream<String>> testCasesSize = testCases.stream().map(testCase -> testCase.stream().map(TestCases::getInput)).collect(Collectors.toList());
+		double percentage = ((100 * count) / testCasesSize.size());
+		return percentage;
 	}
 }
