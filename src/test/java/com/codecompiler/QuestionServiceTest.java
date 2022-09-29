@@ -247,4 +247,13 @@ public class QuestionServiceTest {
 		Assertions.assertThrows(NullPointerException.class, ()->questionService.filterQuestion(" "));
 			}
 	
+	@Test
+	public void findAllQuestionSuccessTest() {
+		savedQuestion = questionService.saveQuestion(question);	
+		List<Question> questionsList = questionService.findAllQuestion();
+		Assertions.assertNotNull(savedQuestion);
+		Assertions.assertNotNull(questionsList);
+		Assertions.assertTrue(questionsList.size() > 0);
+	}
+	
 }
