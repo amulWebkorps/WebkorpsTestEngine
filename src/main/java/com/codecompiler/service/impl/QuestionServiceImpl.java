@@ -19,8 +19,8 @@ import com.codecompiler.dto.QuestionStatusDTO;
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.TestCases;
+import com.codecompiler.exception.RecordMisMatchedException;
 import com.codecompiler.exception.RecordNotFoundException;
-import com.codecompiler.exception.SavedQuestionStatusFalseException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.helper.ExcelPOIHelper;
 import com.codecompiler.repository.ContestRepository;
@@ -76,13 +76,6 @@ public class QuestionServiceImpl implements QuestionService {
 		if (allTrueQuestions.isEmpty() || allTrueQuestions == null) {
 			throw new RecordNotFoundException("saveFileForBulkQuestion:: Data isn't present in the file");
 		}
-		List<Question> allQuestions = questionRepository.findAll();
-		List<Question> commonQuestions = allTrueQuestions.stream()
-				.filter(trueQuestion -> allQuestions.stream()
-						.anyMatch(question -> question.getQuestion().equalsIgnoreCase(trueQuestion.getQuestion())))
-				.collect(Collectors.toList());
-		for (Question commonQuestion : commonQuestions)
-			allTrueQuestions.removeIf(x -> x.getQuestion().equalsIgnoreCase(commonQuestion.getQuestion()));
 		allTrueQuestions = questionRepository.saveAll(allTrueQuestions);
 		if (contest != null) {
 			List<String> questionsInContest = saveContest(contest, allTrueQuestions);
@@ -93,20 +86,23 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	public List<String> saveContest(Contest contest, List<Question> allTrueQuestions) {
-		if (!allTrueQuestions.isEmpty()) {
-			allTrueQuestions.forEach(latestUploadedQuestions -> {
-				QuestionStatusDTO queStatus = new QuestionStatusDTO();
-				queStatus.setQuestionId(latestUploadedQuestions.getQuestionId());
-				queStatus.setStatus(true);
-				contest.getQuestionStatus().add(queStatus);
-			});
-			contestRepository.save(contest);
-		}
+		ArrayList<QuestionStatusDTO> queStatusList = new ArrayList<QuestionStatusDTO>();
+		allTrueQuestions.forEach(latestUploadedQuestions -> {
+			QuestionStatusDTO queStatus = new QuestionStatusDTO();
+			queStatus.setQuestionId(latestUploadedQuestions.getQuestionId());
+			queStatus.setStatus(true);
+			queStatusList.addAll(contest.getQuestionStatus());
+			queStatusList.add(queStatus);
+		});
+		contest.setQuestionStatus(queStatusList);
+		contestRepository.save(contest);
 		return contest.getQuestionStatus().stream().map(QuestionStatusDTO::getQuestionId).collect(Collectors.toList());
 	}
 
 	// point of discussion regarding contest save, length, question save 2 times ,
 	public Question saveQuestion(Question question) {
+		if(question == null) 
+			throw new IllegalArgumentException();		
 		String[] stringOfCidAndCl = new String[2];
 		stringOfCidAndCl = question.getContestLevel().split("@");
 		String tempQid = question.getQuestionId();
@@ -129,10 +125,7 @@ public class QuestionServiceImpl implements QuestionService {
 			questionStatus.setStatus(true);
 			contest.getQuestionStatus().add(questionStatus);
 			contestService.saveContest(contest);
-		}
-//		if(savedQuestion.getQuestionStatus().equals("false")) {
-//			throw new SavedQuestionStatusFalseException("saveQuestions:: recently saved question status expected true but it is false: "+ savedQuestion.getQuestionId());
-//		}
+		}         
 		return savedQuestion;
 	}
 
@@ -148,6 +141,10 @@ public class QuestionServiceImpl implements QuestionService {
 	}
 
 	public List<Question> findByContestLevel(String filterByString) {
+		if (filterByString == null)
+			throw new NullPointerException();
+		else if (filterByString.isBlank())
+			throw new IllegalArgumentException();
 		ArrayList<Question> totalQuestionWithStatusTrue = new ArrayList<Question>();
 		List<Question> questions = questionRepository.findByContestLevel(filterByString);
 		for (Question verifyQuestion : questions) {
@@ -155,37 +152,53 @@ public class QuestionServiceImpl implements QuestionService {
 				totalQuestionWithStatusTrue.add(verifyQuestion);
 			}
 		}
+//		if(!filterByString.equals("All")) {
+//		for(Question resultQuestionList : totalQuestionWithStatusTrue) {
+//			if(!resultQuestionList.getContestLevel().equals(filterByString)) {
+//				throw new RecordMisMatchedException("Looking for a questions related to "+filterByString +", but not getting");
+//			}
+//		}
+//		}
 		return totalQuestionWithStatusTrue;
 	}
 
 	@Override
 	public List<TestCases> getTestCase(String questionId) {
+		if (questionId == null)
+			throw new NullPointerException("Question id should not be null");
+		else if (questionId.isBlank())
+			throw new IllegalArgumentException();
 		Question questions = questionRepository.findByQuestionId(questionId);
-		return questions.getTestcases();
+		List<TestCases> testCasesRelatedToQuestionId = questions.getTestcases();		
+		return testCasesRelatedToQuestionId;
 	}
 
 	@Override
 	public List<Question> getAllQuestions(Map<String, List<String>> questionIdList) {
 		String contestId = questionIdList.get("contestId").get(0);
-		if (contestId.isBlank()) {
-			throw new RecordNotFoundException(
-					"getAllQuestions:: contentId does not found in the questionIdList: " + contestId);
+		if (contestId.isBlank() || contestId == null) {
+			throw new NullPointerException("Method argument list does not contain valid question id");
 		}
+
+		if (questionIdList.size() < 2) {
+			throw new NullPointerException("Method argument is null or it have insufficient data");
+		}
+
 		List<Question> questionDetails = questionRepository.findByQuestionIdIn(questionIdList.get("questionsIds"));
-		if (questionDetails == null) {
+		if  (questionDetails == null) {
 			throw new RecordNotFoundException("getAllQuestions:: Questions does not found");
 		}
 		Contest contest = saveContests(contestId, questionIdList);
 		return questionDetails;
 	}
 
-	public Contest saveContests(String contestId, Map<String, List<String>> questionIdList) {
+	public Contest saveContests(String contestId,  Map<String, List<String>> questionIdList) {
 		Contest contest = contestService.findByContestId(contestId);
-		if (contest == null) {
+		if  (contest == null) {
 			throw new RecordNotFoundException("saveContests:: Content does not found for contestId: " + contestId);
 		}
 		ArrayList<QuestionStatusDTO> questionStatus = contest.getQuestionStatus();
-		if (questionStatus == null) {
+		if  (questionStatus == null) {
 			throw new RecordNotFoundException("saveContests:: QuestionStatus does not found");
 		}
 		boolean flag = false;
@@ -216,9 +229,8 @@ public class QuestionServiceImpl implements QuestionService {
 
 	@Override
 	public void saveQuestionOrContest(ArrayList<String> contestAndQuestionId) {
-		if (contestAndQuestionId == null) {
-			throw new RecordNotFoundException(
-					"saveQuestionOrContest:: contestAndQuestionId does not found :" + contestAndQuestionId.size());
+		if (contestAndQuestionId == null || contestAndQuestionId.size() < 2) {
+			throw new NullPointerException("Method argument is null or it have insufficient data");
 		}
 		if (contestAndQuestionId.get(0).equals("questionForLevel")) {
 			Question questionStatusChange = findByQuestionId(contestAndQuestionId.get(1));
@@ -241,8 +253,8 @@ public class QuestionServiceImpl implements QuestionService {
 	@Override
 	public List<Question> filterQuestion(String filterByString) {
 		List<Question> totalQuestionByFilter = new ArrayList<Question>();
-		if (filterByString.isBlank()) {
-			throw new RecordNotFoundException("filterQuestion:: filterByString does not found :" + filterByString);
+		if (filterByString.isBlank() || filterByString == null) {
+			throw new NullPointerException("Method parameter should be Level 1, Level 2 or All only");
 		}
 		if (filterByString.equals("Level 1") || filterByString.equals("Level 2"))
 			totalQuestionByFilter = findByContestLevel(filterByString);
@@ -251,7 +263,7 @@ public class QuestionServiceImpl implements QuestionService {
 		return totalQuestionByFilter;
 	}
 
-	public void deleteQuestionTestCase(Question question) {
+	public void deleteQuestionForTestCase(Question question) {
 		questionRepository.delete(question);
 	}
 	

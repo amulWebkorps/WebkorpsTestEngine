@@ -12,7 +12,7 @@ import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.entity.Student;
 
 public interface StudentService {
-
+    
 	public Student findById(String studentId);
 	
 	public Student findByEmailAndPassword(String email, String password);
