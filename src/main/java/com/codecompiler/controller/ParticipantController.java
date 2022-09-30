@@ -58,7 +58,7 @@ public class ParticipantController {
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, jwtResponseDTO);
 		} catch (BadCredentialsException e) {
 			log.info("Exception occurs in doSignIn: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,"email and password does not match");
+			return ResponseHandler.generateResponse("error", HttpStatus.UNAUTHORIZED,"email and password does not match");
 		}
 	}
 
