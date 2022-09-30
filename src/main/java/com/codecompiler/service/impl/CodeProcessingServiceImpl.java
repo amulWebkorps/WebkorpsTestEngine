@@ -190,7 +190,8 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	public Double generatePercentage(List<QuestionAndCodeDTO> questionIds, int count) {
 		List<String> questionId = questionIds.stream().map(id -> id.getQuestionId()).collect(Collectors.toList());
 		List<List<TestCases>> testCases = questionService.findByQuestionIdIn(questionId);
-		List<Stream<String>> testCasesSize = testCases.stream().map(testCase -> testCase.stream().map(TestCases::getInput)).collect(Collectors.toList());
+		List<String> testCasesSize = new ArrayList<String>();
+		testCases.stream().forEach(testCase -> testCase.stream().forEach(testcase -> testCasesSize.add(testcase.getInput())));
 		double percentage = ((100 * count) / testCasesSize.size());
 		return percentage;
 	}

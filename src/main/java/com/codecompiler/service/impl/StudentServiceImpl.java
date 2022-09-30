@@ -191,12 +191,12 @@ public class StudentServiceImpl implements StudentService {
 		return studentRepository.save(existingRecord);
 	}
 
-	public Student finalSubmitContest(String emailId, Double percentage) {
-		if (emailId == null)
+	public Student finalSubmitContest(String studentId, Double percentage) {
+		if (studentId == null)
 			throw new NullPointerException();
-		else if (emailId.isBlank())
+		else if (studentId.isBlank())
 			throw new IllegalArgumentException();
-		Student student = this.studentRepository.findByEmail(emailId);
+		Student student = this.studentRepository.findById(studentId);
 		student.setPassword(null);
 		student.setPercentage(percentage);
 		return studentRepository.save(student);

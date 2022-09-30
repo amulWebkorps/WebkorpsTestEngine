@@ -32,7 +32,7 @@ public interface StudentService {
 	public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
 			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName);
 	
-	public Student finalSubmitContest(String emailId, Double percentage);
+	public Student finalSubmitContest(String studentId, Double percentage);
 	
 	public List<String> findAll();
 	
