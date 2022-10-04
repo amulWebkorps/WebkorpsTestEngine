@@ -34,19 +34,21 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				String studentId = UUID.randomUUID().toString();
 				String characters = "ABCDEFGHLMNOPQRSTUVWXYZabcdghijklmnopqrstuvwxyz0123456789@#$*";
 				String pwd = RandomStringUtils.random(7, characters);
-				Student exsistingStudent = studentRepository.findByEmail(row.get(1).getContent());
-				if (exsistingStudent == null) {
-					student.setId(studentId);
-					student.setName(row.get(0).getContent());
-					student.setEmail(row.get(1).getContent().toLowerCase());
-					student.setMobileNumber(row.get(2).getContent());
-					student.setContestLevel(row.get(3).getContent());
-					student.setPassword(pwd);
-					student.setRole("ROLE_STUDENT");					
-					studentList.add(student);
-				} else {
-					exsistingStudent.setStatus(false);
-					studentRepository.save(exsistingStudent);
+				if (!row.get(1).getContent().isEmpty()) {
+					Student exsistingStudent = studentRepository.findByEmail(row.get(1).getContent());
+					if (exsistingStudent == null) {
+						student.setId(studentId);
+						student.setName(row.get(0).getContent());
+						student.setEmail(row.get(1).getContent().toLowerCase());
+						student.setMobileNumber(row.get(2).getContent());
+						student.setContestLevel(row.get(3).getContent());
+						student.setPassword(pwd);
+						student.setRole("ROLE_STUDENT");
+						studentList.add(student);
+					} else {
+						exsistingStudent.setStatus(false);
+						studentRepository.save(exsistingStudent);
+					}
 				}
 			}
 		} catch (Exception ex) {

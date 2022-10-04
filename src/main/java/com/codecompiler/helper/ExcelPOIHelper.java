@@ -85,8 +85,6 @@ public class ExcelPOIHelper {
                             MyCellDTO myCell = new MyCellDTO();
                             myCell.setContent(readCellContent(cellValue));
                             data.get(i).add(myCell);
-                        } else {
-                            data.get(i).add(new MyCellDTO(""));
                         }
                     }
                 }
@@ -119,8 +117,6 @@ public class ExcelPOIHelper {
                             MyCellDTO myCell = new MyCellDTO();
                             myCell.setContent(readCellContent(cellValue));
                             data.get(i).add(myCell);
-                        } else {
-                            data.get(i).add(new MyCellDTO(""));
                         }
                     }
                 }
