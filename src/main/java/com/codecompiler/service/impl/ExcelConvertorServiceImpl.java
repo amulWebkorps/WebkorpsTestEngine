@@ -13,9 +13,11 @@ import org.springframework.stereotype.Service;
 
 import com.codecompiler.dto.MyCellDTO;
 import com.codecompiler.dto.TestCaseDTO;
+import com.codecompiler.entity.Admin;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCases;
+import com.codecompiler.repository.AdminRepository;
 import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.service.ExcelConvertorService;
 
@@ -24,6 +26,9 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 
 	@Autowired
 	private StudentRepository studentRepository;
+	
+	@Autowired
+	private AdminRepository adminRepository;
 
 	public List<Student> convertExcelToListOfStudent(Map<Integer, List<MyCellDTO>> data) {
 		List<Student> studentList = new ArrayList<>();
@@ -35,8 +40,9 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				String characters = "ABCDEFGHLMNOPQRSTUVWXYZabcdghijklmnopqrstuvwxyz0123456789@#$*";
 				String pwd = RandomStringUtils.random(7, characters);
 				if (!row.get(1).getContent().isEmpty()) {
-					Student exsistingStudent = studentRepository.findByEmail(row.get(1).getContent());
-					if (exsistingStudent == null) {
+					Student exsistingStudent = studentRepository.findByEmail(row.get(1).getContent().toLowerCase());
+					Admin exsistingAdmin = adminRepository.findByEmail(row.get(1).getContent().toLowerCase());
+					if (exsistingStudent == null && exsistingAdmin == null) {
 						student.setId(studentId);
 						student.setName(row.get(0).getContent());
 						student.setEmail(row.get(1).getContent().toLowerCase());
@@ -45,7 +51,7 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 						student.setPassword(pwd);
 						student.setRole("ROLE_STUDENT");
 						studentList.add(student);
-					} else {
+					} else if (exsistingAdmin == null) {
 						exsistingStudent.setStatus(false);
 						studentRepository.save(exsistingStudent);
 					}
