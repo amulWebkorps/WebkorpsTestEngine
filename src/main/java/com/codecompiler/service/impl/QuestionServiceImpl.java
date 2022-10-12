@@ -152,13 +152,6 @@ public class QuestionServiceImpl implements QuestionService {
 				totalQuestionWithStatusTrue.add(verifyQuestion);
 			}
 		}
-//		if(!filterByString.equals("All")) {
-//		for(Question resultQuestionList : totalQuestionWithStatusTrue) {
-//			if(!resultQuestionList.getContestLevel().equals(filterByString)) {
-//				throw new RecordMisMatchedException("Looking for a questions related to "+filterByString +", but not getting");
-//			}
-//		}
-//		}
 		return totalQuestionWithStatusTrue;
 	}
 

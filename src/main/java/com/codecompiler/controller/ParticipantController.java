@@ -140,5 +140,18 @@ public class ParticipantController {
 		}
 
 	}
+	
+	@GetMapping("admin/filterParticipants")
+	public ResponseEntity<Object> filterParticipants(@RequestParam String filterByString) {
+		log.info("filterParticipants: started filterByString = "+filterByString);
+		try {
+			List<String> totalParticipantsByFilter = studentService.filterParticipants(filterByString);
+			log.info("filterParticipants:: totalparticipantsByFilter size : " + totalParticipantsByFilter.size());
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, totalParticipantsByFilter);
+		} catch (Exception e) {
+			log.error("filterParticipants:: Exception occured: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
 
 }

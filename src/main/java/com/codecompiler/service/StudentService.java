@@ -9,6 +9,7 @@ import java.util.Set;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.dto.StudentDTO;
+import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 
 public interface StudentService {
@@ -37,4 +38,10 @@ public interface StudentService {
 	public List<String> findAll();
 	
 	Map<String, Object> getParticipatorDetail( String studentId) throws IOException;
+	
+	public List<String> filterParticipants(String filterByString);
+	
+	public List<String> findByContestLevel(String filterByString);
+
+
 }

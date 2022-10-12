@@ -248,5 +248,27 @@ public class StudentServiceImpl implements StudentService {
 		mp.put("questionSubmitedByStudent", questionDetail);
 		return mp;
 	}
+	
+	@Override
+	public List<String> filterParticipants(String filterByString) {
+		List<String> totalParticipantsByFilter = new ArrayList<String>();
+		if (filterByString.isBlank() || filterByString == null) {
+			throw new NullPointerException("Method parameter should be Level 1, Level 2 or All only");
+		}
+		if (filterByString.equals("Level 1") || filterByString.equals("Level 2"))
+			totalParticipantsByFilter = findByContestLevel(filterByString);
+		else
+			totalParticipantsByFilter = findAll();
+		return totalParticipantsByFilter;
+	}
+
+	public List<String> findByContestLevel(String filterByString) {
+		if (filterByString == null)
+			throw new NullPointerException();
+		else if (filterByString.isBlank())
+			throw new IllegalArgumentException();
+		List<Student> participants = studentRepository.findByContestLevelAndStatus(filterByString, false);
+		return participants.stream().map(Student::getEmail).collect(Collectors.toList());
+	}
 
 }

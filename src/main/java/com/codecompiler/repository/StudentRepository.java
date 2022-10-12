@@ -5,6 +5,7 @@ import java.util.List;
 import com.codecompiler.entity.Student;
 
 public interface StudentRepository extends UserRepository<Student> {
+	
 	Student findByEmailAndPassword(String email, String password);
 
 	Student findByEmail(String email);
@@ -17,5 +18,6 @@ public interface StudentRepository extends UserRepository<Student> {
 	
 	public Student deleteByEmail(String emailId);
 	
-	
+	public List<Student> findByContestLevelAndStatus(String filterByString, Boolean True);
+
 }
