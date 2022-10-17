@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -14,16 +13,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.MCQStatusDTO;
 import com.codecompiler.dto.MyCellDTO;
 import com.codecompiler.dto.QuestionStatusDTO;
 import com.codecompiler.entity.Contest;
+import com.codecompiler.entity.MCQ;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.TestCases;
-import com.codecompiler.exception.RecordMisMatchedException;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.helper.ExcelPOIHelper;
 import com.codecompiler.repository.ContestRepository;
+import com.codecompiler.repository.MCQRepository;
 import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.ExcelConvertorService;
@@ -43,6 +44,9 @@ public class QuestionServiceImpl implements QuestionService {
 
 	@Autowired
 	private ContestService contestService;
+	
+	@Autowired
+	private MCQRepository mcqRepository;
 
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
@@ -98,6 +102,8 @@ public class QuestionServiceImpl implements QuestionService {
 		contestRepository.save(contest);
 		return contest.getQuestionStatus().stream().map(QuestionStatusDTO::getQuestionId).collect(Collectors.toList());
 	}
+	
+	
 
 	// point of discussion regarding contest save, length, question save 2 times ,
 	public Question saveQuestion(Question question) {
@@ -263,5 +269,6 @@ public class QuestionServiceImpl implements QuestionService {
 	public List<List<TestCases>> findByQuestionIdIn(List<String> questionsIds) {
 		return questionRepository.findByQuestionIdIn(questionsIds).stream().map(Question::getTestcases).collect(Collectors.toList());
 	}
+
 	
 }

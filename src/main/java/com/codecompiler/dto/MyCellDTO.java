@@ -4,20 +4,20 @@ public class MyCellDTO {
 
 	private String content;
 
-    public MyCellDTO() {
-    }
+	public MyCellDTO() {
+	}
 
-    public MyCellDTO(String content) {
-        this.content = content;
-    }
+	public MyCellDTO(String content) {
+		this.content = content;
+	}
 
-    public String getContent() {
-        return content;
-    }
+	public String getContent() {
+		return content;
+	}
 
-    public void setContent(String content) {
-        this.content = content;
-    }
+	public void setContent(String content) {
+		this.content = content;
+	}
 
 	@Override
 	public String toString() {
