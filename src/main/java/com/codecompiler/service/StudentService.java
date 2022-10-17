@@ -3,82 +3,45 @@ package com.codecompiler.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.codecompiler.dao.StudentRepository;
+import com.codecompiler.dto.StudentDTO;
+import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
-import com.codecompiler.entity.TestCasesRecord;
-import com.codecompiler.helper.Helper;
 
-@Service
-public class StudentService {
-	@Autowired
-	private StudentRepository studentRepository;
+public interface StudentService {
+    
+	public Student findById(String studentId);
+	
+	public Student findByEmailAndPassword(String email, String password);
+	
+	public Student findByEmail(String studentEmail);
+	
+	public List<StudentDTO> findByContestId(String contestId);
+	
+	public Student saveStudent(Student studentDetails);
+	
+	public List<String> findEmailByStatus(Boolean True);
+	
+	public List<String> saveFileForBulkParticipator(MultipartFile file);
+	
+	public Student deleteByEmail(String emailId);
+		
+	public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
+			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName);
+	
+	public Student finalSubmitContest(String studentId, Double percentage);
+	
+	public List<String> findAll();
+	
+	Map<String, Object> getParticipatorDetail( String studentId) throws IOException;
+	
+	public List<String> filterParticipants(String filterByString);
+	
+	public List<String> findByContestLevel(String filterByString);
 
-	public void save(MultipartFile file) {
-
-		try {
-			List<Student> students = Helper.convertExcelToListOfStudent(file.getInputStream());
-			this.studentRepository.saveAll(students);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	public List<Student> getAllStudents() {
-		List<Student> studentList = studentRepository.findAll();
-		return studentList;
-	}
-
-	public Student findByEmailAndPassword(String email, String password) {
-		return studentRepository.findByEmailAndPassword(email, password);
-
-	}
-
-	public Student saveStudentDetails(Student std) {
-		Student con = studentRepository.save(std);
-		return con;
-	}
-
-	public Student updateStudentDetails(String studentId, String contestId, List<String> questionIds,
-			ArrayList<String> testCasesSuccess, String complilationMessage) {
-		TestCasesRecord testCasesRecord = new TestCasesRecord();
-		List<TestCasesRecord> testCasesRecord1 = new ArrayList<>(); // need to remove in future
-		testCasesRecord.setQuestionId(questionIds);
-		testCasesRecord.setComplilationMessage(complilationMessage);
-		testCasesRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testcasesrecord and save that pass id in get method
-		Student existingRecord = studentRepository.findById(studentId);
-		existingRecord.setContestId(contestId);
-		if (existingRecord.getQuestionId() != null) {
-			existingRecord.getQuestionId().addAll(questionIds);
-		} else {
-			existingRecord.setQuestionId(questionIds);
-		}
-		if (existingRecord.getTestCasesRecord() != null) {
-			existingRecord.getTestCasesRecord().add(testCasesRecord);
-		} else {
-			existingRecord.setTestCasesRecord(testCasesRecord1); // need to remove in future
-			existingRecord.getTestCasesRecord().add(testCasesRecord);
-		}		
-		return studentRepository.save(existingRecord);
-	}
-
-	public Student saveStudent(Student std) {
-		Student s = studentRepository.save(std);
-		return s;
-	}
-
-	public Student findById(String studentId) {
-		return studentRepository.findById(studentId);
-	}
-
-	public ArrayList<Student> findByContestId(String contestId) {
-		ArrayList<Student> students = studentRepository.findByContestId(contestId);
-		return students;
-	}
 
 }

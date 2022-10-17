@@ -1,70 +1,108 @@
 package com.codecompiler.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.entity.Question;
-import com.codecompiler.entity.Student;
-import com.codecompiler.helper.Helper;
+import com.codecompiler.reponse.ResponseHandler;
 import com.codecompiler.service.QuestionService;
 
-//@Controller
+@Controller
+@CrossOrigin(origins = "*")
 public class QuestionController {
+
+	private static final Logger logger = LogManager.getLogger(QuestionController.class);
+
 	@Autowired
-	QuestionService qs;
-	String contestLevel=null;
-		@RequestMapping(value = "/question/upload", headers = "content-type=multipart/*", method = RequestMethod.POST)
-	    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file,@RequestParam("level")String level) {
-			contestLevel=level;
-	        if (Helper.checkExcelFormat(file)) {
-	            //true
-try {
-	            this.qs.save(file);
-}
-catch (Exception e) {
-e.printStackTrace();
-}
-	            return ResponseEntity.ok(contestLevel);
+	private QuestionService questionService;
 
 
-	        }
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please upload excel file ");
-	    }
-	
-		@RequestMapping("/questionuploaded")
-		public String upload(Model model) {
-			List<Question> contestQuestionsTemp = new ArrayList<>();
-			if(contestLevel.equals("Level 2"))
-			{
-
-				contestQuestionsTemp = qs.findQuestionByContestLevel(contestLevel);	
-				model.addAttribute("questions", contestQuestionsTemp);
-				return "level2Questions";
-		
-			}
-			else if(contestLevel.equals("Level 1"))
-			{
-				contestQuestionsTemp = qs.findQuestionByContestLevel(contestLevel);	
-				model.addAttribute("questions", contestQuestionsTemp);
-				return "level1Questions";
-			}
-			else
-			{
-				contestQuestionsTemp =  qs.getAllQuestion();
-				model.addAttribute("questions", contestQuestionsTemp);
-				return "questionListAndAddNewQuestion";
-			}
-			
+	@PostMapping(value = "/admin/questionUpload", headers = "content-type=multipart/*")
+	public ResponseEntity<Object> questionUpload(@RequestParam("file") MultipartFile file,
+			@RequestParam("contestId") String contestId, @RequestParam("contestLevel") String contestLevel) {
+		logger.info("questionUpload :: started with contestId: " + contestId);
+		try {
+			List<Question> allQuestions = questionService.saveFileForBulkQuestion(file, contestId, contestLevel);
+			logger.info("questionUpload:: Bulk Question saved successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, allQuestions);
+		} catch (Exception e) {
+			logger.error("questionUpload:: Exception occured: " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
 		}
+	}
+
+
+	@PostMapping("admin/saveQuestion")
+	public ResponseEntity<Object> saveQuestion(@RequestBody Question question){
+		logger.info("saveQuestion:: started with question: " + question);
+		try {
+			question.setCreatedDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+			Question savedQuestion = questionService.saveQuestion(question);
+			logger.info("saveQuestion:: Question saved successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, savedQuestion);
+		} catch (Exception e) {
+			logger.error("saveQuestion:: Exception occured: " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
+
+
+	@PostMapping("admin/addSelectedAvailableQuestiontoContest")
+	public ResponseEntity<Object> addSelectedAvailableQueToContest(@RequestBody Map<String, List<String>> questionIdList) {
+		logger.info("addSelectedAvailableQueToContest:: started with questionIdList: "+questionIdList.size());
+		try {
+			List<Question> questionDetails = questionService.getAllQuestions(questionIdList);
+			logger.info("addSelectedAvailableQueToContest:: Question saved in Contest successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, questionDetails);
+		} catch (Exception ex) {
+			logger.error("addSelectedAvailableQueToContest:: Exception occured: "+ex.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
+	}
+
+
+	@PutMapping("admin/deleteQuestion") // cid, qid
+	public ResponseEntity<Object> updateQuestionStatus(@RequestBody ArrayList<String> contestAndQuestionId) {
+		logger.info("updateQuestionStatus:: started with contestAndQuestionId: " + contestAndQuestionId.toString());
+		try {
+			questionService.saveQuestionOrContest(contestAndQuestionId);
+			logger.info("updateQuestionStatus:: saveQuestionOrContest saved successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, contestAndQuestionId);
+		} catch (Exception e) {
+			logger.info("updateQuestionStatus:: Exception occured : " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
+
+
+	@GetMapping("admin/filterQuestion")
+	public ResponseEntity<Object> filterQuestion(@RequestParam String filterByString) {
+		logger.info("filterQuestion: started filterByString = "+filterByString);
+		try {
+			List<Question> totalQuestionByFilter = questionService.filterQuestion(filterByString);
+			logger.info("filterQuestion:: totalQuestionByFilter size : " + totalQuestionByFilter.size());
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, totalQuestionByFilter);
+		} catch (Exception e) {
+			logger.error("filterQuestion:: Exception occured: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
+
 }

@@ -1,5 +1,6 @@
 package com.codecompiler.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -8,17 +9,20 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.codecompiler.dto.TestCaseDTO;
+
 @Document(collection="QuestionAndTestCases")
 @EntityScan
-public class Question {
+public class Question implements Serializable{
 
 	@org.springframework.data.annotation.Id
 	private String questionId;	
 	private String question;
 	private  String contestLevel;	
 	private String questionStatus;
-	private List<SampleTestCase> sampleTestCase;
+	private List<TestCaseDTO> sampleTestCase;
 	private List<TestCases> testcases;
+	private String createdDate;
 
 	public Question() {
 		super();
@@ -57,11 +61,11 @@ public class Question {
 		this.contestLevel = contestLevel;
 	}
 
-	public List<SampleTestCase> getSampleTestCase() {
+	public List<TestCaseDTO> getSampleTestCase() {
 		return sampleTestCase;
 	}
 
-	public void setSampleTestCase(List<SampleTestCase> sampleTestCase) {
+	public void setSampleTestCase(List<TestCaseDTO> sampleTestCase) {
 		this.sampleTestCase = sampleTestCase;
 	}
 
@@ -72,12 +76,19 @@ public class Question {
 	public void setTestcases(List<TestCases> testcases) {
 		this.testcases = testcases;
 	}
+	
+	public String getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(String createdDate) {
+		this.createdDate = createdDate;
+	}
 
 	@Override
 	public String toString() {
 		return "Question [questionId=" + questionId + ", question=" + question + ", contestLevel=" + contestLevel
 				+ ", questionStatus=" + questionStatus + ", sampleTestCase=" + sampleTestCase + ", testcases="
-				+ testcases + "]";
+				+ testcases + ", createdDate=" + createdDate + "]";
 	}
-		
 }

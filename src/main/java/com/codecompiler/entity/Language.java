@@ -1,12 +1,14 @@
 package com.codecompiler.entity;
 
+import java.io.Serializable;
+
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="CodeLanguage")
 @EntityScan
-public class Language {
+public class Language implements Serializable {
 
 	@Id
 	private String id;

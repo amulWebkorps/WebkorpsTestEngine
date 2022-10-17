@@ -4,141 +4,195 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.codecompiler.entity.ResponseToFE;
+import com.codecompiler.dto.CodeDetailsDTO;
+import com.codecompiler.dto.CodeResponseDTO;
+import com.codecompiler.dto.QuestionAndCodeDTO;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
-import com.codecompiler.service.CommonService;
+import com.codecompiler.service.QuestionService;
 import com.codecompiler.service.StudentService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class CodeProcessingServiceImpl implements CodeProcessingService {
-    @Autowired
-    private CommonService commonService;
 
-    @Autowired
-    private StudentService studentService;
+	@Autowired
+	private StudentService studentService;
 
-    private PrintWriter processCode(String code,String language) throws IOException {
-        FileWriter fl = null;
-        if (language.equalsIgnoreCase("java")) {
-            String fileNameInLocal = "Main.java";
-            fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
-        }else if (language.equalsIgnoreCase("python")) {
-            String fileNameInLocal = "HelloPython";
-            fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "py");
-        }
-        else if (language.equalsIgnoreCase("cpp")) {
-            String fileNameInLocal = "HelloCPP";
-            fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "cpp");
-        }else if (language.equalsIgnoreCase("c")) {
-            String fileNameInLocal = "HelloC";
-            fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "c");
-        }
-        PrintWriter pr = new PrintWriter(fl);
-        pr.write(code );
-        pr.flush();
-        pr.close();
-        return pr;
-    }
+	@Autowired
+	private QuestionService questionService;
 
+	private static String compilationCommand(String language) {
+		String command = null;
+		if (language.equalsIgnoreCase("java")) {
+			command = "javac Main.java";
+		} else if (language.equalsIgnoreCase("python")) {
+			command = "src/main/resources/temp/HelloPython.py";
+		} else if (language.equalsIgnoreCase("cpp")) {
+			command = "g++ HelloCPP.cpp -o exeofCPP";
+		} else if (language.equalsIgnoreCase("c")) {
+			command = "gcc HelloC.c -o exeofc";
+		}
+		return command;
+	}
 
-    @Override
-    public ResponseToFE compileCode(Map<String, Object> data) throws IOException {
-        ResponseToFE responsef = new ResponseToFE();
-        String studentId = (String) data.get("studentId");
-        ArrayList<String> testCasesSuccess = new ArrayList<String>();
-        String complilationMessage = "";
-        Process pro = null;
-        BufferedReader in = null;
-        String line = null;
-        String language = (String) data.get("language");
-        String questionId = (String) data.get("questionId");
-        String flag = (String) data.get("flag");
-        String SubmittedCodeFileName = questionId+"_"+studentId;
-        String code = (String) data.get("code");
-        String command = null;
+	private static String interpretationCommand(String language) {
+		String command = null;
+		if (language.equalsIgnoreCase("java")) {
+			command = "java Main ";
+		} else if (language.equalsIgnoreCase("python")) {
+			command = "py HelloPython.py ";
+		} else if (language.equalsIgnoreCase("cpp")) {
+			command = "src/main/resources/temp/" + "exeofCPP ";
+		} else if (language.equalsIgnoreCase("c")) {
+			command = "src/main/resources/temp/exeofc ";
+		}
+		return command;
+	}
 
+	private void saveCodeTemporary(String code, String language) throws IOException {
+		log.info("saveCodeTemporary: started");
+		FileWriter fl = null;
+		if (language.equalsIgnoreCase("java")) {
+			String fileNameInLocal = "Main.java";
+			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
+		} else if (language.equalsIgnoreCase("python")) {
+			String fileNameInLocal = "HelloPython";
+			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "py");
+		} else if (language.equalsIgnoreCase("cpp")) {
+			String fileNameInLocal = "HelloCPP";
+			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "cpp");
+		} else if (language.equalsIgnoreCase("c")) {
+			String fileNameInLocal = "HelloC";
+			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "c");
+		}
+		PrintWriter pr = new PrintWriter(fl);
+		pr.write(code);
+		pr.flush();
+		pr.close();
+		log.info("saveCodeTemporary: ended");
+	}
 
-        PrintWriter pr = processCode(code,language);
+	private static String getMessagesFromProcessInputStream(InputStream inputStream) throws IOException {
+		log.info("getMessagesFromProcessInputStream :: started");
+		String message = "";
+		BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+		String line = null;
+		while ((line = in.readLine()) != null) {
+			message += line + "\n";
+		}
+		log.info("getMessagesFromProcessInputStream :: end");
+		return message;
+	}
 
-        try {
+	private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO, int index,ArrayList<Boolean> testCasesSuccess,
+			String complilationMessage) throws IOException {
+		log.info("saveSubmittedCode :: started");
+		String submittedCodeFileName = codeDetailsDTO.getQuestionsAndCode().get(index).getQuestionId() + "_"
+				+ codeDetailsDTO.getStudentId();
+		Set<String> studentQuestionIds = new HashSet<>();
+		studentQuestionIds.add(codeDetailsDTO.getQuestionsAndCode().get(index).getQuestionId());
+		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
 
-            if (language.equalsIgnoreCase("java")) {
-                command = "javac.exe Main.java";
-            }else if (language.equalsIgnoreCase("python")) {
-                command = "src/main/resources/temp/HelloPython.py";
-            }
-            else if (language.equalsIgnoreCase("cpp")) {
-                command ="g++.exe HelloCPP.cpp -o exeofCPP";
-            }else if (language.equalsIgnoreCase("c")) {
-                command ="gcc.exe HelloC.c -o exeofc";
-            }
-            pro = Runtime.getRuntime().exec(command, null, new File("src/main/resources/temp/"));
+		FileWriter flSubmitted = new FileWriter("src/main/resources/CodeSubmittedByCandidate/" + submittedCodeFileName);
+		PrintWriter prSubmitted = new PrintWriter(flSubmitted);
+		prSubmitted.write(codeDetailsDTO.getQuestionsAndCode().get(index).getCode());
+		studentService.updateStudentDetails(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(),
+				studentQuestionIds, testCasesSuccess, complilationMessage, submittedCodeFileName);
+		prSubmitted.flush();
+		prSubmitted.close();
+		codeResponseDTO.setSuccessMessage("Code Submitted Successfully");
+		log.info("saveSubmittedCode ::ended & Code Submitted Successfully");
+		return codeResponseDTO;
+	}
 
-            in = new BufferedReader(new InputStreamReader(pro.getErrorStream()));
-            while ((line = in.readLine()) != null) {
-                complilationMessage += line;
-            }
-            if (!complilationMessage.isEmpty() && flag.equalsIgnoreCase("run")) {
-                responsef.setComplilationMessage(complilationMessage);
-                responsef.setTestCasesSuccess(testCasesSuccess);
-                return responsef;
-            }
-            if (language.equalsIgnoreCase("java")) {
-                command = "java.exe Main ";
-            }else if (language.equalsIgnoreCase("python")) {
-                command = "py HelloPython.py ";
-            }
-            else if (language.equalsIgnoreCase("cpp")) {
-                command ="src/main/resources/temp/" + "exeofCPP.exe ";
-            }else if (language.equalsIgnoreCase("c")) {
-                command ="jsrc/main/resources/temp/exeofc.exe ";
-            }
-            List<TestCases> testCases = commonService.getTestCase(questionId);
+	@Override
+	public CodeResponseDTO compileCode(CodeDetailsDTO codeDetailsDTO) throws IOException {
+		log.info("compile code: started");
+		String language = codeDetailsDTO.getLanguage();
+		List<QuestionAndCodeDTO> questionIds = codeDetailsDTO.getQuestionsAndCode();
+		int flag = codeDetailsDTO.getFlag();
+		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
+		Process pro = null;
+		int count = 0;
+		Double percentage = 0.00;
+		for (int i = 0; i < questionIds.size(); i++) {
+			saveCodeTemporary(questionIds.get(i).getCode(), language);
+			try {
+				ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
+				String compilationCommand = compilationCommand(language);
+				pro = Runtime.getRuntime().exec(compilationCommand, null, new File("src/main/resources/temp/"));
+				String complilationMessage = getMessagesFromProcessInputStream(pro.getErrorStream());
+				if (!complilationMessage.isEmpty() && flag == 0) {
+					codeResponseDTO.setComplilationMessage(complilationMessage);
+					log.info("compile code :: compilation error :: " + complilationMessage);
+					return codeResponseDTO;
+				}
+				List<TestCases> testCases = questionService.getTestCase(questionIds.get(i).getQuestionId());
+				String interpretationCommand = interpretationCommand(language);
+				pro = Runtime.getRuntime().exec(interpretationCommand + testCases.get(0).getInput(), null, new File("src/main/resources/temp/"));
+				String exceptionMessage = getMessagesFromProcessInputStream(pro.getErrorStream());
+				if (!exceptionMessage.isEmpty() && flag == 0) {
+					codeResponseDTO.setComplilationMessage(exceptionMessage);
+					log.info("compile code :: exception occured :: " + exceptionMessage);
+					return codeResponseDTO;
+				}
+				for (TestCases testCase : testCases) {
+					String input = testCase.getInput();
+					pro = Runtime.getRuntime().exec(interpretationCommand + input, null,
+							new File("src/main/resources/temp/"));
+					String interpretationMessage = getMessagesFromProcessInputStream(pro.getInputStream());
+					interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
+					if (interpretationMessage.contains(testCase.getOutput())
+							|| interpretationMessage.equals(testCase.getOutput())) {
+						testCasesSuccess.add(true);
+						count++;
+					} else {
+						testCasesSuccess.add(false);
+					}
+				}
+				if (flag == 1) {
+					codeResponseDTO = saveSubmittedCode(codeDetailsDTO, i, testCasesSuccess, complilationMessage);
+				}
+				codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+			} catch (IOException e) {
+				codeResponseDTO.setComplilationMessage(e.getMessage());
+				log.error("Object is null " + e.getMessage());
+			} catch (Exception e) {
+				log.error("Object is null " + e.getMessage());
+				codeResponseDTO.setComplilationMessage("Something wents wrong. Please contact to HR");
+			}
+		}
+		if (codeDetailsDTO.getTimeOut()) {
+			percentage = generatePercentage(questionIds, count);
+			studentService.finalSubmitContest(codeDetailsDTO.getStudentId(), percentage);
+		}
+		log.info("compile code: ended");
 
-            for (TestCases testCase : testCases) {
-                String input = testCase.getInput();
-                pro = Runtime.getRuntime().exec(command + input, null,
-                        new File("src/main/resources/temp/"));
-                in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
-                System.out.println("complilationMessage." + in.toString());
-                String output = "";
-                while ((line = in.readLine()) != null) {
-                    output += line + "\n";
-                }
-                output = output.substring(0, output.length() - 1);
-                if (output.contains(testCase.getOutput()) || output.equals(testCase.getOutput())) {
-                    testCasesSuccess.add("Pass");
-                } else {
-                    testCasesSuccess.add("Fail");
-                }
-                complilationMessage += line + "\n";
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (flag.equalsIgnoreCase("submit")) {
-            List<String> questionIds = new ArrayList<>();
-            questionIds.add(questionId);
-            FileWriter flSubmitted = new FileWriter("src/main/resources/CodeSubmittedByCandidate/" + SubmittedCodeFileName);
-            PrintWriter prSubmitted = new PrintWriter(flSubmitted);
-            prSubmitted.write((String) data.get("code"));
-            studentService.updateStudentDetails(studentId, (String) data.get("contestId"),
-                    questionIds, testCasesSuccess, complilationMessage);
-            responsef.setSuccessMessage("Code SUbmitted Successfully");
-            prSubmitted.flush();
-            prSubmitted.close();
-        }
-        responsef.setTestCasesSuccess(testCasesSuccess);
-        return responsef;
-    }
+		return codeResponseDTO;
+	}
+	
+	public Double generatePercentage(List<QuestionAndCodeDTO> questionIds, int count) {
+		List<String> questionId = questionIds.stream().map(id -> id.getQuestionId()).collect(Collectors.toList());
+		List<List<TestCases>> testCases = questionService.findByQuestionIdIn(questionId);
+		List<String> testCasesSize = new ArrayList<String>();
+		testCases.stream().forEach(testCase -> testCase.stream().forEach(testcase -> testCasesSize.add(testcase.getInput())));
+		double percentage = ((100 * count) / testCasesSize.size());
+		return percentage;
+	}
 }

@@ -1,6 +1,11 @@
 package com.codecompiler.service.impl;
 
+import com.codecompiler.entity.Student;
 import com.codecompiler.service.EmailService;
+import com.codecompiler.service.StudentService;
+
+import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +21,9 @@ public class EmailServiceImpl implements EmailService {
 	@Value("${application.base-url}")
     private String baseUrl;
 	
-	Logger logger = LogManager.getLogger(EmailServiceImpl.class);
+	@Autowired private StudentService studentService;
+	
+	public static final Logger logger = LogManager.getLogger(EmailServiceImpl.class);
 	
 	private static final String CANDIDATE_EMAIL_TEMPLATE = "Hello \"%s\",%nGreeting of the day!!!%n%n"
 			+ "Please find your test link and credentials "
@@ -45,4 +52,14 @@ public class EmailServiceImpl implements EmailService {
     private String getLink(String contestId) {
         return baseUrl + contestId;
     }
+
+	@Override
+	public void sendMailToStudents(Map<String, List<String>> sendEmailDetails) {
+		for (String studentEmail : sendEmailDetails.get("studentEmails")) {
+			Student studentDetails = studentService.findByEmail(studentEmail);
+			sendMail(sendEmailDetails.get("contestId").get(0), studentDetails.getName(), studentDetails.getEmail(),"Webkorps Code Assesment Credentials", studentDetails.getPassword());
+			studentDetails.setStatus(true);
+			studentService.saveStudent(studentDetails);
+		}
+	}
 }

@@ -1,5 +1,6 @@
 package com.codecompiler.entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.annotation.Generated;
@@ -8,16 +9,21 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.codecompiler.dto.QuestionStatusDTO;
+
 @Document(collection="ContestName")
 @EntityScan
-public class Contest {
+public class Contest implements Serializable {
 	@Id
 	@Generated(value = "uuid")	
 	private String contestId;
 	private  String contestName;
 	private  String contestDescription;
 	private  String contestLevel;
-		private ArrayList<QuestionStatus> questionStatus = new ArrayList<>();
+	private ArrayList<QuestionStatusDTO> questionStatus = new ArrayList<>();
+	private String contestTime;
+	private String date;
+	
 	public Contest() {
 		super();		
 	}
@@ -45,17 +51,32 @@ public class Contest {
 	public void setContestLevel(String contestLevel) {
 		this.contestLevel = contestLevel;
 	}
-	public ArrayList<QuestionStatus> getQuestionStatus() {
+	public ArrayList<QuestionStatusDTO> getQuestionStatus() {
 		return questionStatus;
 	}
-	public void setQuestionStatus(ArrayList<QuestionStatus> questionStatus) {
+	public void setQuestionStatus(ArrayList<QuestionStatusDTO> questionStatus) {
 		this.questionStatus = questionStatus;
+	}
+	public String getContestTime() {
+		return contestTime;
+	}
+	public void setContestTime(String contestTime) {
+		this.contestTime = contestTime;
+	}
+	
+	public String getDate() {
+		return date;
+	}
+	public void setDate(String date) {
+		this.date = date;
 	}
 	@Override
 	public String toString() {
 		return "Contest [contestId=" + contestId + ", contestName=" + contestName + ", contestDescription="
-				+ contestDescription + ", contestLevel=" + contestLevel + ", questionStatus=" + questionStatus + "]";
+				+ contestDescription + ", contestLevel=" + contestLevel + ", questionStatus=" + questionStatus
+				+ ", contestTime=" + contestTime + ", date=" + date + "]";
 	}
+	
 	
 	
 }

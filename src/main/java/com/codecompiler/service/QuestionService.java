@@ -3,40 +3,34 @@ package com.codecompiler.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.codecompiler.dao.QuestionRepository;
-import com.codecompiler.dao.StudentRepository;
 import com.codecompiler.entity.Question;
-import com.codecompiler.entity.Student;
-import com.codecompiler.helper.Helper;
+import com.codecompiler.entity.TestCases;
 
-@Service
-public class QuestionService {
-	 @Autowired
-	    private QuestionRepository questionRepository;
-	 
-	  public void save(MultipartFile file) {
-
-	        try {
-	            List<Question> students = Helper.convertExcelToListOfOestions(file.getInputStream());
-	            this.questionRepository.saveAll(students);
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-
-	    }
-
-	public List<Question> getAllQuestion() {
-		List<Question> questions =questionRepository.findAll();
-        return questions;
+public interface QuestionService {
 	
-	}
-	public ArrayList<Question>  findQuestionByContestLevel(String contestLevel){
-	ArrayList<Question> question = questionRepository.findByContestLevel(contestLevel);      
-	return question;
-}
+	 public List<Question> findAllQuestion();
+	 
+	 public Question saveQuestion(Question question);
+	
+	 public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId, String contestLevel) throws IOException;
+	 
+	 public Question findByQuestionId(String questionId);
+	 
+	 public List<Question> findByContestLevel(String filterByString);
+
+	 public List<TestCases> getTestCase(String questionId);
+
+	public List<Question> getAllQuestions(Map<String, List<String>> questionIdList);
+
+	public void saveQuestionOrContest(ArrayList<String> contestAndQuestionId);
+
+	public List<Question> filterQuestion(String filterByString);
+	 	
+	public List<List<TestCases>> findByQuestionIdIn(List<String> questionsIds);
+	
+	public void deleteQuestionForTestCase(Question question);
 }

@@ -1,12 +1,10 @@
 package com.codecompiler.service;
 
-import com.codecompiler.entity.HrDetails;
+import com.codecompiler.entity.Admin;
 
 public interface AdminService {
 
-	public HrDetails findByEmailAndPassword(String email, String password);
-
-	public HrDetails saveHrDetails(HrDetails hrDetails);
+	public Admin saveAdminDetails(Admin admin);
 	
-	public HrDetails findByEmail(String email);
+	public Admin findByEmail(String email);
 }

@@ -1,28 +1,19 @@
 package com.codecompiler.entity;
-//import javax.persistence.*;
+
+import java.io.Serializable;
 
 import org.springframework.data.annotation.Id;
 
-//import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
-public class TestCases {
+public class TestCases implements Serializable{
 
 	@Id 
 	private int id;
 	private  String input;	
 	private String output;
 	
-public TestCases() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-	//	public TestCases(int id, String input, String output) {
-//		super();
-//		this.id = id;
-//		this.input = input;
-//		this.output = output;
-//	}
+    public TestCases() { }
+
 	@Override
 	public String toString() {
 		return "TestCases [id=" + id + ", input=" + input + ", output=" + output + "]";
