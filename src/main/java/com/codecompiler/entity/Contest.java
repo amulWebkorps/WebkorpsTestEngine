@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.codecompiler.dto.MCQStatusDTO;
 import com.codecompiler.dto.QuestionStatusDTO;
 
 @Document(collection="ContestName")
@@ -21,6 +22,7 @@ public class Contest implements Serializable {
 	private  String contestDescription;
 	private  String contestLevel;
 	private ArrayList<QuestionStatusDTO> questionStatus = new ArrayList<>();
+	private ArrayList<MCQStatusDTO> mcqStatus = new ArrayList<>();
 	private String contestTime;
 	private String date;
 	
@@ -57,6 +59,12 @@ public class Contest implements Serializable {
 	public void setQuestionStatus(ArrayList<QuestionStatusDTO> questionStatus) {
 		this.questionStatus = questionStatus;
 	}
+	public ArrayList<MCQStatusDTO> getMcqStatus() {
+		return mcqStatus;
+	}
+	public void setMcqStatus(ArrayList<MCQStatusDTO> mcqStatus) {
+		this.mcqStatus = mcqStatus;
+	}
 	public String getContestTime() {
 		return contestTime;
 	}
@@ -76,7 +84,5 @@ public class Contest implements Serializable {
 				+ contestDescription + ", contestLevel=" + contestLevel + ", questionStatus=" + questionStatus
 				+ ", contestTime=" + contestTime + ", date=" + date + "]";
 	}
-	
-	
 	
 }
