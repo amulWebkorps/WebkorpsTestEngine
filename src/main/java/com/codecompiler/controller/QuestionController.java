@@ -47,7 +47,8 @@ public class QuestionController {
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
 		}
 	}
-
+	
+	/* MCQ Upload */
 
 	@PostMapping("admin/saveQuestion")
 	public ResponseEntity<Object> saveQuestion(@RequestBody Question question){
