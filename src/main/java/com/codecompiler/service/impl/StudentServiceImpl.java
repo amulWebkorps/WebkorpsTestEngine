@@ -111,6 +111,28 @@ public class StudentServiceImpl implements StudentService {
 		log.info("findByContestId:: has been ended with studentDetails" + studentDetails.size());
 		return studentDetails;
 	}
+	
+	public List<StudentDTO> findByContestIdForMCQ(String contestId) {
+		if (contestId == null)
+			throw new NullPointerException();
+		else if (contestId.isBlank())
+			throw new IllegalArgumentException();
+		
+		log.info("findByContestId:: has started with contestId: " + contestId);
+		List<Student> students = studentRepository.findByContestId(contestId);
+		if (students == null || students.size() == 0) {
+			throw new RecordNotFoundException("No Student Found in Contest with id ::" + contestId);
+		}
+		List<StudentDTO> studentDetails = new ArrayList<StudentDTO>();
+		for (Student student : students) {
+			StudentDTO studentDto = new StudentDTO();
+			studentDto.setEmail(student.getEmail());
+			studentDto.setPercentage(student.getPercentage());
+			studentDetails.add(studentDto);
+		}
+		log.info("findByContestId:: has been ended with studentDetails" + studentDetails.size());
+		return studentDetails;
+	}
 
 	public Student saveStudent(Student studentDetails) {
 		if (studentDetails == null) {

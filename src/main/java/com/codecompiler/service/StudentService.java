@@ -43,5 +43,7 @@ public interface StudentService {
 	
 	public List<String> findByContestLevel(String filterByString);
 
+	public List<StudentDTO> findByContestIdForMCQ(String contestId);
+
 
 }

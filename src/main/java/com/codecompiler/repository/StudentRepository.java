@@ -14,6 +14,7 @@ public interface StudentRepository extends UserRepository<Student> {
 
 	List<Student> findByContestId(String contestId);
 	
+	
 	List<Student> findEmailByStatus(Boolean True);
 	
 	public Student deleteByEmail(String emailId);

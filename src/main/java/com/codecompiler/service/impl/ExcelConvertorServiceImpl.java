@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.codecompiler.dto.MyCellDTO;
 import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.Admin;
+import com.codecompiler.entity.MCQ;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCases;
@@ -29,6 +30,8 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 	
 	@Autowired
 	private AdminRepository adminRepository;
+	
+	
 
 	public List<Student> convertExcelToListOfStudent(Map<Integer, List<MyCellDTO>> data) {
 		List<Student> studentList = new ArrayList<>();
@@ -106,5 +109,45 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 			e.printStackTrace();
 		}
 		return questionList;
+	}
+
+	public List<MCQ> convertExcelToListOfMCQQuestions(Map<Integer, List<MyCellDTO>> data) {
+		List<MCQ> mcqQuestionList = new ArrayList<>();
+		try {
+			// List<MyCellDTO> headerRow = data.get(0);
+			for (int i = 1; i < data.size(); i++) {
+				
+				MCQ mcqQuestion = new MCQ();
+				String tempMCQid = UUID.randomUUID().toString();
+				List<MyCellDTO> row = data.get(i);
+				System.out.println("Data : "+row.get(3).getContent());
+
+				mcqQuestion.setMcqQuestion(row.get(0).getContent());
+
+					mcqQuestion.setOption1(row.get(1).getContent());
+			
+					mcqQuestion.setOption2(row.get(2).getContent());
+			
+					mcqQuestion.setOption3(row.get(3).getContent());
+			
+					mcqQuestion.setOption4(row.get(4).getContent());
+				
+				System.out.println("mm=  "+mcqQuestion);
+//				mcqQuestion.setOption1(row.get(1).getContent());
+				String[] splitData = row.get(5).getContent().split(",");
+				List<String> listData = new ArrayList<String>();
+				for (int m = 0; m < splitData.length; m++) {
+					listData.add(splitData[m]);
+				}
+				mcqQuestion.setCorrectOption(listData);
+				mcqQuestion.setMcqQuestionId(tempMCQid);
+				mcqQuestion.setMcqQuestionStatus(true);
+				mcqQuestionList.add(mcqQuestion);
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mcqQuestionList;
 	}
 }

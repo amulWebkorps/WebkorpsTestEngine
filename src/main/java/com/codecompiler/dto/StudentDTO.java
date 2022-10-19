@@ -15,6 +15,7 @@ public class StudentDTO extends User{
 
 	private String id;
 	private String name;
+	private String email;
 	private String mobileNumber;
 	private String contestLevel;
 	private String contestId;
@@ -22,4 +23,5 @@ public class StudentDTO extends User{
 	private List<TestCaseDTO> testCaseRecord;
 	private boolean status;
 	private String participateDate;	
+	private double percentage;
 }
