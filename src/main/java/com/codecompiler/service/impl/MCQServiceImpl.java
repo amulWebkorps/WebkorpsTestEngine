@@ -55,7 +55,6 @@ public class MCQServiceImpl implements MCQService {
 		allMCQ = mcqRepository.saveAll(allMCQ);
 		if (contest != null) {
 			List<String> mcqInContest = this.saveMCQContest(contest, allMCQ);
-
 			return mcqRepository.findByMcqIdIn(mcqInContest);
 		} else {
 			return mcqRepository.findByMcqStatus(true);
