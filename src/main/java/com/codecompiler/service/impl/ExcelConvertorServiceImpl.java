@@ -111,15 +111,14 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 		return questionList;
 	}
 
-	public List<MCQ> convertExcelToListOfMCQQuestions(Map<Integer, List<MyCellDTO>> data) {
+	public List<MCQ> convertExcelToListOfMCQ(Map<Integer, List<MyCellDTO>> data) {
 		List<MCQ> mcqQuestionList = new ArrayList<>();
 		try {
-			// List<MyCellDTO> headerRow = data.get(0);
 			for (int i = 1; i < data.size(); i++) {
 				MCQ mcqQuestion = new MCQ();
 				String tempMCQid = UUID.randomUUID().toString();
 				List<MyCellDTO> row = data.get(i);
-				mcqQuestion.setMcqQuestion(row.get(0).getContent());
+				mcqQuestion.setMcq(row.get(0).getContent());
 				mcqQuestion.setOption1(row.get(1).getContent());
 				mcqQuestion.setOption2(row.get(2).getContent());
 				mcqQuestion.setOption3(row.get(3).getContent());
@@ -130,8 +129,8 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 					listData.add(splitData[m]);
 				}
 				mcqQuestion.setCorrectOption(listData);
-				mcqQuestion.setMcqQuestionId(tempMCQid);
-				mcqQuestion.setMcqQuestionStatus(true);
+				mcqQuestion.setMcqId(tempMCQid);
+				mcqQuestion.setMcqStatus(true);
 				mcqQuestionList.add(mcqQuestion);
 
 			}

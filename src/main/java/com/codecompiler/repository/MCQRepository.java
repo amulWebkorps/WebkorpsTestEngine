@@ -10,8 +10,8 @@ import com.codecompiler.entity.MCQ;
 @Repository
 public interface MCQRepository extends MongoRepository<MCQ, Integer> {
 
-	List<MCQ> findByMcqQuestionIdIn(List<String> mcqQuestionsInContest);
+	List<MCQ> findByMcqIdIn(List<String> mcqInContest);
 
-	List<MCQ> findByMcqQuestionStatus(boolean status);
+	List<MCQ> findByMcqStatus(boolean status);
 
 }

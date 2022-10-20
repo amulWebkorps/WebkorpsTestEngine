@@ -11,20 +11,20 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import nonapi.io.github.classgraph.json.Id;
 
-@Document(collection = "MCQQuestion")
+@Document(collection = "MCQ")
 @EntityScan
 @NoArgsConstructor
 @ToString
 @Data
 public class MCQ implements Serializable {
 	@Id
-	private String mcqQuestionId;
-	private String mcqQuestion;
+	private String mcqId;
+	private String mcq;
 	private String option1;
 	private String option2;
 	private String option3;
 	private String option4;
 	private List<String> correctOption;
-	private boolean mcqQuestionStatus;
+	private boolean mcqStatus;
 	private String createdDate;
 }

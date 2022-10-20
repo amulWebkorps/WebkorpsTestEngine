@@ -22,12 +22,12 @@ public class Contest implements Serializable {
 	private  String contestDescription;
 	private  String contestLevel;
 	private ArrayList<QuestionStatusDTO> questionStatus = new ArrayList<>();
-	private ArrayList<MCQStatusDTO> mcqQuestionStatus = new ArrayList<MCQStatusDTO>();
-	public ArrayList<MCQStatusDTO> getMcqQuestionStatus() {
-		return mcqQuestionStatus;
+	private ArrayList<MCQStatusDTO> mcqStatus = new ArrayList<MCQStatusDTO>();
+	public ArrayList<MCQStatusDTO> getMcqStatus() {
+		return mcqStatus;
 	}
-	public void setMcqQuestionStatus(ArrayList<MCQStatusDTO> mcqQuestionStatus) {
-		this.mcqQuestionStatus = mcqQuestionStatus;
+	public void setMcqStatus(ArrayList<MCQStatusDTO> mcqStatus) {
+		this.mcqStatus = mcqStatus;
 	}
 	private String contestTime;
 	private String date;

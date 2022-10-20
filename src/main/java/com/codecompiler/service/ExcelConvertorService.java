@@ -24,5 +24,5 @@ public interface ExcelConvertorService {
 	
 	public List<Question> convertExcelToListOfQuestions(Map<Integer, List<MyCellDTO>> data);
 
-	public List<MCQ> convertExcelToListOfMCQQuestions(Map<Integer, List<MyCellDTO>> data);
+	public List<MCQ> convertExcelToListOfMCQ(Map<Integer, List<MyCellDTO>> data);
 }

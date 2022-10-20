@@ -39,44 +39,41 @@ public class MCQServiceImpl implements MCQService {
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
 
-	public List<MCQ> saveFileForBulkMCQQuestion(MultipartFile file, String contestId) throws IOException {
+	public List<MCQ> saveFileForBulkMCQ(MultipartFile file, String contestId) throws IOException {
 		if (!ExcelConvertorService.checkExcelFormat(file)) {
-			throw new UnSupportedFormatException("saveFileForBulkQuestion::Given file format is not supported");
+			throw new UnSupportedFormatException("saveFileForBulkMCQ::Given file format is not supported");
 		}
 		Contest contest = contestRepository.findByContestId(contestId);
-		List<MCQ> allTrueQuestions = null;
+		List<MCQ> allMCQ = null;
 		Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
 				file.getOriginalFilename());
-		System.out.println("Data= " + data);
-		allTrueQuestions = excelConvertorService.convertExcelToListOfMCQQuestions(data);
+		allMCQ = excelConvertorService.convertExcelToListOfMCQ(data);
 
-		if (allTrueQuestions.isEmpty() || allTrueQuestions == null) {
-			throw new RecordNotFoundException("saveFileForBulkQuestion:: Data isn't present in the file");
+		if (allMCQ.isEmpty() || allMCQ == null) {
+			throw new RecordNotFoundException("saveFileForBulkMCQ:: Data isn't present in the file");
 		}
-		allTrueQuestions = mcqRepository.saveAll(allTrueQuestions);
+		allMCQ = mcqRepository.saveAll(allMCQ);
 		if (contest != null) {
-			List<String> mcqQuestionsInContest = this.saveMCQContest(contest, allTrueQuestions);
+			List<String> mcqInContest = this.saveMCQContest(contest, allMCQ);
 
-			return mcqRepository.findByMcqQuestionIdIn(mcqQuestionsInContest);
+			return mcqRepository.findByMcqIdIn(mcqInContest);
 		} else {
-			return mcqRepository.findByMcqQuestionStatus(true);
+			return mcqRepository.findByMcqStatus(true);
 		}
 	}
 
-	public List<String> saveMCQContest(Contest contest, List<MCQ> allTrueQuestions) {
+	public List<String> saveMCQContest(Contest contest, List<MCQ> allMCQ) {
 		ArrayList<MCQStatusDTO> mcqStatusList = new ArrayList<MCQStatusDTO>();
-		allTrueQuestions.forEach(latestUploadedQuestions -> {
+		allMCQ.forEach(latestUploadedMCQ -> {
 			MCQStatusDTO mcqStatus = new MCQStatusDTO();
-			mcqStatus.setMcqId(latestUploadedQuestions.getMcqQuestionId());
+			mcqStatus.setMcqId(latestUploadedMCQ.getMcqId());
 			mcqStatus.setMcqstatus(true);
-			mcqStatusList.addAll(contest.getMcqQuestionStatus());
+			mcqStatusList.addAll(contest.getMcqStatus());
 			mcqStatusList.add(mcqStatus);
 		});
-		System.out.println("mca=  " + contest);
-		contest.setMcqQuestionStatus(mcqStatusList);
-
+		contest.setMcqStatus(mcqStatusList);
 		contestRepository.save(contest);
-		return contest.getMcqQuestionStatus().stream().map(MCQStatusDTO::getMcqId).collect(Collectors.toList());
+		return contest.getMcqStatus().stream().map(MCQStatusDTO::getMcqId).collect(Collectors.toList());
 	}
 
 }
