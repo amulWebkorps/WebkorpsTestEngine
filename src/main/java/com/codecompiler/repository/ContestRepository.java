@@ -16,4 +16,6 @@ public interface ContestRepository extends MongoRepository<Contest,String>{
 	
 	public List<Contest> findAll();
 	
+	public Contest findByContestName(String contestName);
+	
 }
