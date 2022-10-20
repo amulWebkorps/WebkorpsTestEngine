@@ -58,14 +58,19 @@ public class ContestController {
 	
 	@PostMapping("admin/createContest")
 	public ResponseEntity<Object> addContest(@RequestBody Contest contest) {
-		log.info("addContest: started contestName = "+contest.getContestName());
+		log.info("addContest: started contestName = " + contest.getContestName());
 		try {
-			contest.setDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
-			contest = contestService.saveContest(contest);
-			log.info("Contest added successfully");
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, contest);
+			Contest exsistingContest = contestService.findByContestName(contest.getContestName());
+			if (exsistingContest == null) {
+				contest.setDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+				contest = contestService.saveContest(contest);
+				log.info("Contest added successfully");
+				return ResponseHandler.generateResponse("success", HttpStatus.OK, contest);
+			} else {
+				return ResponseHandler.generateResponse("error", HttpStatus.CONFLICT, "Contest with same name already exsists");
+			}
 		} catch (Exception ex) {
-			log.error("Exception occured in addContest :: "+ex.getMessage());
+			log.error("Exception occured in addContest :: " + ex.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 		}
 	}

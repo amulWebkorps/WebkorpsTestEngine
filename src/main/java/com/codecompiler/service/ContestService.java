@@ -18,4 +18,6 @@ public interface ContestService {
 	Map<String,Object> getContestDetail(String contestId);
 	
 	Map<String,Object> contestPage(String contestId,String studentId, String selectlanguage);
+	
+	public Contest findByContestName(String contestName);
 }
