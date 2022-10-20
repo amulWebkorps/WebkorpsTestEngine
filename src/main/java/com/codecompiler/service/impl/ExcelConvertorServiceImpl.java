@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.codecompiler.dto.MyCellDTO;
 import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.Admin;
+import com.codecompiler.entity.MCQ;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCases;
@@ -106,5 +107,34 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 			e.printStackTrace();
 		}
 		return questionList;
+	}
+	
+	public List<MCQ> convertExcelToListOfMCQ(Map<Integer, List<MyCellDTO>> data) {
+		List<MCQ> mcqQuestionList = new ArrayList<>();
+		try {
+			for (int i = 1; i < data.size(); i++) {
+				MCQ mcqQuestion = new MCQ();
+				String tempMCQid = UUID.randomUUID().toString();
+				List<MyCellDTO> row = data.get(i);
+				mcqQuestion.setMcq(row.get(0).getContent());
+				mcqQuestion.setOption1(row.get(1).getContent());
+				mcqQuestion.setOption2(row.get(2).getContent());
+				mcqQuestion.setOption3(row.get(3).getContent());
+				mcqQuestion.setOption4(row.get(4).getContent());
+				String[] splitData = row.get(5).getContent().split(",");
+				List<String> listData = new ArrayList<String>();
+				for (int m = 0; m < splitData.length; m++) {
+					listData.add(splitData[m]);
+				}
+				mcqQuestion.setCorrectOption(listData);
+				mcqQuestion.setMcqId(tempMCQid);
+				mcqQuestion.setMcqStatus(true);
+				mcqQuestionList.add(mcqQuestion);
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mcqQuestionList;
 	}
 }

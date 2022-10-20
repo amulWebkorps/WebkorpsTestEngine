@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.entity.MCQ;
 import com.codecompiler.entity.Question;
 import com.codecompiler.reponse.ResponseHandler;
+import com.codecompiler.service.MCQService;
 import com.codecompiler.service.QuestionService;
 
 @Controller
@@ -33,6 +35,8 @@ public class QuestionController {
 	@Autowired
 	private QuestionService questionService;
 
+	@Autowired
+	private MCQService mcqService;
 
 	@PostMapping(value = "/admin/questionUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> questionUpload(@RequestParam("file") MultipartFile file,
@@ -101,6 +105,20 @@ public class QuestionController {
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, totalQuestionByFilter);
 		} catch (Exception e) {
 			logger.error("filterQuestion:: Exception occured: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
+	
+	@PostMapping(value = "/admin/mcqUpload", headers = "content-type=multipart/*")
+	public ResponseEntity<Object> mcqUpload(@RequestParam("file") MultipartFile file,
+			@RequestParam("contestId") String contestId) {
+		logger.info("MCQUpload:: Uploading Bulk MCQ on contestId: " + contestId);
+		try {
+			List<MCQ> allMCQList = mcqService.saveFileForBulkMCQ(file, contestId);
+			logger.info("MCQUpload:: Bulk MCQ saved successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, allMCQList);
+		}catch (Exception e) {
+			logger.error("MCQUpload:: Exception occured: " + e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
