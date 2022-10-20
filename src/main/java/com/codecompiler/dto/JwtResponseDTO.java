@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class JwtResponseDTO {
-    String token;
-    Student student;
+	String token;
+	Student student;
 }

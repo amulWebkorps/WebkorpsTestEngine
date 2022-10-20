@@ -7,6 +7,7 @@ public class CodeResponseDTO {
 	private String complilationMessage;
 	private ArrayList<Boolean> testCasesSuccess;
 	private String successMessage;
+
 	public String getComplilationMessage() {
 		return complilationMessage;
 	}
