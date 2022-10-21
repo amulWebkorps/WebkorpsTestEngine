@@ -59,7 +59,7 @@ public class QuestionController {
 			@RequestParam("contestId") String contestId) {
 		logger.info("MCQQuestionUpload :: started with contestId: " + contestId);
 		try {
-			List<MCQ> allMCQQuestions = mcqService.saveFileForBulkMCQQuestion(file, contestId);
+			List<MCQ> allMCQQuestions = mcqService.saveFileForBulkMCQ(file, contestId);
 			logger.info("questionUpload:: Bulk Question saved successfully");
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, allMCQQuestions);
 		} catch (Exception e) {
@@ -146,6 +146,20 @@ public class QuestionController {
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, totalQuestionByFilter);
 		} catch (Exception e) {
 			logger.error("filterQuestion:: Exception occured: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
+	
+	@PostMapping(value = "/admin/mcqUpload", headers = "content-type=multipart/*")
+	public ResponseEntity<Object> mcqUpload(@RequestParam("file") MultipartFile file,
+			@RequestParam("contestId") String contestId) {
+		logger.info("MCQUpload:: Uploading Bulk MCQ on contestId: " + contestId);
+		try {
+			List<MCQ> allMCQList = mcqService.saveFileForBulkMCQ(file, contestId);
+			logger.info("MCQUpload:: Bulk MCQ saved successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, allMCQList);
+		}catch (Exception e) {
+			logger.error("MCQUpload:: Exception occured: " + e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}

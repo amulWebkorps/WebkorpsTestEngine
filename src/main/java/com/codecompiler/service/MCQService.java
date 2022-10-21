@@ -13,7 +13,7 @@ import com.codecompiler.entity.MCQ;
 public interface MCQService {
 	
 	public List<MCQ> getAllMCQs(Map<String, List<String>> questionIdList);
-	public List<MCQ> saveFileForBulkMCQQuestion(MultipartFile file, String contestId) throws IOException; 
+	public List<MCQ> saveFileForBulkMCQ(MultipartFile file, String contestId) throws IOException; 
 	public List<String> saveMCQContest(Contest contest, List<MCQ> allTrueQuestions);
 	public void saveMcqQuestionOrContest(ArrayList<String> contestAndMcqQuestionId);
 }
