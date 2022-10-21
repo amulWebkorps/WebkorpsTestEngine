@@ -109,6 +109,7 @@ public class QuestionController {
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 		}
 	}
+	
 	@PutMapping("admin/deleteQuestion") // cid, qid
 	public ResponseEntity<Object> updateQuestionStatus(@RequestBody ArrayList<String> contestAndQuestionId) {
 		logger.info("updateQuestionStatus:: started with contestAndQuestionId: " + contestAndQuestionId.toString());
@@ -121,7 +122,20 @@ public class QuestionController {
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
-
+	
+	/* Delete MCQ Questions */
+	@PutMapping("admin/deleteMcqQuestion") // cid, qid
+	public ResponseEntity<Object> updateMcqQuestionStatus(@RequestBody ArrayList<String> contestAndMcqQuestionId) {
+		logger.info("updateMcqQuestionStatus:: started with contestAndQuestionId: " + contestAndMcqQuestionId.toString());
+		try {
+			mcqService.saveMcqQuestionOrContest(contestAndMcqQuestionId);
+			logger.info("updateMcqQuestionStatus:: saveQuestionOrContest saved successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, contestAndMcqQuestionId);
+		} catch (Exception e) {
+			logger.info("updateMcqQuestionStatus:: Exception occured : " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
 
 	@GetMapping("admin/filterQuestion")
 	public ResponseEntity<Object> filterQuestion(@RequestParam String filterByString) {

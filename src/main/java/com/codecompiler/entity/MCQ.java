@@ -12,15 +12,19 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import nonapi.io.github.classgraph.json.Id;
 
+<<<<<<< HEAD
+@Document(collection = "MCQQuestion")
+=======
 @Document(collection = "MCQ")
+>>>>>>> f06b287e3bedd6727a585553c4cd3f44f3e980f1
 @EntityScan
 @NoArgsConstructor
 @ToString
 @Data
-public class MCQ implements Serializable{
+public class MCQ implements Serializable {
 
 	@Id
-	private String mcqId;	
+	private String mcqId;
 	private String mcqQuestion;
 	private String option1;
 	private String option2;

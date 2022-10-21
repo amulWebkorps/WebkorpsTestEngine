@@ -21,7 +21,6 @@ import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.helper.ExcelPOIHelper;
 import com.codecompiler.repository.ContestRepository;
 import com.codecompiler.repository.MCQRepository;
-import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.MCQService;
@@ -43,7 +42,7 @@ public class MCQServiceImpl implements MCQService {
 	
 	@Autowired
 	private ContestService contestService;
-	
+
 	@Autowired
 	private QuestionRepository questionRepository;
 
@@ -78,33 +77,33 @@ public class MCQServiceImpl implements MCQService {
 		}
 
 		if (mcqIdList.size() < 2) {
-			
+
 			throw new NullPointerException("Method argument is null or it have insufficient data");
 		}
 		List<MCQ> mcqDetails = mcqRepository.findByMcqIdIn(mcqIdList.get("mcqIds"));
-		if  (mcqDetails == null) {
+		if (mcqDetails == null) {
 			throw new RecordNotFoundException("getAllMCQ:: Questions does not found");
 		}
-		Contest contest = saveContests(contestId, mcqIdList);
+		this.saveContests(contestId, mcqIdList);
 		return mcqDetails;
 	}
 
-	public Contest saveContests(String contestId,  Map<String, List<String>> mcqIdList) {
+	public Contest saveContests(String contestId, Map<String, List<String>> mcqIdList) {
 		Contest contest = contestService.findByContestId(contestId);
-		if  (contest == null) {
+		if (contest == null) {
 			throw new RecordNotFoundException("saveContests:: Content does not found for contestId: " + contestId);
 		}
 		ArrayList<MCQStatusDTO> mcqStatus = contest.getMcqStatus();
-		if  (mcqStatus == null) {
+		if (mcqStatus == null) {
 			throw new RecordNotFoundException("saveContests:: McqStatus does not found");
 		}
 		boolean flag = false;
 		for (String idToChangeStatus : mcqIdList.get("mcqIds")) {
 			int index = 0;
 			for (MCQStatusDTO qs : mcqStatus) {
-		
+
 				if (idToChangeStatus.equals(qs.getMcqId())) {
-					if (qs.isMcqstatus()== false) {
+					if (qs.isMcqstatus() == false) {
 						contest.getMcqStatus().get(index).setMcqstatus(true);
 						flag = true;
 					} else if (qs.isMcqstatus()) {
@@ -139,4 +138,21 @@ public class MCQServiceImpl implements MCQService {
 		return contest.getMcqStatus().stream().map(MCQStatusDTO::getMcqId).collect(Collectors.toList());
 	}
 
+	/* McqQuestoins Delete */
+	@Override
+	public void saveMcqQuestionOrContest(ArrayList<String> contestAndMcqQuestionId) {
+		if (contestAndMcqQuestionId == null || contestAndMcqQuestionId.size() < 2) {
+			throw new NullPointerException("Method argument is null or it have insufficient data");
+		}
+		Contest contest = new Contest();
+		contest = contestService.findByContestId(contestAndMcqQuestionId.get(0));
+		int index = 0;
+		for (MCQStatusDTO qs : contest.getMcqStatus()) {
+			if (qs.getMcqId().equals(contestAndMcqQuestionId.get(1))) {
+				contest.getMcqStatus().get(index).setMcqstatus(false);
+			}
+			index++;
+		}
+		contestService.saveContest(contest);
+	}
 }
