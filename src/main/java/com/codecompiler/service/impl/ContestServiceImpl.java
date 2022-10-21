@@ -23,6 +23,7 @@ import com.codecompiler.repository.MCQRepository;
 import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.LanguageService;
+import com.codecompiler.service.MCQService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +42,9 @@ public class ContestServiceImpl implements ContestService {
 
 	@Autowired
 	private LanguageService languageService;
+	
+	@Autowired
+	private MCQService mcqService;
 
 	public static final Logger logger = LogManager.getLogger(ContestServiceImpl.class);
 
@@ -217,6 +221,28 @@ public class ContestServiceImpl implements ContestService {
 			}
 		}
 		return totalMCQWithStatusTrue;
+	}
+	
+	@Override
+	public List<MCQ> findAllUploadedQuetions(String contestId) {
+		Contest contest=contestRepository.findByContestId(contestId);
+		
+		if(contest!=null) {
+			List<MCQStatusDTO> quetionsId=contest.getMcqStatus();
+			
+			ArrayList<MCQ> mcq=new ArrayList<MCQ>();
+			for(int i=0;i<quetionsId.size();i++)
+			{
+				if(quetionsId.get(i).isMcqstatus()) {
+					MCQ quet=mcqService.findByMcqId(quetionsId.get(i).getMcqId());
+					mcq.add(quet);
+				}
+			}
+			if(quetionsId.size()>0)
+				return mcq;
+		}
+		return null;
+		
 	}
 
 }
