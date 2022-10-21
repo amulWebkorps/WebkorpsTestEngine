@@ -22,7 +22,7 @@ public class Contest implements Serializable {
 	private  String contestDescription;
 	private  String contestLevel;
 	private ArrayList<QuestionStatusDTO> questionStatus = new ArrayList<>();
-	private ArrayList<MCQStatusDTO> mcqStatus = new ArrayList<MCQStatusDTO>();
+	private ArrayList<MCQStatusDTO> mcqStatus = new ArrayList<>();
 	private String contestTime;
 	private String date;
 	private String contestType;

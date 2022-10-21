@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.MCQ;
+import com.codecompiler.entity.Question;
 
 public interface MCQService {
 	

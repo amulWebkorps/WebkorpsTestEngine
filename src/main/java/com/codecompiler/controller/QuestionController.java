@@ -34,10 +34,10 @@ public class QuestionController {
 
 	@Autowired
 	private QuestionService questionService;
-
-	@Autowired
-	private MCQService mcqService;
 	
+	@Autowired
+	private MCQService  mcqService;
+
 	@PostMapping(value = "/admin/questionUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> questionUpload(@RequestParam("file") MultipartFile file,
 			@RequestParam("contestId") String contestId, @RequestParam("contestLevel") String contestLevel) {
