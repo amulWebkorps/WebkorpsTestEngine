@@ -37,7 +37,7 @@ public class QuestionController {
 
 	@Autowired
 	private MCQService mcqService;
-
+	
 	@PostMapping(value = "/admin/questionUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> questionUpload(@RequestParam("file") MultipartFile file,
 			@RequestParam("contestId") String contestId, @RequestParam("contestLevel") String contestLevel) {
@@ -51,8 +51,22 @@ public class QuestionController {
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
 		}
 	}
-
-
+	
+	/* MCQ Upload */
+	
+	@PostMapping(value = "/admin/mcqQuestionUpload", headers = "content-type=multipart/*")
+	public ResponseEntity<Object> mcqQuestionUpload(@RequestParam("file") MultipartFile file,
+			@RequestParam("contestId") String contestId) {
+		logger.info("MCQQuestionUpload :: started with contestId: " + contestId);
+		try {
+			List<MCQ> allMCQQuestions = mcqService.saveFileForBulkMCQ(file, contestId);
+			logger.info("questionUpload:: Bulk Question saved successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, allMCQQuestions);
+		} catch (Exception e) {
+			logger.error("questionUpload:: Exception occured: " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
+		}
+	}
 	@PostMapping("admin/saveQuestion")
 	public ResponseEntity<Object> saveQuestion(@RequestBody Question question){
 		logger.info("saveQuestion:: started with question: " + question);
@@ -81,7 +95,20 @@ public class QuestionController {
 		}
 	}
 
-
+	/* Available MCQ Upload */
+	
+	@PostMapping("admin/addSelectedAvailableMCQtoContest")
+	public ResponseEntity<Object> addSelectedAvailableMCQToContest(@RequestBody Map<String, List<String>> MCQIdList) {
+		logger.info("addSelectedAvailableQueToContest:: started with questionIdList: "+MCQIdList.size());
+		try {
+			List<MCQ> mcqDetails = mcqService.getAllMCQs(MCQIdList);
+			logger.info("addSelectedAvailableMCQToContest:: MCQ saved in Contest successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, mcqDetails);
+		} catch (Exception ex) {
+			logger.error("addSelectedAvailableMCQToContest:: Exception occured: "+ex.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
+	}
 	@PutMapping("admin/deleteQuestion") // cid, qid
 	public ResponseEntity<Object> updateQuestionStatus(@RequestBody ArrayList<String> contestAndQuestionId) {
 		logger.info("updateQuestionStatus:: started with contestAndQuestionId: " + contestAndQuestionId.toString());

@@ -21,6 +21,8 @@ import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.helper.ExcelPOIHelper;
 import com.codecompiler.repository.ContestRepository;
 import com.codecompiler.repository.MCQRepository;
+import com.codecompiler.repository.QuestionRepository;
+import com.codecompiler.service.ContestService;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.MCQService;
 
@@ -38,6 +40,12 @@ public class MCQServiceImpl implements MCQService {
 
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
+	
+	@Autowired
+	private ContestService contestService;
+	
+	@Autowired
+	private QuestionRepository questionRepository;
 
 	public List<MCQ> saveFileForBulkMCQ(MultipartFile file, String contestId) throws IOException {
 		if (!ExcelConvertorService.checkExcelFormat(file)) {
@@ -60,17 +68,73 @@ public class MCQServiceImpl implements MCQService {
 			return mcqRepository.findByMcqStatus(true);
 		}
 	}
+	
+	@Override
+	public List<MCQ> getAllMCQs(Map<String, List<String>> mcqIdList) {
+		// TODO Auto-generated method stub
+		String contestId = mcqIdList.get("contestId").get(0);
+		if (contestId.isBlank() || contestId == null) {
+			throw new NullPointerException("Method argument list does not contain valid MCQ id");
+		}
 
-	public List<String> saveMCQContest(Contest contest, List<MCQ> allMCQ) {
+		if (mcqIdList.size() < 2) {
+			
+			throw new NullPointerException("Method argument is null or it have insufficient data");
+		}
+		List<MCQ> mcqDetails = mcqRepository.findByMcqIdIn(mcqIdList.get("mcqIds"));
+		if  (mcqDetails == null) {
+			throw new RecordNotFoundException("getAllMCQ:: Questions does not found");
+		}
+		Contest contest = saveContests(contestId, mcqIdList);
+		return mcqDetails;
+	}
+
+	public Contest saveContests(String contestId,  Map<String, List<String>> mcqIdList) {
+		Contest contest = contestService.findByContestId(contestId);
+		if  (contest == null) {
+			throw new RecordNotFoundException("saveContests:: Content does not found for contestId: " + contestId);
+		}
+		ArrayList<MCQStatusDTO> mcqStatus = contest.getMcqStatus();
+		if  (mcqStatus == null) {
+			throw new RecordNotFoundException("saveContests:: McqStatus does not found");
+		}
+		boolean flag = false;
+		for (String idToChangeStatus : mcqIdList.get("mcqIds")) {
+			int index = 0;
+			for (MCQStatusDTO qs : mcqStatus) {
+		
+				if (idToChangeStatus.equals(qs.getMcqId())) {
+					if (qs.isMcqstatus()== false) {
+						contest.getMcqStatus().get(index).setMcqstatus(true);
+						flag = true;
+					} else if (qs.isMcqstatus()) {
+						flag = true;
+					}
+				}
+				index++;
+			}
+			if (flag == false) {
+				MCQStatusDTO mcqTemp = new MCQStatusDTO();
+				mcqTemp.setMcqId(idToChangeStatus);
+				mcqTemp.setMcqstatus(true);
+				contest.getMcqStatus().add(mcqTemp);
+			} else {
+				flag = false;
+			}
+		}
+		return contestService.saveContest(contest);
+	}
+	
+	public List<String> saveMCQContest(Contest contest, List<MCQ> allTrueQuestions) {
 		ArrayList<MCQStatusDTO> mcqStatusList = new ArrayList<MCQStatusDTO>();
-		allMCQ.forEach(latestUploadedMCQ ->{
+		allTrueQuestions.forEach(latestUploadedQuestions -> {
 			MCQStatusDTO mcqStatus = new MCQStatusDTO();
-			mcqStatus.setMcqId(latestUploadedMCQ.getMcqId());
+			mcqStatus.setMcqId(latestUploadedQuestions.getMcqId());
 			mcqStatus.setMcqstatus(true);
 			mcqStatusList.addAll(contest.getMcqStatus());
 			mcqStatusList.add(mcqStatus);
 		});
-		contest.setMcqStatus(mcqStatusList);
+		contest.setMcqStatus(mcqStatusList);	
 		contestRepository.save(contest);
 		return contest.getMcqStatus().stream().map(MCQStatusDTO::getMcqId).collect(Collectors.toList());
 	}

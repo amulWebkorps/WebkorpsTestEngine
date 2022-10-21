@@ -27,12 +27,6 @@ public class Contest implements Serializable {
 	private String date;
 	private String contestType;
 	
-	public ArrayList<MCQStatusDTO> getMcqStatus() {
-		return mcqStatus;
-	}
-	public void setMcqStatus(ArrayList<MCQStatusDTO> mcqStatus) {
-		this.mcqStatus = mcqStatus;
-	}
 	public Contest() {
 		super();		
 	}
@@ -65,6 +59,12 @@ public class Contest implements Serializable {
 	}
 	public void setQuestionStatus(ArrayList<QuestionStatusDTO> questionStatus) {
 		this.questionStatus = questionStatus;
+	}
+	public ArrayList<MCQStatusDTO> getMcqStatus() {
+		return mcqStatus;
+	}
+	public void setMcqStatus(ArrayList<MCQStatusDTO> mcqStatus) {
+		this.mcqStatus = mcqStatus;
 	}
 	public String getContestTime() {
 		return contestTime;

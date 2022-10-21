@@ -116,25 +116,26 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				MCQ mcqQuestion = new MCQ();
 				String tempMCQid = UUID.randomUUID().toString();
 				List<MyCellDTO> row = data.get(i);
-				mcqQuestion.setMcq(row.get(0).getContent());
+				mcqQuestion.setMcqQuestion(row.get(0).getContent());
 				mcqQuestion.setOption1(row.get(1).getContent());
 				mcqQuestion.setOption2(row.get(2).getContent());
 				mcqQuestion.setOption3(row.get(3).getContent());
 				mcqQuestion.setOption4(row.get(4).getContent());
 				String[] splitData = row.get(5).getContent().split(",");
-				List<String> listData = new ArrayList<String>();
-				for (int m = 0; m < splitData.length; m++) {
+				List<String> listData=new ArrayList<String>();
+				for(int m = 0; m< splitData.length ;m++) {
 					listData.add(splitData[m]);
 				}
 				mcqQuestion.setCorrectOption(listData);
 				mcqQuestion.setMcqId(tempMCQid);
 				mcqQuestion.setMcqStatus(true);
-				mcqQuestionList.add(mcqQuestion);
-
-			}
+			    mcqQuestionList.add(mcqQuestion);
+			 
+			}		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return mcqQuestionList;
 	}
+
 }

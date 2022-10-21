@@ -16,10 +16,11 @@ import nonapi.io.github.classgraph.json.Id;
 @NoArgsConstructor
 @ToString
 @Data
-public class MCQ implements Serializable {
+public class MCQ implements Serializable{
+
 	@Id
-	private String mcqId;
-	private String mcq;
+	private String mcqId;	
+	private String mcqQuestion;
 	private String option1;
 	private String option2;
 	private String option3;
