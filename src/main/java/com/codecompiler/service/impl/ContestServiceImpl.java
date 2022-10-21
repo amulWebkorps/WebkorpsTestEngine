@@ -39,8 +39,6 @@ public class ContestServiceImpl implements ContestService {
 	public static final Logger logger = LogManager.getLogger(ContestServiceImpl.class);
 	
 	public Contest saveContest(Contest contest){
-//		if(!contest.getContestName().isBlank())
-//		 throw new NullPointerException();
 		return contestRepository.save(contest);				
 	}
 	
@@ -91,9 +89,6 @@ public class ContestServiceImpl implements ContestService {
 			contestIdAndName.add(contestRecord);
 		});	
 		logger.info("getAllContest: ended");
-		if(contestIdAndName.isEmpty()) {
-			 throw new RecordNotFoundException("Records unavailable");
-		}
 		return contestIdAndName;
 	}
 
@@ -174,6 +169,11 @@ public class ContestServiceImpl implements ContestService {
 			}
 		}
 		return totalQuestionWithStatusTrue;
+	}
+
+	@Override
+	public Contest findByContestName(String contestName) {
+		return contestRepository.findByContestName(contestName);
 	}
 
 }

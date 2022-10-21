@@ -126,8 +126,6 @@ public class StudentServiceImpl implements StudentService {
 			throw new NullPointerException();
 		}
 		List<Student> sentMail = studentRepository.findEmailByStatus(True);
-		if (sentMail == null || sentMail.size() < 1)
-			throw new RecordNotFoundException("No matching record found");
 		return sentMail.stream().map(Student::getEmail).collect(Collectors.toList());
 	}
 
