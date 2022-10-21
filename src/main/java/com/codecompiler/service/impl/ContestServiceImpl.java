@@ -89,9 +89,6 @@ public class ContestServiceImpl implements ContestService {
 			contestIdAndName.add(contestRecord);
 		});	
 		logger.info("getAllContest: ended");
-		if(contestIdAndName.isEmpty()) {
-			 throw new RecordNotFoundException("Records unavailable");
-		}
 		return contestIdAndName;
 	}
 
