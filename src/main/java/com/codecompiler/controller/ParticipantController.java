@@ -153,5 +153,18 @@ public class ParticipantController {
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
+	
+	@GetMapping("admin/participatorOfMCQContest")
+	public ResponseEntity<Object> viewMCQParticipators(@RequestParam String contestId) {			
+		log.info("viewMCQParticipators:: started with contestId: " + contestId);
+		try {
+			List<StudentDTO> studentDetails = this.studentService.findByContestIdForMCQ(contestId);
+			log.info("viewMCQParticipators:: studentDetails fetch successfully: "+studentDetails.toString());
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, studentDetails);
+		} catch (Exception e) {
+			log.error("viewMCQParticipators:: Exception occured in viewParticipators :: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
 
 }
