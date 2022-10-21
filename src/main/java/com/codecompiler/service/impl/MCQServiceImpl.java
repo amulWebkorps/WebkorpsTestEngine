@@ -43,9 +43,6 @@ public class MCQServiceImpl implements MCQService {
 	@Autowired
 	private ContestService contestService;
 
-	@Autowired
-	private QuestionRepository questionRepository;
-
 	public List<MCQ> saveFileForBulkMCQ(MultipartFile file, String contestId) throws IOException {
 		if (!ExcelConvertorService.checkExcelFormat(file)) {
 			throw new UnSupportedFormatException("saveFileForBulkMCQ::Given file format is not supported");

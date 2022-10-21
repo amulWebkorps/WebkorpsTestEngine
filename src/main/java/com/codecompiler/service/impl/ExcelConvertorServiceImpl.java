@@ -138,8 +138,4 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 		return mcqQuestionList;
 	}
 
-<<<<<<< HEAD
-=======
-
->>>>>>> def91fdd863643491c405ca5602dba58c6b116a1
 }
