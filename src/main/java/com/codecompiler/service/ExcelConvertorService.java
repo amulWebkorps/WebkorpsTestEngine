@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.dto.MyCellDTO;
+import com.codecompiler.entity.MCQ;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 
@@ -18,7 +19,7 @@ public interface ExcelConvertorService {
 		} 
 		return false;
 	}
-	
+	public List<MCQ> convertExcelToListOfMCQQuestions(Map<Integer, List<MyCellDTO>> data);
 	public List<Student> convertExcelToListOfStudent(Map<Integer, List<MyCellDTO>> data);
 	
 	public List<Question> convertExcelToListOfQuestions(Map<Integer, List<MyCellDTO>> data);
