@@ -76,10 +76,10 @@ public class ContestController {
 	}
 
 	@GetMapping("admin/getContestDetail")
-	public ResponseEntity<Object> getContestDetail(@RequestParam String contestId) {
-		log.info("getContestDetail: started contestId = "+contestId);
+	public ResponseEntity<Object> getContestDetail(@RequestParam String contestId, @RequestParam String contestType) {
+		log.info("getContestDetail: started contestId "+contestId+" and contestType = "+contestType);
 		try {
-			Map<String, Object> contestDetail = contestService.getContestDetail(contestId);
+			Map<String, Object> contestDetail = contestService.getContestDetail(contestId, contestType);
 			log.info("getContestDetail: ended contestDetails size ::"+contestDetail.size());
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, contestDetail);
 		} catch (Exception ex) {
@@ -88,7 +88,6 @@ public class ContestController {
 		}
 		
 	}
-	
 	
 	@PostMapping("startContestPage")
 	public ResponseEntity<Object> contestPage(@RequestParam(value = "contestId", required = false) String contestId,
@@ -104,6 +103,4 @@ public class ContestController {
 		
 	}
 	
-
-
 }

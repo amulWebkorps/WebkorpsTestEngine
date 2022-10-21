@@ -15,7 +15,7 @@ public interface ContestService {
 	
 	public void deleteContest(String contestId);
 	
-	Map<String,Object> getContestDetail(String contestId);
+	Map<String,Object> getContestDetail(String contestId, String contestType);
 	
 	Map<String,Object> contestPage(String contestId,String studentId, String selectlanguage);
 	
