@@ -6,17 +6,12 @@ import java.util.List;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import nonapi.io.github.classgraph.json.Id;
 
-<<<<<<< HEAD
-@Document(collection = "MCQQuestion")
-=======
 @Document(collection = "MCQ")
->>>>>>> f06b287e3bedd6727a585553c4cd3f44f3e980f1
 @EntityScan
 @NoArgsConstructor
 @ToString
