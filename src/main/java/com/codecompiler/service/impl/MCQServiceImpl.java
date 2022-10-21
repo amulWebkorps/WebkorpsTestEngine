@@ -27,20 +27,47 @@ import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.MCQService;
 
 @Service
-public class MCQServiceImpl implements MCQService{
+public class MCQServiceImpl implements MCQService {
+
+	@Autowired
+	private ContestRepository contestRepository;
+
+	@Autowired
+	private ExcelConvertorService excelConvertorService;
 
 	@Autowired
 	private MCQRepository mcqRepository;
 
+	@Resource(name = "excelPOIHelper")
+	private ExcelPOIHelper excelPOIHelper;
+	
 	@Autowired
 	private ContestService contestService;
 	
 	@Autowired
-	private ContestRepository contestRepository;
-	@Autowired
 	private QuestionRepository questionRepository;
-	@Autowired
-	private ExcelConvertorService excelConvertorService;
+
+	public List<MCQ> saveFileForBulkMCQ(MultipartFile file, String contestId) throws IOException {
+		if (!ExcelConvertorService.checkExcelFormat(file)) {
+			throw new UnSupportedFormatException("saveFileForBulkMCQ::Given file format is not supported");
+		}
+		Contest contest = contestRepository.findByContestId(contestId);
+		List<MCQ> allMCQ = null;
+		Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
+				file.getOriginalFilename());
+		allMCQ = excelConvertorService.convertExcelToListOfMCQ(data);
+
+		if (allMCQ.isEmpty() || allMCQ == null) {
+			throw new RecordNotFoundException("saveFileForBulkMCQ:: Data isn't present in the file");
+		}
+		allMCQ = mcqRepository.saveAll(allMCQ);
+		if (contest != null) {
+			List<String> mcqInContest = this.saveMCQContest(contest, allMCQ);
+			return mcqRepository.findByMcqIdIn(mcqInContest);
+		}else {
+			return mcqRepository.findByMcqStatus(true);
+		}
+	}
 	
 	@Override
 	public List<MCQ> getAllMCQs(Map<String, List<String>> mcqIdList) {
@@ -98,31 +125,6 @@ public class MCQServiceImpl implements MCQService{
 		return contestService.saveContest(contest);
 	}
 	
-	@Resource(name = "excelPOIHelper")
-	private ExcelPOIHelper excelPOIHelper;
-	public List<MCQ> saveFileForBulkMCQQuestion(MultipartFile file, String contestId) throws IOException {
-		if (!ExcelConvertorService.checkExcelFormat(file)) {
-			throw new UnSupportedFormatException("saveFileForBulkQuestion::Given file format is not supported");
-		}
-		Contest contest = contestRepository.findByContestId(contestId);
-		List<MCQ> allTrueQuestions = null;
-		Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
-				file.getOriginalFilename());
-		System.out.println("Data= "+data);
-		allTrueQuestions = excelConvertorService.convertExcelToListOfMCQQuestions(data);
-		
-		if (allTrueQuestions.isEmpty() || allTrueQuestions == null) {
-			throw new RecordNotFoundException("saveFileForBulkQuestion:: Data isn't present in the file");
-		}
-		allTrueQuestions = mcqRepository.saveAll(allTrueQuestions);
-		if (contest != null) {
-			List<String> mcqQuestionsInContest = this.saveMCQContest(contest, allTrueQuestions);
-		
-			return mcqRepository.findByMcqIdIn(mcqQuestionsInContest);
-		} else {
-			return mcqRepository.findByMcqStatus(true);
-		}
-	}
 	public List<String> saveMCQContest(Contest contest, List<MCQ> allTrueQuestions) {
 		ArrayList<MCQStatusDTO> mcqStatusList = new ArrayList<MCQStatusDTO>();
 		allTrueQuestions.forEach(latestUploadedQuestions -> {
@@ -132,13 +134,9 @@ public class MCQServiceImpl implements MCQService{
 			mcqStatusList.addAll(contest.getMcqStatus());
 			mcqStatusList.add(mcqStatus);
 		});
-		
-		contest.setMcqStatus(mcqStatusList);
-		
+		contest.setMcqStatus(mcqStatusList);	
 		contestRepository.save(contest);
 		return contest.getMcqStatus().stream().map(MCQStatusDTO::getMcqId).collect(Collectors.toList());
 	}
-
-
 
 }

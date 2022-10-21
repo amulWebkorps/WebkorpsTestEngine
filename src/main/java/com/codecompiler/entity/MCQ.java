@@ -12,10 +12,9 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import nonapi.io.github.classgraph.json.Id;
 
-@Document(collection="MCQQuestion")
+@Document(collection = "MCQ")
 @EntityScan
 @NoArgsConstructor
-@AllArgsConstructor
 @ToString
 @Data
 public class MCQ implements Serializable{
