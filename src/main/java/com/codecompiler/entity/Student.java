@@ -24,6 +24,9 @@ public class Student extends User{
 	private boolean status;
 	private String participateDate;
 	private double percentage;
+	private List<String> correctAnswers;
+	private List<String> mcqQuetionsId;
+	private String mcqContestId;
 	
 	public String getId() {
 		return id;
@@ -113,5 +116,26 @@ public class Student extends User{
 				+ contestLevel + ", contestId=" + contestId + ", questionId=" + questionId + ", testCaseRecord="
 				+ testCaseRecord + ", status=" + status + ", participateDate=" + participateDate + ", percentage=" + percentage
 				+ "]";
-	}		
+	}
+	public List<String> getCorrectAnswers() {
+		return correctAnswers;
+	}
+	public void setCorrectAnswers(List<String> correctAnswers) {
+		this.correctAnswers = correctAnswers;
+	}
+	public List<String> getMcqQuetionsId() {
+		return mcqQuetionsId;
+	}
+	public void setMcqQuetionsId(List<String> mcqQuetionsId) {
+		this.mcqQuetionsId = mcqQuetionsId;
+	}
+	public String getMcqContestId() {
+		return mcqContestId;
+	}
+	public void setMcqContestId(String mcqContestId) {
+		this.mcqContestId = mcqContestId;
+	}
+		
+	
+	
 }

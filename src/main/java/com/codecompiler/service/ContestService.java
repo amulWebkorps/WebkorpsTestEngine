@@ -3,8 +3,10 @@ package com.codecompiler.service;
 import java.util.List;
 import java.util.Map;
 
+import com.codecompiler.dto.McqSubmitDto;
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.MCQ;
+import com.codecompiler.entity.Student;
 
 public interface ContestService {
 
@@ -23,4 +25,6 @@ public interface ContestService {
 	public Contest findByContestName(String contestName);
 	
 	public Contest findAllUploadedQuetions(String contestId);
+	
+	public boolean submitMcqContest(McqSubmitDto mcqSubmitDto);
 }

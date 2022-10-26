@@ -12,15 +12,18 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.codecompiler.dto.MCQStatusDTO;
+import com.codecompiler.dto.McqSubmitDto;
 import com.codecompiler.dto.QuestionStatusDTO;
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Language;
 import com.codecompiler.entity.MCQ;
 import com.codecompiler.entity.Question;
+import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.repository.ContestRepository;
 import com.codecompiler.repository.MCQRepository;
 import com.codecompiler.repository.QuestionRepository;
+import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.LanguageService;
 
@@ -44,6 +47,9 @@ public class ContestServiceImpl implements ContestService {
 	
 	@Autowired
 	private MCQServiceImpl mcqServiceImpl;
+	
+	@Autowired
+	private StudentRepository studentRepository;
 
 	public static final Logger logger = LogManager.getLogger(ContestServiceImpl.class);
 
@@ -243,6 +249,19 @@ public class ContestServiceImpl implements ContestService {
 		}
 		return null;
 		
+	}
+	
+	@Override
+	public boolean submitMcqContest(McqSubmitDto mcqSubmitDto) {
+		Student student=studentRepository.findById(mcqSubmitDto.getStudentId());
+		if(student!=null) {
+			student.setMcqQuetionsId(mcqSubmitDto.getMcqQuetionsId());
+			student.setCorrectAnswers(mcqSubmitDto.getCorrectAnswers());
+			student.setContestId(mcqSubmitDto.getContestId());
+			if(studentRepository.save(student)!=null)
+				return true;
+		}
+		return false;
 	}
 
 }
