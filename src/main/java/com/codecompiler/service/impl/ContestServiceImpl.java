@@ -41,6 +41,9 @@ public class ContestServiceImpl implements ContestService {
 
 	@Autowired
 	private LanguageService languageService;
+	
+	@Autowired
+	private MCQServiceImpl mcqServiceImpl;
 
 	public static final Logger logger = LogManager.getLogger(ContestServiceImpl.class);
 
@@ -217,6 +220,29 @@ public class ContestServiceImpl implements ContestService {
 			}
 		}
 		return totalMCQWithStatusTrue;
+	}
+	
+	@Override
+	public Contest findAllUploadedQuetions(String contestId) {
+		Contest contest=contestRepository.findByContestId(contestId);
+		
+		if(contest!=null) {
+			List<MCQStatusDTO> quetionsId=contest.getMcqStatus();
+			
+			ArrayList<MCQ> mcq=new ArrayList<MCQ>();
+			for(int i=0;i<quetionsId.size();i++)
+			{
+				if(quetionsId.get(i).isMcqstatus()) {
+					MCQ quet=mcqServiceImpl.findByMcqId(quetionsId.get(i).getMcqId());
+					mcq.add(quet);
+				}
+			}
+			if(quetionsId.size()>0) 
+				contest.setTotalAvailableQuestions(mcq);
+			return contest;
+		}
+		return null;
+		
 	}
 
 }

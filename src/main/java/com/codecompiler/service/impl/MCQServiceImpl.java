@@ -152,4 +152,9 @@ public class MCQServiceImpl implements MCQService {
 		}
 		contestService.saveContest(contest);
 	}
+	
+	@Override
+	public MCQ findByMcqId(String mcqId) {
+		return mcqRepository.findByMcqId(mcqId);
+	}
 }

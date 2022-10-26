@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.codecompiler.entity.Contest;
+import com.codecompiler.entity.MCQ;
 import com.codecompiler.reponse.ResponseHandler;
 import com.codecompiler.service.ContestService;
 
@@ -101,6 +102,21 @@ public class ContestController {
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 		
+	}
+	
+	@PostMapping("/fetchAllUploadedQuetions")
+	public ResponseEntity<Object> fetchAllUploadedQuetions(@RequestParam(value = "contestId") String contestId){
+		log.info("Start MCQ Contest : And contestId = " + contestId);
+		try {
+			 Contest mcq=contestService.findAllUploadedQuetions(contestId);
+			 if(mcq!=null)
+				 return ResponseHandler.generateResponse("success", HttpStatus.OK,mcq);
+			 else
+				 return ResponseHandler.generateResponse("Contest Or Contest Quetions is not present", HttpStatus.NOT_FOUND,null);
+		}catch (Exception e) {
+			log.error("Exception occured in contestPage :: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
 	}
 	
 }
