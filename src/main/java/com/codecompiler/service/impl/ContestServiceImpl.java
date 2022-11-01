@@ -143,7 +143,7 @@ public class ContestServiceImpl implements ContestService {
 			contestDetail.put("contestMCQDetail", mcqDetailList);
 
 			List<MCQ> totalMCQnWithStatusTrueFormat = new ArrayList<>();
-			for (MCQ mcqs : totalMCQnWithStatusTrueFormat) {
+			for (MCQ mcqs : totalMCQWithStatusTrue) {
 				MCQ formateMCQ = new MCQ();
 				formateMCQ.setMcqId(mcqs.getMcqId());
 				formateMCQ.setMcqQuestion(mcqs.getMcqQuestion());
