@@ -92,6 +92,7 @@ public class ContestServiceImpl implements ContestService {
 			contestRecord.setContestDescription(eachContestRecord.getContestDescription());
 			contestRecord.setDate(eachContestRecord.getDate());
 			contestRecord.setContestTime(eachContestRecord.getContestTime());
+			contestRecord.setContestType(eachContestRecord.getContestType());
 			contestIdAndName.add(contestRecord);
 		});
 		logger.info("getAllContest: ended");
