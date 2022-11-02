@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.dto.JwtResponseDTO;
+import com.codecompiler.dto.ParticipantDTO;
 import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
@@ -158,7 +159,7 @@ public class ParticipantController {
 	public ResponseEntity<Object> viewMCQParticipators(@RequestParam String contestId) {			
 		log.info("viewMCQParticipators:: started with contestId: " + contestId);
 		try {
-			List<StudentDTO> studentDetails = this.studentService.findByContestIdForMCQ(contestId);
+			List<ParticipantDTO> studentDetails = this.studentService.findByContestIdForMCQ(contestId);
 			log.info("viewMCQParticipators:: studentDetails fetch successfully: "+studentDetails.toString());
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, studentDetails);
 		} catch (Exception e) {

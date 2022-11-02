@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.dto.MyCellDTO;
+import com.codecompiler.dto.ParticipantDTO;
 import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.Question;
@@ -270,7 +271,7 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	
-	public List<StudentDTO> findByContestIdForMCQ(String contestId) {
+	public List<ParticipantDTO> findByContestIdForMCQ(String contestId) {
 		if (contestId == null)
 			throw new NullPointerException();
 		else if (contestId.isBlank())
@@ -281,12 +282,12 @@ public class StudentServiceImpl implements StudentService {
 		if (students == null || students.size() == 0) {
 			throw new RecordNotFoundException("No Student Found in Contest with id ::" + contestId);
 		}
-		List<StudentDTO> studentDetails = new ArrayList<StudentDTO>();
+		List<ParticipantDTO> studentDetails = new ArrayList<ParticipantDTO>();
 		for (Student student : students) {
-			StudentDTO studentDto = new StudentDTO();
-			studentDto.setEmail(student.getEmail());
-			studentDto.setPercentage(student.getPercentage());
-			studentDetails.add(studentDto);
+			ParticipantDTO participantDTO = new ParticipantDTO();
+			participantDTO.setEmail(student.getEmail());
+			participantDTO.setPercentage(student.getPercentage());
+			studentDetails.add(participantDTO);
 		}
 		log.info("findByContestId:: has been ended with studentDetails" + studentDetails.size());
 		return studentDetails;
