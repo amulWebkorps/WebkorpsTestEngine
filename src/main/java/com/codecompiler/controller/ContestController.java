@@ -106,7 +106,7 @@ public class ContestController {
 		
 	}
 	
-	@PostMapping("/fetchAllUploadedQuetions")
+	@PostMapping("fetchAllUploadedQuetions")
 	public ResponseEntity<Object> fetchAllUploadedQuetions(@RequestParam(value = "contestId") String contestId){
 		log.info("Start MCQ Contest : And contestId = " + contestId);
 		try {
@@ -121,7 +121,7 @@ public class ContestController {
 		}
 	}
 	
-	@PostMapping("/submitMcqContest")
+	@PostMapping("submitMcqContest")
 	public ResponseEntity<Object> submitMcqContest(@RequestBody McqSubmitDto mcqSubmitDto){
 		log.info("Mcq contest submit : ");
 		try {
