@@ -12,15 +12,18 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.codecompiler.dto.MCQStatusDTO;
+import com.codecompiler.dto.McqSubmitDto;
 import com.codecompiler.dto.QuestionStatusDTO;
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Language;
 import com.codecompiler.entity.MCQ;
 import com.codecompiler.entity.Question;
+import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.repository.ContestRepository;
 import com.codecompiler.repository.MCQRepository;
 import com.codecompiler.repository.QuestionRepository;
+import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.LanguageService;
 
@@ -41,6 +44,12 @@ public class ContestServiceImpl implements ContestService {
 
 	@Autowired
 	private LanguageService languageService;
+	
+	@Autowired
+	private MCQServiceImpl mcqServiceImpl;
+	
+	@Autowired
+	private StudentRepository studentRepository;
 
 	public static final Logger logger = LogManager.getLogger(ContestServiceImpl.class);
 
@@ -218,6 +227,42 @@ public class ContestServiceImpl implements ContestService {
 			}
 		}
 		return totalMCQWithStatusTrue;
+	}
+	
+	@Override
+	public Contest findAllUploadedQuetions(String contestId) {
+		Contest contest=contestRepository.findByContestId(contestId);
+		
+		if(contest!=null) {
+			List<MCQStatusDTO> quetionsId=contest.getMcqStatus();
+			
+			ArrayList<MCQ> mcq=new ArrayList<MCQ>();
+			for(int i=0;i<quetionsId.size();i++)
+			{
+				if(quetionsId.get(i).isMcqstatus()) {
+					MCQ quet=mcqServiceImpl.findByMcqId(quetionsId.get(i).getMcqId());
+					mcq.add(quet);
+				}
+			}
+			if(quetionsId.size()>0) 
+				contest.setTotalAvailableQuestions(mcq);
+			return contest;
+		}
+		return null;
+		
+	}
+	
+	@Override
+	public boolean submitMcqContest(McqSubmitDto mcqSubmitDto) {
+		Student student=studentRepository.findById(mcqSubmitDto.getStudentId());
+		if(student!=null) {
+			student.setMcqQuetionsId(mcqSubmitDto.getMcqQuetionsId());
+			student.setCorrectAnswers(mcqSubmitDto.getCorrectAnswers());
+			student.setContestId(mcqSubmitDto.getContestId());
+			if(studentRepository.save(student)!=null)
+				return true;
+		}
+		return false;
 	}
 
 }

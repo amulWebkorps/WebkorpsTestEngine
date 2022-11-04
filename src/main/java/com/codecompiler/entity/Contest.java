@@ -26,6 +26,7 @@ public class Contest implements Serializable {
 	private String contestTime;
 	private String date;
 	private String contestType;
+	private ArrayList<MCQ> totalAvailableQuestions=new ArrayList<MCQ>();
 	
 	public Contest() {
 		super();		
@@ -91,5 +92,13 @@ public class Contest implements Serializable {
 				+ contestDescription + ", contestLevel=" + contestLevel + ", questionStatus=" + questionStatus
 				+ ", contestTime=" + contestTime + ", date=" + date + ", contestType=" + contestType + "]";
 	}
+	public ArrayList<MCQ> getTotalAvailableQuestions() {
+		return totalAvailableQuestions;
+	}
+	public void setTotalAvailableQuestions(ArrayList<MCQ> totalAvailableQuestions) {
+		this.totalAvailableQuestions = totalAvailableQuestions;
+	}
+	
+	
 	
 }
