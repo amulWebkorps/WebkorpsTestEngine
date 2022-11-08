@@ -52,21 +52,7 @@ public class QuestionController {
 		}
 	}
 	
-	/* MCQ Upload */
 	
-	@PostMapping(value = "/admin/mcqQuestionUpload", headers = "content-type=multipart/*")
-	public ResponseEntity<Object> mcqQuestionUpload(@RequestParam("file") MultipartFile file,
-			@RequestParam("contestId") String contestId) {
-		logger.info("MCQQuestionUpload :: started with contestId: " + contestId);
-		try {
-			List<MCQ> allMCQQuestions = mcqService.saveFileForBulkMCQ(file, contestId);
-			logger.info("questionUpload:: Bulk Question saved successfully");
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, allMCQQuestions);
-		} catch (Exception e) {
-			logger.error("questionUpload:: Exception occured: " + e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
-		}
-	}
 	@PostMapping("admin/saveQuestion")
 	public ResponseEntity<Object> saveQuestion(@RequestBody Question question){
 		logger.info("saveQuestion:: started with question: " + question);
