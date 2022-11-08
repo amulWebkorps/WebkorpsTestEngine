@@ -106,11 +106,11 @@ public class ContestController {
 		
 	}
 	
-	@PostMapping("fetchAllUploadedQuetions")
-	public ResponseEntity<Object> fetchAllUploadedQuetions(@RequestParam(value = "contestId") String contestId){
+	@PostMapping("startMCQContest")
+	public ResponseEntity<Object> fetchAllUploadedQuetions(@RequestParam(value = "contestId") String contestId,@RequestParam(value = "studentId") String studentId){
 		log.info("Start MCQ Contest : And contestId = " + contestId);
 		try {
-			 Contest mcq=contestService.findAllUploadedQuetions(contestId);
+			 Map<String, Object> mcq=contestService.findAllUploadedQuetions(contestId,studentId);
 			 if(mcq!=null)
 				 return ResponseHandler.generateResponse("success", HttpStatus.OK,mcq);
 			 else

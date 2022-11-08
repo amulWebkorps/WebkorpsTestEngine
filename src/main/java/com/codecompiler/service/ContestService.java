@@ -24,7 +24,7 @@ public interface ContestService {
 	
 	public Contest findByContestName(String contestName);
 	
-	public Contest findAllUploadedQuetions(String contestId);
+	public Map<String, Object> findAllUploadedQuetions(String contestId,String studentId);
 	
 	public boolean submitMcqContest(McqSubmitDto mcqSubmitDto);
 }

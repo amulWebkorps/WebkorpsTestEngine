@@ -230,23 +230,26 @@ public class ContestServiceImpl implements ContestService {
 	}
 	
 	@Override
-	public Contest findAllUploadedQuetions(String contestId) {
+	public  Map<String, Object> findAllUploadedQuetions(String contestId,String studentId) {
 		Contest contest=contestRepository.findByContestId(contestId);
-		
+		List<MCQ> list=new ArrayList<MCQ>();
 		if(contest!=null) {
 			List<MCQStatusDTO> quetionsId=contest.getMcqStatus();
-			
-			ArrayList<MCQ> mcq=new ArrayList<MCQ>();
+			Contest contestTime = this.findByContestId(contestId);
+			Map<String, Object> mcqMap = new HashedMap<String, Object>();
 			for(int i=0;i<quetionsId.size();i++)
 			{
 				if(quetionsId.get(i).isMcqstatus()) {
-					MCQ quet=mcqServiceImpl.findByMcqId(quetionsId.get(i).getMcqId());
-					mcq.add(quet);
+					MCQ mcq=mcqServiceImpl.findByMcqId(quetionsId.get(i).getMcqId());
+					list.add(mcq);
 				}
 			}
-			if(quetionsId.size()>0) 
-				contest.setTotalAvailableQuestions(mcq);
-			return contest;
+
+			mcqMap.put("contestId", contestId);
+			mcqMap.put("studentId", studentId);
+			mcqMap.put("contestTime", contestTime.getContestTime());
+			mcqMap.put("mcqList",list);
+			return mcqMap;
 		}
 		return null;
 		
