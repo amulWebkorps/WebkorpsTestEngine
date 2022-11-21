@@ -132,7 +132,7 @@ public class ParticipantController {
 		try {
 			this.studentService.deleteByEmail(emailId);
 			log.info("Student Deleted Successfully");
-			return ResponseHandler.generateResponse("error", HttpStatus.OK, "Student Deleted Successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, "Student Deleted Successfully");
 		}
 		catch (Exception ex) {
 			log.error("Exception occured in deleteStudent :: "+ex.getMessage());

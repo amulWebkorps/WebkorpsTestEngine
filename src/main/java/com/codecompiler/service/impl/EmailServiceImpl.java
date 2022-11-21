@@ -57,7 +57,7 @@ public class EmailServiceImpl implements EmailService {
 	public void sendMailToStudents(Map<String, List<String>> sendEmailDetails) {
 		for (String studentEmail : sendEmailDetails.get("studentEmails")) {
 			Student studentDetails = studentService.findByEmail(studentEmail);
-			sendMail(sendEmailDetails.get("contestId").get(0), studentDetails.getName(), studentDetails.getEmail(),"Webkorps Code Assesment Credentials", studentDetails.getPassword());
+			sendMail(sendEmailDetails.get("contestId").get(0), studentDetails.getName(), studentDetails.getEmail(),"Webkorps Code Assessment Credentials", studentDetails.getPassword());
 			studentDetails.setStatus(true);
 			studentService.saveStudent(studentDetails);
 		}
