@@ -1,5 +1,7 @@
 package com.codecompiler.dto;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +14,7 @@ public class MCQDTO {
 	private String option2;
 	private String option3;
 	private String option4;
-	private String correctOption;
+	private List<String> correctOption;
 	private String mcqStatus;
 	private String createdDate;
 }

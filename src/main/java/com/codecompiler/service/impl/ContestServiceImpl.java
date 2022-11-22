@@ -1,6 +1,7 @@
 package com.codecompiler.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.codecompiler.dto.MCQDTO;
 import com.codecompiler.dto.MCQStatusDTO;
 import com.codecompiler.dto.McqSubmitDto;
 import com.codecompiler.dto.QuestionStatusDTO;
@@ -38,16 +40,16 @@ public class ContestServiceImpl implements ContestService {
 
 	@Autowired
 	private QuestionRepository questionRepository;
-	
+
 	@Autowired
 	private MCQRepository mcqRepository;
 
 	@Autowired
 	private LanguageService languageService;
-	
+
 	@Autowired
 	private MCQServiceImpl mcqServiceImpl;
-	
+
 	@Autowired
 	private StudentRepository studentRepository;
 
@@ -214,7 +216,7 @@ public class ContestServiceImpl implements ContestService {
 	public Contest findByContestName(String contestName) {
 		return contestRepository.findByContestName(contestName);
 	}
-	
+
 	public List<MCQ> findAllMcq() {
 		List<MCQ> totalMCQWithStatusTrue = new ArrayList<>();
 		List<MCQ> mcqs = mcqRepository.findAll();
@@ -228,40 +230,48 @@ public class ContestServiceImpl implements ContestService {
 		}
 		return totalMCQWithStatusTrue;
 	}
-	
+
 	@Override
-	public  Map<String, Object> findAllUploadedQuetions(String contestId,String studentId) {
-		Contest contest=contestRepository.findByContestId(contestId);
-		List<MCQ> list=new ArrayList<MCQ>();
-		if(contest!=null) {
-			List<MCQStatusDTO> quetionsId=contest.getMcqStatus();
-			Contest contestTime = this.findByContestId(contestId);
+	public Map<String, Object> findAllUploadedQuetions(String contestId, String studentId) {
+		Contest contest = contestRepository.findByContestId(contestId);
+		List<MCQDTO> list = new ArrayList<MCQDTO>();
+
+		if (contest != null) {
+			List<MCQStatusDTO> quetionsId = contest.getMcqStatus();
+			// Contest contestTime = this.findByContestId(contestId);
 			Map<String, Object> mcqMap = new HashedMap<String, Object>();
-			for(int i=0;i<quetionsId.size();i++)
-			{
-				if(quetionsId.get(i).isMcqstatus()) {
-					MCQ mcq=mcqServiceImpl.findByMcqId(quetionsId.get(i).getMcqId());
-					list.add(mcq);
+			for (int i = 0; i < quetionsId.size(); i++) {
+				if (quetionsId.get(i).isMcqstatus()) {
+					MCQDTO mcqDto = new MCQDTO();
+					MCQ mcq = mcqServiceImpl.findByMcqId(quetionsId.get(i).getMcqId());
+					mcqDto.setMcqId(mcq.getMcqId());
+
+					mcqDto.setMcqQuestion(mcq.getMcqQuestion());
+					mcqDto.setOption1(mcq.getOption1());
+					mcqDto.setOption2(mcq.getOption2());
+					mcqDto.setOption3(mcq.getOption3());
+					mcqDto.setOption4(mcq.getOption4());
+					list.add(mcqDto);
 				}
 			}
 			mcqMap.put("contestId", contestId);
 			mcqMap.put("studentId", studentId);
-			mcqMap.put("contestTime", contestTime.getContestTime());
-			mcqMap.put("mcqList",list);
+			mcqMap.put("contestTime", contest.getContestTime());
+			mcqMap.put("mcqList", list);
 			return mcqMap;
 		}
 		return null;
-		
+
 	}
-	
+
 	@Override
 	public boolean submitMcqContest(McqSubmitDto mcqSubmitDto) {
-		Student student=studentRepository.findById(mcqSubmitDto.getStudentId());
-		if(student!=null) {
+		Student student = studentRepository.findById(mcqSubmitDto.getStudentId());
+		if (student != null) {
 			student.setMcqQuetionsId(mcqSubmitDto.getMcqQuetionsId());
 			student.setCorrectAnswers(mcqSubmitDto.getCorrectAnswers());
 			student.setContestId(mcqSubmitDto.getContestId());
-			if(studentRepository.save(student)!=null)
+			if (studentRepository.save(student) != null)
 				return true;
 		}
 		return false;

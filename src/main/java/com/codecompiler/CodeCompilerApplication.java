@@ -19,23 +19,6 @@ public class CodeCompilerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CodeCompilerApplication.class, args);
 		
-		ArrayList<String> list=new ArrayList();
-		  list.add("Ramji");
-		  
-		  list.add("sdsasce");
-		  List<String> filter = list.stream().filter(s->s.equals("si")).collect(Collectors.toList());
-		int tempLen=0;
-		String longString="";
-		
-		for(int i=0;i<list.size();i++){
-			String temp=""+list.get(i);
-			if(temp.length()>tempLen){
-			 tempLen=temp.length();
-			longString=""+list.get(i);
-		}}
-		
-		System.out.println(longString);
-		System.out.println(filter);
 
 	}
 
