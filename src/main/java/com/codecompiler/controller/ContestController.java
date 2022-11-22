@@ -126,7 +126,7 @@ public class ContestController {
 		log.info("Mcq contest submit : ");
 		try {
 			if(contestService.submitMcqContest(mcqSubmitDto))
-				return ResponseHandler.generateResponse("success", HttpStatus.OK,null);
+				return ResponseHandler.generateResponse("success", HttpStatus.OK,"Test Submited Successfully");
 			else
 				return ResponseHandler.generateResponse("Something went wrong....", HttpStatus.OK,null);
 		}catch (Exception e) {
@@ -134,5 +134,4 @@ public class ContestController {
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
-	
 }

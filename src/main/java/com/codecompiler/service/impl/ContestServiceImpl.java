@@ -244,7 +244,6 @@ public class ContestServiceImpl implements ContestService {
 					list.add(mcq);
 				}
 			}
-
 			mcqMap.put("contestId", contestId);
 			mcqMap.put("studentId", studentId);
 			mcqMap.put("contestTime", contestTime.getContestTime());
