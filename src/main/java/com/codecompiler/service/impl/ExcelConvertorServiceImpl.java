@@ -53,6 +53,7 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 						studentList.add(student);
 					} else if (exsistingAdmin == null) {
 						exsistingStudent.setStatus(false);
+						student.setPassword(pwd);
 						studentRepository.save(exsistingStudent);
 					}
 				}
