@@ -157,4 +157,10 @@ public class MCQServiceImpl implements MCQService {
 	public MCQ findByMcqId(String mcqId) {
 		return mcqRepository.findByMcqId(mcqId);
 	}
+
+	@Override
+	public List<MCQ> getAllMcq() {
+		List<MCQ> mcqs=mcqRepository.findAll();
+		return mcqs;
+	}
 }

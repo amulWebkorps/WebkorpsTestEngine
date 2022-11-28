@@ -149,5 +149,19 @@ public class QuestionController {
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
+	
+	@GetMapping(value="/admin/getAllMcq")
+	public ResponseEntity<Object> getAllMcq(){
+		logger.info("Get All quetions:");
+		try {
+			List<MCQ> allMcqs = mcqService.getAllMcq();
+			logger.info("GetAllMcq:: GetAllQuetion successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, allMcqs);
+		}
+		catch(Exception e) {
+			logger.error("GetAllmcq:: Exception occured " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
 
 }
