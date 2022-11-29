@@ -56,9 +56,29 @@ public class MCQServiceImpl implements MCQService {
 		if (allMCQ.isEmpty() || allMCQ == null) {
 			throw new RecordNotFoundException("saveFileForBulkMCQ:: Data isn't present in the file");
 		}
-		allMCQ = mcqRepository.saveAll(allMCQ);
+		List<MCQ> answer=new ArrayList<MCQ>();
+		List<MCQ> oldMcqs=mcqRepository.findAll();
+		if(oldMcqs.size()>0) {
+			for(int i=0;i<allMCQ.size();i++) {
+				boolean status=true;
+				for(int j=0;j<oldMcqs.size();j++) {
+					if(allMCQ.get(i).getMcqQuestion().toLowerCase().trim().equals(oldMcqs.get(j).getMcqQuestion().toLowerCase().trim())) {
+						status=false;
+						break;
+					}
+				}
+				if(status) {
+					answer.add(allMCQ.get(i));
+				}
+
+			}
+			answer = mcqRepository.saveAll(answer);
+		}
+		else
+			answer=mcqRepository.saveAll(allMCQ);
+		
 		if (contest != null) {
-			List<String> mcqInContest = this.saveMCQContest(contest, allMCQ);
+			List<String> mcqInContest = this.saveMCQContest(contest, answer);
 			return mcqRepository.findByMcqIdIn(mcqInContest);
 		}else {
 			return mcqRepository.findByMcqStatus(true);
