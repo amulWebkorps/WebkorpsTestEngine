@@ -54,6 +54,11 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 					} else if (exsistingAdmin == null) {
 						exsistingStudent.setStatus(false);
 						exsistingStudent.setPassword(pwd);
+						exsistingStudent.setQuestionId(null);
+						exsistingStudent.setPercentage(0);
+						exsistingStudent.setTestCaseRecord(null);
+						exsistingStudent.setContestId(null);
+						exsistingStudent.setParticipateDate(null);
 						studentRepository.save(exsistingStudent);
 					}
 				}
