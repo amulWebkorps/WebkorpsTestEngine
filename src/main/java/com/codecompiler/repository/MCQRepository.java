@@ -17,6 +17,6 @@ public interface MCQRepository extends MongoRepository<MCQ,Integer> {
 	
 	@Query(value="{'mcqId' : :#{#mcqId}}",delete=true)
 	public MCQ deleteByMcqId(String mcqId);
-//	@Query(value="{'mcqId' : :#{#mcqId},{$set:{mcqStatus:false}}}")
-//	public MCQ deleteByMcqId(String mcqId);
+	@Query(value="{'mcqStatus' : :#{#status}}")
+	public List<MCQ> findAllMCQ(boolean status);
 }

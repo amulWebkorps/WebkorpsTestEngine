@@ -180,7 +180,7 @@ public class MCQServiceImpl implements MCQService {
 
 	@Override
 	public List<MCQ> getAllMcq() {
-		List<MCQ> mcqs=mcqRepository.findAll();
+		List<MCQ> mcqs=(List<MCQ>) mcqRepository.findAllMCQ(true);
 		return mcqs;
 	}
 
