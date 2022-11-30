@@ -46,7 +46,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-System.out.println("Before add Filter");
         //filter is not added yet
         http
      
