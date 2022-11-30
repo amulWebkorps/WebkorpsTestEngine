@@ -3,6 +3,7 @@ package com.codecompiler.repository;
 import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.codecompiler.entity.MCQ;
@@ -13,4 +14,9 @@ public interface MCQRepository extends MongoRepository<MCQ,Integer> {
 	public List<MCQ> findByMcqIdIn(List<String> mcqId);
 	public List<MCQ> findByMcqStatus(boolean mcqId);
 	public MCQ findByMcqId(String mcqQuestionId);
+	
+	@Query(value="{'mcqId' : :#{#mcqId}}",delete=true)
+	public MCQ deleteByMcqId(String mcqId);
+//	@Query(value="{'mcqId' : :#{#mcqId},{$set:{mcqStatus:false}}}")
+//	public MCQ deleteByMcqId(String mcqId);
 }

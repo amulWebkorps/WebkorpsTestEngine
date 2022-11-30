@@ -183,4 +183,15 @@ public class MCQServiceImpl implements MCQService {
 		List<MCQ> mcqs=mcqRepository.findAll();
 		return mcqs;
 	}
+
+	@Override
+	public MCQ deleteMcq(String mcqId) {
+		MCQ mcq=mcqRepository.findByMcqId(mcqId);
+		if(mcq!=null) {
+			mcqRepository.deleteByMcqId(mcqId);
+			mcq.setMcqStatus(false);
+			mcq=mcqRepository.save(mcq);
+		}
+		return mcq;
+	}
 }

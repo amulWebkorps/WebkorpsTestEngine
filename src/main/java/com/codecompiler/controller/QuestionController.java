@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -160,6 +161,20 @@ public class QuestionController {
 		}
 		catch(Exception e) {
 			logger.error("GetAllmcq:: Exception occured " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
+	
+	@DeleteMapping(value="/admin/deleteMcq")
+	public ResponseEntity<Object> deleteMcq(@RequestParam("mcqId") String mcqId){
+		logger.info("Delete MCQ :: MCQId :"+mcqId);
+		try {
+			MCQ mcq = mcqService.deleteMcq(mcqId);
+			logger.info("Delete MCQ :: Mcq Delete Successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, mcq);
+		}
+		catch(Exception e) {
+			logger.error("D:: Exception occured " + e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}

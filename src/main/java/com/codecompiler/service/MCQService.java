@@ -18,4 +18,5 @@ public interface MCQService {
 	public void saveMcqQuestionOrContest(ArrayList<String> contestAndMcqQuestionId);
 	public MCQ findByMcqId(String mcqId);
 	public List<MCQ> getAllMcq();
+	public MCQ deleteMcq(String mcqId);
 }
