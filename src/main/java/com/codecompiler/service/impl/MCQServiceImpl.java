@@ -47,11 +47,16 @@ public class MCQServiceImpl implements MCQService {
 		if (!ExcelConvertorService.checkExcelFormat(file)) {
 			throw new UnSupportedFormatException("saveFileForBulkMCQ::Given file format is not supported");
 		}
-		Contest contest = contestRepository.findByContestId(contestId);
+		
 		List<MCQ> allMCQ = null;
 		Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
 				file.getOriginalFilename());
 		allMCQ = excelConvertorService.convertExcelToListOfMCQ(data);
+		System.out.println("CONTSETID : "+contestId);
+		if(contestId.equals("null")) {
+			return saveMcq(allMCQ);
+		}
+		Contest contest = contestRepository.findByContestId(contestId);
 
 		if (allMCQ.isEmpty() || allMCQ == null) {
 			throw new RecordNotFoundException("saveFileForBulkMCQ:: Data isn't present in the file");
@@ -247,6 +252,31 @@ public class MCQServiceImpl implements MCQService {
 		else 
 			answer = mcqRepository.saveAll(addMcq);
 		
+		return answer;
+	}
+	
+	public List<MCQ> saveMcq(List<MCQ> allMcq){
+		List<MCQ> oldMcq = mcqRepository.findAll();
+		List<MCQ> answer=new ArrayList<MCQ>();
+		System.out.println("HIiiiiiiiiiii");
+		
+		if(oldMcq.size()>0) {
+			for(int i=0;i<allMcq.size();i++) {
+				boolean status=true;
+				for(int j=0;j<oldMcq.size();j++) {
+					if(allMcq.get(i).getMcqQuestion().toLowerCase().trim().equals(oldMcq.get(j).getMcqQuestion().toLowerCase().trim()))
+					{
+						status=false;
+						break;
+					}
+				}
+				if(status)
+					answer.add(allMcq.get(i));
+			}
+			if(answer.size()>0)
+				answer=mcqRepository.saveAll(answer);
+		}else
+			answer=mcqRepository.saveAll(allMcq);
 		return answer;
 	}
 }
