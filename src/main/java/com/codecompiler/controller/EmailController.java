@@ -58,4 +58,17 @@ public class EmailController {
 		
 	}
 	
+	@GetMapping("sentMailForParticipatorForMCQ")
+	public ResponseEntity<Object> getAllSentMailsForParticipatorForMCQ() {
+		log.info("sentMailForParticipator: started");
+		try {
+			List<String> sentMailStudentList = studentService.findEmailByfinalMailSent();
+			log.info("sentMailForParticipator: Ended setMailStudentList Size :: "+ sentMailStudentList.size());
+			return ResponseHandler.generateResponse("succcess", HttpStatus.OK, sentMailStudentList);
+		} catch (Exception ex) {
+			log.error("Exception occured in sendMail :: "+ex.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
+		}	
+	}
+	
 }

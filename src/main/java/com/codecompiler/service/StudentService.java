@@ -45,6 +45,7 @@ public interface StudentService {
 	public List<String> findByContestLevel(String filterByString);
 
 	public List<ParticipantDTO> findByContestIdForMCQ(String contestId);
-
+	
+	public List<String> findEmailByfinalMailSent();
 
 }
