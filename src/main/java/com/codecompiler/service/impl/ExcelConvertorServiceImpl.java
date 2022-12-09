@@ -49,6 +49,7 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 						student.setEmail(row.get(1).getContent().toLowerCase());
 						student.setMobileNumber(row.get(2).getContent());
 						student.setContestLevel(row.get(3).getContent());
+						
 						student.setPassword(pwd);
 						student.setRole("ROLE_STUDENT");
 						studentList.add(student);

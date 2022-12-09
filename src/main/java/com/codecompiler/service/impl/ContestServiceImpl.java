@@ -280,7 +280,7 @@ public class ContestServiceImpl implements ContestService {
 	@Override
 	public String findContestTypeByContestId(String contestId) {
 		
-		String contestType = contestRepository.findByContestId(contestId).getContestTime();
+		String contestType = contestRepository.findByContestId(contestId).getContestType();
 		return contestType;
 	}
 	
