@@ -277,4 +277,13 @@ public class ContestServiceImpl implements ContestService {
 		return false;
 	}
 
+	@Override
+	public String findContestTypeByContestId(String contestId) {
+		
+		String contestType = contestRepository.findByContestId(contestId).getContestTime();
+		return contestType;
+	}
+	
+	
+
 }

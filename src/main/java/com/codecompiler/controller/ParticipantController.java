@@ -22,10 +22,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.codecompiler.dto.JwtResponseDTO;
 import com.codecompiler.dto.ParticipantDTO;
 import com.codecompiler.dto.StudentDTO;
+import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.reponse.ResponseHandler;
+import com.codecompiler.service.ContestService;
 import com.codecompiler.service.StudentService;
 import com.codecompiler.util.JwtUtil;
 
@@ -41,6 +43,9 @@ public class ParticipantController {
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private ContestService contestService;
 
 	@Autowired
 	private JwtUtil jwtUtil;
@@ -51,8 +56,10 @@ public class ParticipantController {
 		try {
 			Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getEmail().toLowerCase(), student.getPassword()));
 			Student studentExists  = this.studentService.findByEmailAndPassword(student.getEmail().toLowerCase(), student.getPassword());
+			String contestType = contestService.findContestTypeByContestId(contestId);
 			JwtResponseDTO jwtResponseDTO = new JwtResponseDTO();
 			studentExists.setContestId(contestId);
+			studentExists.setContestType(contestType);
 			jwtResponseDTO.setToken(this.jwtUtil.generateToken(authObj.getName()));
 			jwtResponseDTO.setStudent(studentExists);
 			log.info("doSignIn:: Particepant authenticate successfully :"+jwtResponseDTO);

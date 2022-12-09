@@ -27,6 +27,7 @@ public class Student extends User{
 	private List<String> correctAnswers;
 	private List<String> mcqQuetionsId;
 	private String mcqContestId;
+	private String contestType;
 	
 	public String getId() {
 		return id;
@@ -97,6 +98,12 @@ public class Student extends User{
 	public void setPercentage(double percentage2) {
 		this.percentage = percentage2;
 	}
+	public String getContestType() {
+		return contestType;
+	}
+	public void setContestType(String contestType) {
+		this.contestType = contestType;
+	}
 	public Student(String id, String name, String mobileNumber, String contestLevel, String contestId,
 			Set<String> questionId, List<TestCaseDTO> testCaseRecord, boolean status, String participateDate) {
 		super();
@@ -114,8 +121,9 @@ public class Student extends User{
 	public String toString() {
 		return "Student [id=" + id + ", name=" + name + ", mobileNumber=" + mobileNumber + ", contestLevel="
 				+ contestLevel + ", contestId=" + contestId + ", questionId=" + questionId + ", testCaseRecord="
-				+ testCaseRecord + ", status=" + status + ", participateDate=" + participateDate + ", percentage=" + percentage
-				+ "]";
+				+ testCaseRecord + ", status=" + status + ", participateDate=" + participateDate + ", percentage="
+				+ percentage + ", correctAnswers=" + correctAnswers + ", mcqQuetionsId=" + mcqQuetionsId
+				+ ", mcqContestId=" + mcqContestId + ", contestType=" + contestType + "]";
 	}
 	public List<String> getCorrectAnswers() {
 		return correctAnswers;
