@@ -19,6 +19,7 @@ import nonapi.io.github.classgraph.json.Id;
 public class MCQ implements Serializable {
 
 	@Id
+	@org.springframework.data.annotation.Id
 	private String mcqId;
 	private String mcqQuestion;
 	private String option1;

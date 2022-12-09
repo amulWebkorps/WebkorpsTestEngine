@@ -123,10 +123,11 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	public List<String> findEmailByStatus(Boolean True) {
-		if (True == null) {
+		if(True==null) {
 			throw new NullPointerException();
 		}
 		List<Student> sentMail = studentRepository.findEmailByStatus(True);
+		//List<Student> sentMail = studentRepository.findEmailByfinalMailSent("SuccessFullSent");
 		return sentMail.stream().map(Student::getEmail).collect(Collectors.toList());
 	}
 
@@ -287,9 +288,16 @@ public class StudentServiceImpl implements StudentService {
 			ParticipantDTO participantDTO = new ParticipantDTO();
 			participantDTO.setEmail(student.getEmail());
 			participantDTO.setPercentage(student.getPercentage());
+			if(!(student.getFinalMailSent().equals("SuccessFullSent"))) {
 			studentDetails.add(participantDTO);
+			}
 		}
 		log.info("findByContestId:: has been ended with studentDetails" + studentDetails.size());
 		return studentDetails;
+	}
+	
+	public List<String> findEmailByfinalMailSent() {
+		List<Student> sentMail = studentRepository.findEmailByfinalMailSent("SuccessFullSent");
+		return sentMail.stream().map(Student::getEmail).collect(Collectors.toList());
 	}
 }

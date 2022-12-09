@@ -39,7 +39,7 @@ public class MCQServiceImpl implements MCQService {
 
 	@Resource(name = "excelPOIHelper")
 	private ExcelPOIHelper excelPOIHelper;
-	
+
 	@Autowired
 	private ContestService contestService;
 
@@ -47,44 +47,27 @@ public class MCQServiceImpl implements MCQService {
 		if (!ExcelConvertorService.checkExcelFormat(file)) {
 			throw new UnSupportedFormatException("saveFileForBulkMCQ::Given file format is not supported");
 		}
-		Contest contest = contestRepository.findByContestId(contestId);
+		
 		List<MCQ> allMCQ = null;
 		Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
 				file.getOriginalFilename());
 		allMCQ = excelConvertorService.convertExcelToListOfMCQ(data);
+		System.out.println("CONTSETID : "+contestId);
+		if(contestId.equals("null")) {
+			return saveMcq(allMCQ);
+		}
+		Contest contest = contestRepository.findByContestId(contestId);
 
 		if (allMCQ.isEmpty() || allMCQ == null) {
 			throw new RecordNotFoundException("saveFileForBulkMCQ:: Data isn't present in the file");
 		}
-		List<MCQ> answer=new ArrayList<MCQ>();
-		List<MCQ> oldMcqs=mcqRepository.findAll();
-		if(oldMcqs.size()>0) {
-			for(int i=0;i<allMCQ.size();i++) {
-				boolean status=true;
-				for(int j=0;j<oldMcqs.size();j++) {
-					if(allMCQ.get(i).getMcqQuestion().toLowerCase().trim().equals(oldMcqs.get(j).getMcqQuestion().toLowerCase().trim())) {
-						status=false;
-						break;
-					}
-				}
-				if(status) {
-					answer.add(allMCQ.get(i));
-				}
 
-			}
-			answer = mcqRepository.saveAll(answer);
-		}
-		else
-			answer=mcqRepository.saveAll(allMCQ);
-		
-		if (contest != null) {
-			List<String> mcqInContest = this.saveMCQContest(contest, answer);
-			return mcqRepository.findByMcqIdIn(mcqInContest);
-		}else {
-			return mcqRepository.findByMcqStatus(true);
-		}
+		allMCQ = saveAllMcq(allMCQ, contest);
+
+		List<String> mcqInContest = this.saveMCQContest(contest, allMCQ);
+		return mcqRepository.findByMcqIdIn(mcqInContest);
 	}
-	
+
 	@Override
 	public List<MCQ> getAllMCQs(Map<String, List<String>> mcqIdList) {
 		// TODO Auto-generated method stub
@@ -140,18 +123,18 @@ public class MCQServiceImpl implements MCQService {
 		}
 		return contestService.saveContest(contest);
 	}
-	
+
 	public List<String> saveMCQContest(Contest contest, List<MCQ> allTrueQuestions) {
 		ArrayList<MCQStatusDTO> mcqStatusList = new ArrayList<MCQStatusDTO>();
 		allTrueQuestions.forEach(latestUploadedQuestions -> {
 			MCQStatusDTO mcqStatus = new MCQStatusDTO();
 			mcqStatus.setMcqId(latestUploadedQuestions.getMcqId());
 			mcqStatus.setMcqstatus(true);
-			mcqStatusList.addAll(contest.getMcqStatus());
 			mcqStatusList.add(mcqStatus);
 		});
-		contest.setMcqStatus(mcqStatusList);	
-		contestRepository.save(contest);
+		mcqStatusList.addAll(contest.getMcqStatus());
+		contest.setMcqStatus(mcqStatusList);
+		contest = contestRepository.save(contest);
 		return contest.getMcqStatus().stream().map(MCQStatusDTO::getMcqId).collect(Collectors.toList());
 	}
 
@@ -172,7 +155,7 @@ public class MCQServiceImpl implements MCQService {
 		}
 		contestService.saveContest(contest);
 	}
-	
+
 	@Override
 	public MCQ findByMcqId(String mcqId) {
 		return mcqRepository.findByMcqId(mcqId);
@@ -180,18 +163,120 @@ public class MCQServiceImpl implements MCQService {
 
 	@Override
 	public List<MCQ> getAllMcq() {
-		List<MCQ> mcqs=(List<MCQ>) mcqRepository.findAllMCQ(true);
+		List<MCQ> mcqs = mcqRepository.findAllMCQ(true);
 		return mcqs;
 	}
 
 	@Override
 	public MCQ deleteMcq(String mcqId) {
-		MCQ mcq=mcqRepository.findByMcqId(mcqId);
-		if(mcq!=null) {
-			mcqRepository.deleteByMcqId(mcqId);
+		MCQ mcq = mcqRepository.findByMcqId(mcqId);
+		if (mcq != null) {
 			mcq.setMcqStatus(false);
-			mcq=mcqRepository.save(mcq);
+			mcq = mcqRepository.save(mcq);
 		}
 		return mcq;
+	}
+
+	public List<MCQ> saveAllMcq(List<MCQ> addMcq, Contest contest) {
+		List<MCQ> answer = new ArrayList<MCQ>();
+
+		List<String> contestPresentMcqsId = new ArrayList<String>();
+		
+		for (int i = 0; i < contest.getMcqStatus().size(); i++)
+			contestPresentMcqsId.add(contest.getMcqStatus().get(i).getMcqId());
+		
+		List<MCQ> contestPresentMcqs = mcqRepository.findByMcqIdIn(contestPresentMcqsId);
+		List<MCQ> allMcq = mcqRepository.findAll();
+		
+		if(contestPresentMcqs.size() == 0 && allMcq.size() > 0) {
+			List<MCQ> addMcqInContest=new ArrayList<MCQ>();
+			int index=0;
+			for(int i=0;i<allMcq.size();i++) {
+				boolean status=true;
+				for(int j=0;j<addMcq.size();j++) {
+					if(allMcq.get(i).getMcqQuestion().toLowerCase().trim().equals(addMcq.get(j).getMcqQuestion().toLowerCase().trim()))
+					{
+						status=false;
+						break;
+					}
+					index++;
+				}
+				if(status) {
+					answer.add(addMcq.get(index));
+					addMcqInContest.add(addMcq.get(index));
+				}
+				else
+					addMcqInContest.add(allMcq.get(i));
+				index=0;
+			}
+			if(answer.size()>0)
+				mcqRepository.saveAll(answer);
+			return addMcqInContest;
+		}
+		
+		if (allMcq.size() > 0) {
+			//here we filter those mcq which are not present in contest already
+			for(int i=0;i<addMcq.size();i++) {
+				boolean status=true;
+				for(int j=0;j<contestPresentMcqs.size();j++) {
+					if(contestPresentMcqs.get(j).getMcqQuestion().toLowerCase().trim().equals(addMcq.get(i).getMcqQuestion().toLowerCase().trim()))
+					{
+						status=false;
+						break;
+					}
+				}
+				if(status) {
+					answer.add(addMcq.get(i));
+					System.out.println(addMcq.get(i));
+				}
+			}
+			
+			addMcq=new ArrayList<MCQ>();
+			
+			//here we filter those mcq which are not present in MCQ
+			for(int i=0;i<answer.size();i++) {
+				boolean status=true;
+				for(int j=0;j<allMcq.size();j++) {
+					if(allMcq.get(j).getMcqQuestion().toLowerCase().trim().equals(answer.get(i).getMcqQuestion().toLowerCase().trim()))
+					{
+						status=false;
+						break;
+					}
+				}
+				if(status)
+					addMcq.add(answer.get(i));
+			}
+			if(addMcq.size()>0)
+				mcqRepository.saveAll(addMcq);
+		} 
+		else 
+			answer = mcqRepository.saveAll(addMcq);
+		
+		return answer;
+	}
+	
+	public List<MCQ> saveMcq(List<MCQ> allMcq){
+		List<MCQ> oldMcq = mcqRepository.findAll();
+		List<MCQ> answer=new ArrayList<MCQ>();
+		System.out.println("HIiiiiiiiiiii");
+		
+		if(oldMcq.size()>0) {
+			for(int i=0;i<allMcq.size();i++) {
+				boolean status=true;
+				for(int j=0;j<oldMcq.size();j++) {
+					if(allMcq.get(i).getMcqQuestion().toLowerCase().trim().equals(oldMcq.get(j).getMcqQuestion().toLowerCase().trim()))
+					{
+						status=false;
+						break;
+					}
+				}
+				if(status)
+					answer.add(allMcq.get(i));
+			}
+			if(answer.size()>0)
+				answer=mcqRepository.saveAll(answer);
+		}else
+			answer=mcqRepository.saveAll(allMcq);
+		return answer;
 	}
 }
