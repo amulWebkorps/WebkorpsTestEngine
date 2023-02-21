@@ -268,6 +268,7 @@ public class ContestServiceImpl implements ContestService {
 	public boolean submitMcqContest(McqSubmitDto mcqSubmitDto) {
 		Student student = studentRepository.findById(mcqSubmitDto.getStudentId());
 		if (student != null) {
+			student.setPassword(null);
 			student.setMcqQuetionsId(mcqSubmitDto.getMcqQuetionsId());
 			student.setCorrectAnswers(mcqSubmitDto.getCorrectAnswers());
 			student.setContestId(mcqSubmitDto.getContestId());
