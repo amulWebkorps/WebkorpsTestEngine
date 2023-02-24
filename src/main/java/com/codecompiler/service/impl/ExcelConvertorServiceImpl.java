@@ -3,8 +3,10 @@ package com.codecompiler.service.impl;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -32,6 +34,7 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 
 	public List<Student> convertExcelToListOfStudent(Map<Integer, List<MyCellDTO>> data) {
 		List<Student> studentList = new ArrayList<>();
+		Set<String> uniqueStudent=new HashSet<String>();
 		try {
 			for (int i = 1; i < data.size(); i++) {
 				List<MyCellDTO> row = data.get(i);
@@ -42,7 +45,10 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				if (!row.get(1).getContent().isEmpty()) {
 					Student exsistingStudent = studentRepository.findByEmail(row.get(1).getContent().toLowerCase());
 					Admin exsistingAdmin = adminRepository.findByEmail(row.get(1).getContent().toLowerCase());
+					
 					if (exsistingStudent == null && exsistingAdmin == null) {
+						if(uniqueStudent.contains(row.get(1).getContent().toLowerCase()))
+							continue;
 						student.setId(studentId);
 						student.setName(row.get(0).getContent());
 						student.setEmail(row.get(1).getContent().toLowerCase());
@@ -50,6 +56,7 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 						student.setContestLevel(row.get(3).getContent());
 						student.setPassword(pwd);
 						student.setRole("ROLE_STUDENT");
+						uniqueStudent.add(student.getEmail());
 						studentList.add(student);
 					} else if (exsistingAdmin == null) {
 						exsistingStudent.setStatus(false);
