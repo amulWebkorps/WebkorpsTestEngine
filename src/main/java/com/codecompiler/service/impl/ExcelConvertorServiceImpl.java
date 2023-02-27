@@ -20,6 +20,7 @@ import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.repository.AdminRepository;
+import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.service.ExcelConvertorService;
 
@@ -28,13 +29,16 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 
 	@Autowired
 	private StudentRepository studentRepository;
-	
+
 	@Autowired
 	private AdminRepository adminRepository;
 
+	@Autowired
+	private QuestionRepository questionRepository;
+
 	public List<Student> convertExcelToListOfStudent(Map<Integer, List<MyCellDTO>> data) {
 		List<Student> studentList = new ArrayList<>();
-		Set<String> uniqueStudent=new HashSet<String>();
+		Set<String> uniqueStudent = new HashSet<String>();
 		try {
 			for (int i = 1; i < data.size(); i++) {
 				List<MyCellDTO> row = data.get(i);
@@ -45,9 +49,9 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				if (!row.get(1).getContent().isEmpty()) {
 					Student exsistingStudent = studentRepository.findByEmail(row.get(1).getContent().toLowerCase());
 					Admin exsistingAdmin = adminRepository.findByEmail(row.get(1).getContent().toLowerCase());
-					
+
 					if (exsistingStudent == null && exsistingAdmin == null) {
-						if(uniqueStudent.contains(row.get(1).getContent().toLowerCase()))
+						if (uniqueStudent.contains(row.get(1).getContent().toLowerCase()))
 							continue;
 						student.setId(studentId);
 						student.setName(row.get(0).getContent());
@@ -78,6 +82,8 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 
 	public List<Question> convertExcelToListOfQuestions(Map<Integer, List<MyCellDTO>> data) {
 		List<Question> questionList = new ArrayList<>();
+		List<Question> listOfQuestions = questionRepository.findAll();
+
 		try {
 			List<MyCellDTO> headerRow = data.get(0);
 			for (int i = 1; i < data.size(); i++) {
@@ -113,6 +119,13 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				question.setTestcases(listTestCases);
 				question.setSampleTestCase(ListSampleTestCase);
 				question.setCreatedDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+
+				Question result = listOfQuestions.stream().filter(obj -> obj.getQuestion().equals(question.getQuestion())).findFirst()
+						.orElse(null);
+
+				if(result!=null)
+					continue;
+				
 				questionList.add(question);
 			}
 		} catch (Exception e) {
