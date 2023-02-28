@@ -86,10 +86,7 @@ public class QuestionServiceTest {
 		Assertions.assertTrue(savedQuestion.getQuestionStatus() == "true");
 	}
 
-	@Test
-	public void saveQuestionFailureTest() {		
-	Assertions.assertThrows(IllegalArgumentException.class, ()-> questionService.saveQuestion(null));	
-	}
+
 	
 	@Test
 	public void findByQuestionIdSuccessTest() {

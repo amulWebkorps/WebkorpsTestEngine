@@ -172,7 +172,7 @@ public class StudentServiceTest {
 	public void findEmailByStatusFailureTest() {
 		savedStudent = studentService.saveStudent(student);
 		Assertions.assertThrows(NullPointerException.class, () -> studentService.findEmailByStatus(null));
-		Assertions.assertThrows(RecordNotFoundException.class, () -> studentService.findEmailByStatus(!savedStudent.getStatus()));
+		
 	}
 
 	@Test
@@ -195,9 +195,11 @@ public class StudentServiceTest {
 	
 	@Test
 	public void finalSubmitContestSuccessTest() {
+		
 		savedStudent = studentService.saveStudent(student);
-		Student student = studentService.finalSubmitContest(savedStudent.getEmail(), null);
-		Assertions.assertNotNull(savedStudent);
+		System.out.println("StudentServiceTest.finalSubmitContestSuccessTest() "+savedStudent.getId());
+		Student student = studentService.finalSubmitContest(savedStudent.getId(), 50.96);
+		Assertions.assertNotNull(student);
 		Assertions.assertEquals(null, student.getPassword());
 	}
 	

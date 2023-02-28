@@ -195,6 +195,7 @@ public class StudentServiceImpl implements StudentService {
 		else if (studentId.isBlank())
 			throw new IllegalArgumentException();
 		Student student = this.studentRepository.findById(studentId);
+		System.out.println("StudentServiceImpl.finalSubmitContest() "+student.getId());
 		student.setPassword(null);
 		student.setPercentage(percentage);
 		return studentRepository.save(student);
