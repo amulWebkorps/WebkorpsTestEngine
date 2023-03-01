@@ -100,17 +100,19 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				sampleTestCases.setInput(row.get(3).getContent());
 				sampleTestCases.setOutput(row.get(4).getContent());
 				for (int k = 5; k < headerRow.size(); k++) {
-					int flag = 0;
-					if (k % 2 != 0) {
-						testCases.setInput(row.get(k).getContent());
-						flag = 1;
-					} else {
-						testCases.setOutput(row.get(k).getContent());
-						flag = 2;
-					}
-					if (flag == 2) {
-						listTestCases.add(testCases);
-						testCases = new TestCases();
+					if (row.get(k).getContent() != "") {
+						int flag = 0;
+						if (k % 2 != 0) {
+							testCases.setInput(row.get(k).getContent());
+							flag = 1;
+						} else {
+							testCases.setOutput(row.get(k).getContent());
+							flag = 2;
+						}
+						if (flag == 2) {
+							listTestCases.add(testCases);
+							testCases = new TestCases();
+						}
 					}
 				}
 				ListSampleTestCase.add(sampleTestCases);
@@ -120,12 +122,12 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				question.setSampleTestCase(ListSampleTestCase);
 				question.setCreatedDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
 
-				Question result = listOfQuestions.stream().filter(obj -> obj.getQuestion().equals(question.getQuestion())).findFirst()
-						.orElse(null);
+				Question result = listOfQuestions.stream()
+						.filter(obj -> obj.getQuestion().equals(question.getQuestion())).findFirst().orElse(null);
 
-				if(result!=null)
+				if (result != null)
 					continue;
-				
+
 				questionList.add(question);
 			}
 		} catch (Exception e) {
