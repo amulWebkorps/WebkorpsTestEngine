@@ -84,7 +84,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		int count = 0;
 		Double percentage = 0.00;
 		for (int i = 0; i < questionIds.size(); i++) {
-			CodeProcessingUtil.saveCodeTemporary(questionIds.get(i).getCode(), language);
+			CodeProcessingUtil.saveCodeTemporary(questionIds.get(i).getCode(), language,studentId);
 			try {
 				ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
 				String compilationCommand = CodeProcessingUtil.compilationCommand(language,studentId);

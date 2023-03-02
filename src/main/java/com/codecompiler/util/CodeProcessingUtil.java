@@ -41,21 +41,21 @@ public class CodeProcessingUtil {
 		return command;
 	}
 
-	public static void saveCodeTemporary(String code, String language) throws IOException {
+	public static void saveCodeTemporary(String code, String language, String studentId) throws IOException {
 		log.info("saveCodeTemporary: started");
 		FileWriter fl = null;
 		if (language.equalsIgnoreCase("java")) {
-			String fileNameInLocal = "Main.java";
+			String fileNameInLocal = "java"+studentId+".java";
 			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
 		} else if (language.equalsIgnoreCase("python")) {
-			String fileNameInLocal = "HelloPython";
-			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "py");
+			String fileNameInLocal ="python"+studentId+".py";
+			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal );
 		} else if (language.equalsIgnoreCase("cpp")) {
-			String fileNameInLocal = "HelloCPP";
-			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "cpp");
+			String fileNameInLocal = "cpp"+studentId+".cpp";
+			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal );
 		} else if (language.equalsIgnoreCase("c")) {
-			String fileNameInLocal = "HelloC";
-			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "c");
+			String fileNameInLocal = "c"+studentId+".c";
+			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal );
 		}
 		PrintWriter pr = new PrintWriter(fl);
 		pr.write(code);
