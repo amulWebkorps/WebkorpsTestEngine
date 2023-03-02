@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CodeProcessingUtil {
 	
-	public static String compilationCommand(String language,String studentId) {
+	public  String compilationCommand(String language,String studentId) {
 		String command = null;
 		if (language.equalsIgnoreCase("java")) {
 			command = "javac java"+studentId+".java" ;
@@ -27,7 +27,7 @@ public class CodeProcessingUtil {
 	}
 
 
-	public static String interpretationCommand(String language, String studentId) {
+	public  String interpretationCommand(String language, String studentId) {
 		String command = null;
 		if (language.equalsIgnoreCase("java")) {
 			command = "java java"+studentId+" ";
@@ -41,7 +41,7 @@ public class CodeProcessingUtil {
 		return command;
 	}
 
-	public static void saveCodeTemporary(String code, String language, String studentId) throws IOException {
+	public  void saveCodeTemporary(String code, String language, String studentId) throws IOException {
 		log.info("saveCodeTemporary: started");
 		FileWriter fl = null;
 		if (language.equalsIgnoreCase("java")) {
@@ -64,7 +64,7 @@ public class CodeProcessingUtil {
 		log.info("saveCodeTemporary: ended");
 	}
 	
-	public static String getMessagesFromProcessInputStream(InputStream inputStream) throws IOException {
+	public  String getMessagesFromProcessInputStream(InputStream inputStream) throws IOException {
 		log.info("getMessagesFromProcessInputStream :: started");
 		String message = "";
 		BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));

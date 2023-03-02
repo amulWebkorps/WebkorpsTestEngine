@@ -1,18 +1,15 @@
 package com.codecompiler.service.impl;
 
-import java.io.BufferedReader;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +34,9 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
 	@Autowired
 	private QuestionService questionService;
+	
+	@Autowired
+	private CodeProcessingUtil codeProcessingUtil;
 
 
 
@@ -61,11 +61,11 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		return codeResponseDTO;
 	}
 	
-	private static String executeProcess(String command) {
+	private  String executeProcess(String command) {
 		Process pro;
 		try {
 			pro = Runtime.getRuntime().exec(command, null, new File("src/main/resources/temp/"));
-			String message = CodeProcessingUtil.getMessagesFromProcessInputStream(pro.getErrorStream());
+			String message = codeProcessingUtil.getMessagesFromProcessInputStream(pro.getErrorStream());
 			return message;
 		} catch (IOException e) {
 			log.error("Object is null " + e.getMessage());
@@ -73,6 +73,8 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		}
 		
 	}
+	
+	
 	@Override
 	public CodeResponseDTO compileCode(CodeDetailsDTO codeDetailsDTO) throws IOException {
 		log.info("compile code: started");
@@ -84,10 +86,10 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		int count = 0;
 		Double percentage = 0.00;
 		for (int i = 0; i < questionIds.size(); i++) {
-			CodeProcessingUtil.saveCodeTemporary(questionIds.get(i).getCode(), language,studentId);
+			codeProcessingUtil.saveCodeTemporary(questionIds.get(i).getCode(), language,studentId);
 			try {
 				ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
-				String compilationCommand = CodeProcessingUtil.compilationCommand(language,studentId);
+				String compilationCommand = codeProcessingUtil.compilationCommand(language,studentId);
 				String complilationMessage = executeProcess(compilationCommand);
 				if (!complilationMessage.isEmpty() && flag == 0) {
 					codeResponseDTO.setComplilationMessage(complilationMessage);
@@ -95,7 +97,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 					return codeResponseDTO;
 				}
 				List<TestCases> testCases = questionService.getTestCase(questionIds.get(i).getQuestionId());
-				String interpretationCommand = CodeProcessingUtil.interpretationCommand(language,studentId);	
+				String interpretationCommand = codeProcessingUtil.interpretationCommand(language,studentId);	
 				String exceptionMessage =executeProcess(interpretationCommand);
 				if (!exceptionMessage.isEmpty() && flag == 0) {
 					codeResponseDTO.setComplilationMessage(exceptionMessage);
