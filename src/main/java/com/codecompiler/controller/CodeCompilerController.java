@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.codecompiler.dto.CodeDetailsDTO;
 import com.codecompiler.dto.CodeResponseDTO;
+import com.codecompiler.dto.ExecuteAllTestCasesDTO;
 import com.codecompiler.entity.Language;
 import com.codecompiler.reponse.ResponseHandler;
 import com.codecompiler.service.CodeProcessingService;
@@ -41,6 +42,22 @@ public class CodeCompilerController {
 
 	@PostMapping("runAndCompilerCode")
 	public ResponseEntity<Object> getCompiler(@RequestBody CodeDetailsDTO codeDetailsDTO) throws Exception {
+		log.info("getCompiler: started");
+		CodeResponseDTO response = codeProcessingService.compileCode(codeDetailsDTO);
+		log.info("getCompiler: ended");
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
+	}
+	
+	@PostMapping("executeAllTestCases")
+	public ResponseEntity<Object> executeAllTestCases(@RequestBody ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws Exception {
+		log.info("executeAllTestCases: started");
+		CodeResponseDTO response = codeProcessingService.executeAllTestCases(executeAllTestCasesDTO);
+		log.info("executeAllTestCases: ended");
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
+	} 
+	
+	@PostMapping("runCode")
+	public ResponseEntity<Object> getRun(@RequestBody CodeDetailsDTO codeDetailsDTO) throws Exception {
 		log.info("getCompiler: started");
 		CodeResponseDTO response = codeProcessingService.compileCode(codeDetailsDTO);
 		log.info("getCompiler: ended");

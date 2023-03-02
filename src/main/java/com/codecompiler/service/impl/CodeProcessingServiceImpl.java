@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.codecompiler.dto.CodeDetailsDTO;
 import com.codecompiler.dto.CodeResponseDTO;
+import com.codecompiler.dto.ExecuteAllTestCasesDTO;
 import com.codecompiler.dto.QuestionAndCodeDTO;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
@@ -37,8 +38,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	
 	@Autowired
 	private CodeProcessingUtil codeProcessingUtil;
-
-
 
 	private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO, int index,ArrayList<Boolean> testCasesSuccess,
 			String complilationMessage) throws IOException {
@@ -98,7 +97,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				}
 				List<TestCases> testCases = questionService.getTestCase(questionIds.get(i).getQuestionId());
 				String interpretationCommand = codeProcessingUtil.interpretationCommand(language,studentId);	
-				String exceptionMessage =executeProcess(interpretationCommand);
+				String exceptionMessage = executeProcess(interpretationCommand);
 				if (!exceptionMessage.isEmpty() && flag == 0) {
 					codeResponseDTO.setComplilationMessage(exceptionMessage);
 					log.info("compile code :: exception occured :: " + exceptionMessage);
@@ -106,7 +105,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				}
 				for (TestCases testCase : testCases) {
 					String input = testCase.getInput();
-					
 					String interpretationMessage = executeProcess(interpretationCommand + input);
 					interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
 					if (interpretationMessage.contains(testCase.getOutput())
@@ -142,5 +140,53 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		testCases.stream().forEach(testCase -> testCase.stream().forEach(testcase -> testCasesSize.add(testcase.getInput())));
 		double percentage = ((100 * count) / testCasesSize.size());
 		return percentage;
+	}
+	
+	@Override
+	public CodeResponseDTO executeAllTestCases(ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IOException {
+		log.info("executeAllTestCases code: started");
+		String language = executeAllTestCasesDTO.getLanguage();
+		String studentId = executeAllTestCasesDTO.getStudentId();
+		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
+		Process pro = null;
+		int count = 0;
+		codeProcessingUtil.saveCodeTemporary(executeAllTestCasesDTO.getCode(), language, studentId);
+		try {
+			ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
+			String compilationCommand = codeProcessingUtil.compilationCommand(language, studentId);
+			String complilationMessage = executeProcess(compilationCommand);
+			if (!complilationMessage.isEmpty()) {
+				codeResponseDTO.setComplilationMessage(complilationMessage);
+				log.info("executeAllTestCases code :: compilation error :: " + complilationMessage);
+				return codeResponseDTO;
+			}
+			String interpretationCommand = codeProcessingUtil.interpretationCommand(language, studentId);
+			String exceptionMessage = executeProcess(interpretationCommand);
+			if (!exceptionMessage.isEmpty()) {
+				codeResponseDTO.setComplilationMessage(exceptionMessage);
+				log.info("executeAllTestCases code :: exception occured :: " + exceptionMessage);
+				return codeResponseDTO;
+			}
+			List<TestCases> testCases = questionService.getTestCase(executeAllTestCasesDTO.getQuestionId());
+			for (TestCases testCase : testCases) {
+				String input = testCase.getInput();
+				String interpretationMessage = executeProcess(interpretationCommand + input);
+				interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
+				if (interpretationMessage.contains(testCase.getOutput())
+						|| interpretationMessage.equals(testCase.getOutput())) {
+					testCasesSuccess.add(true);
+					count++;
+				} else {
+					testCasesSuccess.add(false);
+				}
+			}
+			codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+		} catch (Exception e) {
+			log.error("Object is null " + e.getMessage());
+			codeResponseDTO.setComplilationMessage("Something wents wrong. Please contact to HR");
+		}
+		log.info("executeAllTestCases code: ended");
+
+		return codeResponseDTO;
 	}
 }
