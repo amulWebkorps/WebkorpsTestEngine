@@ -24,6 +24,7 @@ import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
 import com.codecompiler.service.QuestionService;
 import com.codecompiler.service.StudentService;
+import com.codecompiler.util.CodeProcessingUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,68 +38,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	@Autowired
 	private QuestionService questionService;
 
-	private static String compilationCommand(String language) {
-		String command = null;
-		if (language.equalsIgnoreCase("java")) {
-			command = "javac Main.java";
-		} else if (language.equalsIgnoreCase("python")) {
-			command = "src/main/resources/temp/HelloPython.py";
-		} else if (language.equalsIgnoreCase("cpp")) {
-			command = "g++ HelloCPP.cpp -o exeofCPP";
-		} else if (language.equalsIgnoreCase("c")) {
-			command = "gcc HelloC.c -o exeofc";
-		}
-		return command;
-	}
 
-	private static String interpretationCommand(String language) {
-		String command = null;
-		if (language.equalsIgnoreCase("java")) {
-			command = "java Main ";
-		} else if (language.equalsIgnoreCase("python")) {
-			command = "py HelloPython.py ";
-		} else if (language.equalsIgnoreCase("cpp")) {
-			command = "src/main/resources/temp/" + "exeofCPP ";
-		} else if (language.equalsIgnoreCase("c")) {
-			command = "src/main/resources/temp/exeofc ";
-		}
-		return command;
-	}
-
-	private void saveCodeTemporary(String code, String language) throws IOException {
-		log.info("saveCodeTemporary: started");
-		FileWriter fl = null;
-		if (language.equalsIgnoreCase("java")) {
-			String fileNameInLocal = "Main.java";
-			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
-		} else if (language.equalsIgnoreCase("python")) {
-			String fileNameInLocal = "HelloPython";
-			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "py");
-		} else if (language.equalsIgnoreCase("cpp")) {
-			String fileNameInLocal = "HelloCPP";
-			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "cpp");
-		} else if (language.equalsIgnoreCase("c")) {
-			String fileNameInLocal = "HelloC";
-			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal + "." + "c");
-		}
-		PrintWriter pr = new PrintWriter(fl);
-		pr.write(code);
-		pr.flush();
-		pr.close();
-		log.info("saveCodeTemporary: ended");
-	}
-
-	private static String getMessagesFromProcessInputStream(InputStream inputStream) throws IOException {
-		log.info("getMessagesFromProcessInputStream :: started");
-		String message = "";
-		BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
-		String line = null;
-		while ((line = in.readLine()) != null) {
-			message += line + "\n";
-		}
-		log.info("getMessagesFromProcessInputStream :: end");
-		return message;
-	}
 
 	private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO, int index,ArrayList<Boolean> testCasesSuccess,
 			String complilationMessage) throws IOException {
@@ -120,33 +60,43 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		log.info("saveSubmittedCode ::ended & Code Submitted Successfully");
 		return codeResponseDTO;
 	}
-
+	
+	private static String executeProcess(String command) {
+		Process pro;
+		try {
+			pro = Runtime.getRuntime().exec(command, null, new File("src/main/resources/temp/"));
+			String message = CodeProcessingUtil.getMessagesFromProcessInputStream(pro.getErrorStream());
+			return message;
+		} catch (IOException e) {
+			log.error("Object is null " + e.getMessage());
+			return e.getMessage();
+		}
+		
+	}
 	@Override
 	public CodeResponseDTO compileCode(CodeDetailsDTO codeDetailsDTO) throws IOException {
 		log.info("compile code: started");
 		String language = codeDetailsDTO.getLanguage();
+		String studentId = codeDetailsDTO.getStudentId();
 		List<QuestionAndCodeDTO> questionIds = codeDetailsDTO.getQuestionsAndCode();
 		int flag = codeDetailsDTO.getFlag();
 		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
-		Process pro = null;
 		int count = 0;
 		Double percentage = 0.00;
 		for (int i = 0; i < questionIds.size(); i++) {
-			saveCodeTemporary(questionIds.get(i).getCode(), language);
+			CodeProcessingUtil.saveCodeTemporary(questionIds.get(i).getCode(), language);
 			try {
 				ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
-				String compilationCommand = compilationCommand(language);
-				pro = Runtime.getRuntime().exec(compilationCommand, null, new File("src/main/resources/temp/"));
-				String complilationMessage = getMessagesFromProcessInputStream(pro.getErrorStream());
+				String compilationCommand = CodeProcessingUtil.compilationCommand(language,studentId);
+				String complilationMessage = executeProcess(compilationCommand);
 				if (!complilationMessage.isEmpty() && flag == 0) {
 					codeResponseDTO.setComplilationMessage(complilationMessage);
 					log.info("compile code :: compilation error :: " + complilationMessage);
 					return codeResponseDTO;
 				}
 				List<TestCases> testCases = questionService.getTestCase(questionIds.get(i).getQuestionId());
-				String interpretationCommand = interpretationCommand(language);
-				pro = Runtime.getRuntime().exec(interpretationCommand + testCases.get(0).getInput(), null, new File("src/main/resources/temp/"));
-				String exceptionMessage = getMessagesFromProcessInputStream(pro.getErrorStream());
+				String interpretationCommand = CodeProcessingUtil.interpretationCommand(language,studentId);	
+				String exceptionMessage =executeProcess(interpretationCommand);
 				if (!exceptionMessage.isEmpty() && flag == 0) {
 					codeResponseDTO.setComplilationMessage(exceptionMessage);
 					log.info("compile code :: exception occured :: " + exceptionMessage);
@@ -154,9 +104,8 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				}
 				for (TestCases testCase : testCases) {
 					String input = testCase.getInput();
-					pro = Runtime.getRuntime().exec(interpretationCommand + input, null,
-							new File("src/main/resources/temp/"));
-					String interpretationMessage = getMessagesFromProcessInputStream(pro.getInputStream());
+					
+					String interpretationMessage = executeProcess(interpretationCommand + input);
 					interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
 					if (interpretationMessage.contains(testCase.getOutput())
 							|| interpretationMessage.equals(testCase.getOutput())) {
@@ -170,9 +119,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 					codeResponseDTO = saveSubmittedCode(codeDetailsDTO, i, testCasesSuccess, complilationMessage);
 				}
 				codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
-			} catch (IOException e) {
-				codeResponseDTO.setComplilationMessage(e.getMessage());
-				log.error("Object is null " + e.getMessage());
 			} catch (Exception e) {
 				log.error("Object is null " + e.getMessage());
 				codeResponseDTO.setComplilationMessage("Something wents wrong. Please contact to HR");
