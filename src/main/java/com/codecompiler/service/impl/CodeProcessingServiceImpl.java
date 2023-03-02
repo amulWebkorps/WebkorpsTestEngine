@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class CodeProcessingServiceImpl implements CodeProcessingService {
+public class CodeProcessingServiceImpl implements CodeProcessingService, Runnable{
 
 	@Autowired
 	private StudentService studentService;
@@ -39,7 +39,14 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	private CodeProcessingUtil codeProcessingUtil;
 
 
-
+	private String command;
+	
+	private ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
+	
+	private TestCases testCase;
+	
+	int count = 0;
+	
 	private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO, int index,ArrayList<Boolean> testCasesSuccess,
 			String complilationMessage) throws IOException {
 		log.info("saveSubmittedCode :: started");
@@ -88,7 +95,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		for (int i = 0; i < questionIds.size(); i++) {
 			codeProcessingUtil.saveCodeTemporary(questionIds.get(i).getCode(), language,studentId);
 			try {
-				ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
+				
 				String compilationCommand = codeProcessingUtil.compilationCommand(language,studentId);
 				String complilationMessage = executeProcess(compilationCommand);
 				if (!complilationMessage.isEmpty() && flag == 0) {
@@ -105,17 +112,13 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 					return codeResponseDTO;
 				}
 				for (TestCases testCase : testCases) {
+					this.testCase = testCase;
 					String input = testCase.getInput();
+					command = interpretationCommand + input;
+					CodeProcessingServiceImpl codeProcessingServiceImpl = new CodeProcessingServiceImpl();
+					Thread th = new Thread(codeProcessingServiceImpl);
+					th.start();
 					
-					String interpretationMessage = executeProcess(interpretationCommand + input);
-					interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
-					if (interpretationMessage.contains(testCase.getOutput())
-							|| interpretationMessage.equals(testCase.getOutput())) {
-						testCasesSuccess.add(true);
-						count++;
-					} else {
-						testCasesSuccess.add(false);
-					}
 				}
 				if (flag == 1) {
 					codeResponseDTO = saveSubmittedCode(codeDetailsDTO, i, testCasesSuccess, complilationMessage);
@@ -142,5 +145,18 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		testCases.stream().forEach(testCase -> testCase.stream().forEach(testcase -> testCasesSize.add(testcase.getInput())));
 		double percentage = ((100 * count) / testCasesSize.size());
 		return percentage;
+	}
+
+	@Override
+	public void run() {
+		String interpretationMessage = executeProcess(command);
+		interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
+		if (interpretationMessage.contains(testCase.getOutput())
+				|| interpretationMessage.equals(testCase.getOutput())) {
+			testCasesSuccess.add(true);
+			count++;
+		} else {
+			testCasesSuccess.add(false);
+		}
 	}
 }
