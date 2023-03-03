@@ -65,7 +65,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		Process pro;
 		try {
 			pro = Runtime.getRuntime().exec(command, null, new File("src/main/resources/temp/"));
-			String message = codeProcessingUtil.getMessagesFromProcessInputStream(pro.getErrorStream());
+			String message = codeProcessingUtil.getMessagesFromProcessInputStream(pro.getInputStream());
 			return message;
 		} catch (IOException e) {
 			log.error("Object is null " + e.getMessage());
@@ -159,14 +159,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 				log.info("runORExecuteAllTestCases code :: compilation error :: " + complilationMessage);
 				return codeResponseDTO;
 			}
-			String interpretationCommand = codeProcessingUtil.interpretationCommand(language, studentId);
-			/*
-			 * String exceptionMessage = executeProcess(interpretationCommand); if
-			 * (!exceptionMessage.isEmpty()) {
-			 * codeResponseDTO.setComplilationMessage(exceptionMessage);
-			 * log.info("runORExecuteAllTestCases code :: exception occured :: " +
-			 * exceptionMessage); return codeResponseDTO; }
-			 */
+			String interpretationCommand = codeProcessingUtil.interpretationCommand(language, studentId);			 
 			if (executeAllTestCasesDTO.getFlag() == 1) {
 				codeResponseDTO = executeAllTestCases(codeResponseDTO, executeAllTestCasesDTO.getQuestionId(), interpretationCommand);
 			} else {
@@ -188,6 +181,11 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		for (TestCases testCase : testCases) {
 			String input = testCase.getInput();
 			String interpretationMessage = executeProcess(interpretationCommand + input);
+			if (!interpretationMessage.isEmpty()) {
+				codeResponseDTO.setComplilationMessage(interpretationMessage);
+				log.info("runORExecuteAllTestCases code :: exception occured :: " + interpretationMessage);
+				return codeResponseDTO;
+			}
 			interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
 			if (interpretationMessage.contains(testCase.getOutput())
 					|| interpretationMessage.equals(testCase.getOutput())) {
@@ -208,6 +206,11 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 		
 			String input = sliptInput(testCases.getInput());
 			String interpretationMessage = executeProcess(interpretationCommand + input);
+			if (!interpretationMessage.isEmpty()) {
+				codeResponseDTO.setComplilationMessage(interpretationMessage);
+				log.info("runORExecuteAllTestCases code :: exception occured :: " + interpretationMessage);
+				return codeResponseDTO;
+			}
 			interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
 			if (interpretationMessage.contains(testCases.getOutput())
 					|| interpretationMessage.equals(testCases.getOutput())) {
