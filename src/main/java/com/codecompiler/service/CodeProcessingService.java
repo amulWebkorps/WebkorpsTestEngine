@@ -10,6 +10,6 @@ public interface CodeProcessingService {
 
 	public CodeResponseDTO compileCode(CodeDetailsDTO codeDetailsDTO) throws IOException;
 
-	public CodeResponseDTO executeAllTestCases(ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IOException;
+	public CodeResponseDTO runORExecuteAllTestCases(ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IOException;
 
 }

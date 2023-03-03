@@ -8,5 +8,6 @@ public class ExecuteAllTestCasesDTO {
 	private String studentId;
 	private String language;
 	private String questionId;
-	private String code;	
+	private String code;
+	private Integer flag;
 }

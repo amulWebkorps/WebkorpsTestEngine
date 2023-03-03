@@ -48,20 +48,12 @@ public class CodeCompilerController {
 		return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
 	}
 	
-	@PostMapping("executeAllTestCases")
-	public ResponseEntity<Object> executeAllTestCases(@RequestBody ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws Exception {
-		log.info("executeAllTestCases: started");
-		CodeResponseDTO response = codeProcessingService.executeAllTestCases(executeAllTestCasesDTO);
-		log.info("executeAllTestCases: ended");
+	@PostMapping("runORExecuteAllTestCases")
+	public ResponseEntity<Object> runORExecuteAllTestCases(@RequestBody ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws Exception {
+		log.info("runORExecuteAllTestCases: started");
+		CodeResponseDTO response = codeProcessingService.runORExecuteAllTestCases(executeAllTestCasesDTO);
+		log.info("runORExecuteAllTestCases: ended");
 		return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
 	} 
-	
-	@PostMapping("runCode")
-	public ResponseEntity<Object> getRun(@RequestBody CodeDetailsDTO codeDetailsDTO) throws Exception {
-		log.info("getCompiler: started");
-		CodeResponseDTO response = codeProcessingService.compileCode(codeDetailsDTO);
-		log.info("getCompiler: ended");
-		return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
-	}
 
 }

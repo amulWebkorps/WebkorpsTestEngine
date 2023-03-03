@@ -18,6 +18,7 @@ import com.codecompiler.dto.CodeDetailsDTO;
 import com.codecompiler.dto.CodeResponseDTO;
 import com.codecompiler.dto.ExecuteAllTestCasesDTO;
 import com.codecompiler.dto.QuestionAndCodeDTO;
+import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
 import com.codecompiler.service.QuestionService;
@@ -143,50 +144,85 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	}
 	
 	@Override
-	public CodeResponseDTO executeAllTestCases(ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IOException {
-		log.info("executeAllTestCases code: started");
+	public CodeResponseDTO runORExecuteAllTestCases(ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IOException {
+		log.info("runORExecuteAllTestCases code: started");
 		String language = executeAllTestCasesDTO.getLanguage();
 		String studentId = executeAllTestCasesDTO.getStudentId();
 		CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
 		Process pro = null;
-		int count = 0;
 		codeProcessingUtil.saveCodeTemporary(executeAllTestCasesDTO.getCode(), language, studentId);
 		try {
-			ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
 			String compilationCommand = codeProcessingUtil.compilationCommand(language, studentId);
 			String complilationMessage = executeProcess(compilationCommand);
 			if (!complilationMessage.isEmpty()) {
 				codeResponseDTO.setComplilationMessage(complilationMessage);
-				log.info("executeAllTestCases code :: compilation error :: " + complilationMessage);
+				log.info("runORExecuteAllTestCases code :: compilation error :: " + complilationMessage);
 				return codeResponseDTO;
 			}
 			String interpretationCommand = codeProcessingUtil.interpretationCommand(language, studentId);
-			String exceptionMessage = executeProcess(interpretationCommand);
-			if (!exceptionMessage.isEmpty()) {
-				codeResponseDTO.setComplilationMessage(exceptionMessage);
-				log.info("executeAllTestCases code :: exception occured :: " + exceptionMessage);
-				return codeResponseDTO;
-			}
-			List<TestCases> testCases = questionService.getTestCase(executeAllTestCasesDTO.getQuestionId());
-			for (TestCases testCase : testCases) {
-				String input = testCase.getInput();
-				String interpretationMessage = executeProcess(interpretationCommand + input);
-				interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
-				if (interpretationMessage.contains(testCase.getOutput())
-						|| interpretationMessage.equals(testCase.getOutput())) {
-					testCasesSuccess.add(true);
-					count++;
-				} else {
-					testCasesSuccess.add(false);
-				}
-			}
-			codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+			/*
+			 * String exceptionMessage = executeProcess(interpretationCommand); if
+			 * (!exceptionMessage.isEmpty()) {
+			 * codeResponseDTO.setComplilationMessage(exceptionMessage);
+			 * log.info("runORExecuteAllTestCases code :: exception occured :: " +
+			 * exceptionMessage); return codeResponseDTO; }
+			 */
+			if (executeAllTestCasesDTO.getFlag() == 1) {
+				codeResponseDTO = executeAllTestCases(codeResponseDTO, executeAllTestCasesDTO.getQuestionId(), interpretationCommand);
+			} else {
+				codeResponseDTO = executeSampleTestCase(codeResponseDTO, executeAllTestCasesDTO.getQuestionId(), interpretationCommand);
+			}			
 		} catch (Exception e) {
 			log.error("Object is null " + e.getMessage());
 			codeResponseDTO.setComplilationMessage("Something wents wrong. Please contact to HR");
 		}
-		log.info("executeAllTestCases code: ended");
+		log.info("runORExecuteAllTestCases code: ended");
 
 		return codeResponseDTO;
+	}
+	
+	private CodeResponseDTO executeAllTestCases(CodeResponseDTO codeResponseDTO, String questionId, String interpretationCommand) {
+		int count = 0;
+		ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
+		List<TestCases> testCases = questionService.getTestCase(questionId);
+		for (TestCases testCase : testCases) {
+			String input = testCase.getInput();
+			String interpretationMessage = executeProcess(interpretationCommand + input);
+			interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
+			if (interpretationMessage.contains(testCase.getOutput())
+					|| interpretationMessage.equals(testCase.getOutput())) {
+				testCasesSuccess.add(true);
+				count++;
+			} else {
+				testCasesSuccess.add(false);
+			}
+		}
+		codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+		return codeResponseDTO;
+	}
+	
+	private CodeResponseDTO executeSampleTestCase(CodeResponseDTO codeResponseDTO, String questionId, String interpretationCommand) {
+		int count = 0;
+		ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
+		TestCaseDTO testCases = questionService.getSampleTestCase(questionId);
+		
+			String input = sliptInput(testCases.getInput());
+			String interpretationMessage = executeProcess(interpretationCommand + input);
+			interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
+			if (interpretationMessage.contains(testCases.getOutput())
+					|| interpretationMessage.equals(testCases.getOutput())) {
+				testCasesSuccess.add(true);
+				count++;
+			} else {
+				testCasesSuccess.add(false);
+			}
+		codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+		return codeResponseDTO;
+	}
+	
+	private String sliptInput(String input) {
+	      String separator ="- ";
+	      int sepPos = input.indexOf(separator);
+	      return input.substring(sepPos + separator.length());
 	}
 }

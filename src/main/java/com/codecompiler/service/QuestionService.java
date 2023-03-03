@@ -7,30 +7,34 @@ import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.TestCases;
 
 public interface QuestionService {
 	
-	 public List<Question> findAllQuestion();
-	 
-	 public Question saveQuestion(Question question);
-	
-	 public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId, String contestLevel) throws IOException;
-	 
-	 public Question findByQuestionId(String questionId);
-	 
-	 public List<Question> findByContestLevel(String filterByString);
+	public List<Question> findAllQuestion();
 
-	 public List<TestCases> getTestCase(String questionId);
+	public Question saveQuestion(Question question);
+
+	public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId, String contestLevel)
+			throws IOException;
+
+	public Question findByQuestionId(String questionId);
+
+	public List<Question> findByContestLevel(String filterByString);
+
+	public List<TestCases> getTestCase(String questionId);
 
 	public List<Question> getAllQuestions(Map<String, List<String>> questionIdList);
 
 	public void saveQuestionOrContest(ArrayList<String> contestAndQuestionId);
 
 	public List<Question> filterQuestion(String filterByString);
-	 	
+
 	public List<List<TestCases>> findByQuestionIdIn(List<String> questionsIds);
-	
+
 	public void deleteQuestionForTestCase(Question question);
+	
+	public TestCaseDTO getSampleTestCase(String questionId);
 }

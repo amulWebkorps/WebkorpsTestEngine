@@ -18,7 +18,7 @@ public class CodeProcessingUtil {
 	public  String compilationCommand(String language,String studentId) {
 		String command = null;
 		if (language.equalsIgnoreCase("java")) {
-			command = "javac java"+studentId+".java" ;
+			command = "javac Main.java" ;
 		} else if (language.equalsIgnoreCase("python")) {
 			command = "src/main/resources/temp/python"+studentId+".py";
 		} else if (language.equalsIgnoreCase("cpp")) {
@@ -33,7 +33,7 @@ public class CodeProcessingUtil {
 	public  String interpretationCommand(String language, String studentId) {
 		String command = null;
 		if (language.equalsIgnoreCase("java")) {
-			command = "java java"+studentId+" ";
+			command = "java Main ";
 		} else if (language.equalsIgnoreCase("python")) {
 			command = "py python"+studentId+".py ";
 		} else if (language.equalsIgnoreCase("cpp")) {
@@ -48,7 +48,7 @@ public class CodeProcessingUtil {
 		log.info("saveCodeTemporary: started");
 		FileWriter fl = null;
 		if (language.equalsIgnoreCase("java")) {
-			String fileNameInLocal = "java"+studentId+".java";
+			String fileNameInLocal = "Main.java";
 			fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
 		} else if (language.equalsIgnoreCase("python")) {
 			String fileNameInLocal ="python"+studentId+".py";
