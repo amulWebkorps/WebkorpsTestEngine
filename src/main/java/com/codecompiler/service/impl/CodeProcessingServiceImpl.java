@@ -13,6 +13,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.codecompiler.dto.CodeDetailsDTO;
@@ -184,7 +185,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
     if (!complilationMessage.isEmpty()) {
       codeResponseDTO.setComplilationMessage(complilationMessage);
-      log.info("runORExecuteAllTestCases code :: compilation error :: " + complilationMessage);
+      log.info("runORExecuteAllTestCases code :: compilation error message :: " + complilationMessage);
       return codeResponseDTO;
     }
     String interpretationCommand = codeProcessingUtil.interpretationCommand(language, studentId);
@@ -193,10 +194,13 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     } else {
       codeResponseDTO = executeSampleTestCase(questionId, interpretationCommand);
     }
+    log.info("executeStudentCode() -> end");
     return codeResponseDTO;
   }
 
-  private CodeResponseDTO executeAllTestCases(String questionId, String interpretationCommand) {
+  @Cacheable(value = "executeCodeForEveryTestcase", key = "#questionId")
+  public CodeResponseDTO executeAllTestCases(String questionId, String interpretationCommand) {
+    log.info("executeAllTestCases() -> started");
     CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
     List<Callable<Boolean>> taskList = new ArrayList<Callable<Boolean>>();
     List<Future<Boolean>> futureList = new ArrayList<Future<Boolean>>();
@@ -231,10 +235,12 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
       taskList.clear();
     }
     codeResponseDTO.setTestCasesSuccess(testCasesResult);
+    log.info("executeAllTestCases() -> end");
     return codeResponseDTO;
   }
 
   private Boolean getTestCaseResponse(TestCases testCase, String interpretationCommand) {
+    log.info("executeAllTestCases() -> started");
     Boolean testCaseResponse;
     String input = testCase.getInput();
     String interpretationMessage = executeProcess(interpretationCommand + input);
@@ -246,10 +252,12 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     } else {
       testCaseResponse = false;
     }
+    log.info("executeAllTestCases() -> end");
     return testCaseResponse;
   }
 
   private CodeResponseDTO executeSampleTestCase(String questionId, String interpretationCommand) {
+    log.info("executeSampleTestCase() -> started");
     CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
     ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
     TestCaseDTO testCases = questionService.getSampleTestCase(questionId);
@@ -270,6 +278,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
       testCasesSuccess.add(false);
     }
     codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+    log.info("executeSampleTestCase() -> end");
     return codeResponseDTO;
   }
 
