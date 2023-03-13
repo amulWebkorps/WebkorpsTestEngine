@@ -12,15 +12,15 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+import com.codecompiler.dto.*;
+import com.codecompiler.entity.StudentTestDetail;
+import com.codecompiler.exception.StudentNotFoundException;
+import com.codecompiler.repository.StudentTestDetailRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.codecompiler.dto.CodeDetailsDTO;
-import com.codecompiler.dto.CodeResponseDTO;
-import com.codecompiler.dto.ExecuteAllTestCasesDTO;
-import com.codecompiler.dto.QuestionAndCodeDTO;
-import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.service.CodeProcessingService;
 import com.codecompiler.service.QuestionService;
@@ -42,7 +42,11 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
   @Autowired
   private CodeProcessingUtil codeProcessingUtil;
 
+  @Autowired
+  private StudentTestDetailRepository studentTestDetailRepository;
+
   int count = 0;
+
   private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO, int index, ArrayList<Boolean> testCasesSuccess,
                                             String complilationMessage) throws IOException {
     log.info("saveSubmittedCode :: started");
@@ -173,6 +177,24 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     return codeResponseDTO;
   }
 
+  @Override
+  public StudentTestDetail saveStudentTestDetail(StudentTestDetailDTO studentTestDetailsDTO) {
+    log.info("saveStudentCodeInfo() -> Started");
+    StudentTestDetailDTO studentTestDetailDTO = new StudentTestDetailDTO();
+    StudentTestDetail studentDetails = null;
+    if (studentTestDetailsDTO.getStudentId().isBlank())
+      throw new StudentNotFoundException("Invalid student details");
+
+    StudentTestDetail studentTestDetail = studentTestDetailDTO.prepareStudentObj(studentTestDetailsDTO);
+    StudentTestDetail savedStudentDetails = studentTestDetailRepository.findByStudentId(studentTestDetailsDTO.getStudentId());
+    if (savedStudentDetails == null || savedStudentDetails.getId().isBlank()) {
+      return studentTestDetailRepository.save(studentTestDetail);
+    } else {
+      savedStudentDetails.setQuestionDetails(studentTestDetailsDTO.getQuestionDetails());
+      return studentTestDetailRepository.save(savedStudentDetails);
+    }
+  }
+
   private Object executeStudentCode(ExecuteAllTestCasesDTO executeAllTestCasesDTO) {
     log.info("executeStudentCode() -> started");
     CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
@@ -213,20 +235,20 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
         taskList.add(new Callable<Boolean>() {
           @Override
           public Boolean call() throws Exception {
-            return getTestCaseResponse(testCase,interpretationCommand);
+            return getTestCaseResponse(testCase, interpretationCommand);
           }
         });
       }
-     futureList = executorService.invokeAll(taskList);
-     for (Future<Boolean> testCaseResponse: futureList) {
-       testCasesResult.add(testCaseResponse.get());
-     }
+      futureList = executorService.invokeAll(taskList);
+      for (Future<Boolean> testCaseResponse : futureList) {
+        testCasesResult.add(testCaseResponse.get());
+      }
     } catch (InterruptedException e) {
-      log.error("executeAllTestCases() -> Something went wrong with this message: "+e.getMessage());
+      log.error("executeAllTestCases() -> Something went wrong with this message: " + e.getMessage());
       codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR");
       return codeResponseDTO;
     } catch (Exception e) {
-      log.error("executeAllTestCases() -> Something went wrong with this message: "+e.getMessage());
+      log.error("executeAllTestCases() -> Something went wrong with this message: " + e.getMessage());
       codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR");
       return codeResponseDTO;
     } finally {
