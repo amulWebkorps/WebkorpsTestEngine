@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.dto.MyCellDTO;
 import com.codecompiler.dto.QuestionStatusDTO;
+import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.TestCases;
@@ -262,6 +263,17 @@ public class QuestionServiceImpl implements QuestionService {
 	
 	public List<List<TestCases>> findByQuestionIdIn(List<String> questionsIds) {
 		return questionRepository.findByQuestionIdIn(questionsIds).stream().map(Question::getTestcases).collect(Collectors.toList());
+	}
+	
+	@Override
+	public TestCaseDTO getSampleTestCase(String questionId) {
+		if (questionId == null)
+			throw new NullPointerException("Question id should not be null");
+		else if (questionId.isBlank())
+			throw new IllegalArgumentException();
+		Question questions = questionRepository.findByQuestionId(questionId);
+		List<TestCaseDTO> testCasesRelatedToQuestionId = questions.getSampleTestCase();		
+		return testCasesRelatedToQuestionId.get(0);
 	}
 	
 }
