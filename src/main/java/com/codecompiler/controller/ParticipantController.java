@@ -3,6 +3,8 @@ package com.codecompiler.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.codecompiler.dto.StudentFinalResponse;
+import com.codecompiler.dto.StudentTestDetailDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -80,9 +82,10 @@ public class ParticipantController {
 	public ResponseEntity<Object> viewParticipators(@RequestParam String contestId) {			
 		log.info("viewParticipators:: started with contestId: " + contestId);
 		try {
-			List<StudentDTO> studentDetails = this.studentService.findByContestId(contestId);
-			log.info("viewParticipators:: studentDetials fetch successfully: "+studentDetails.toString());
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, studentDetails);
+//		List<StudentDTO> studentDetails = this.studentService.findByContestId(contestId); this is just commented, Functionality is still in code as per requirement you can use
+			List<StudentFinalResponse> studentTestDetails = this.studentService.evaluateStudentTestResult(contestId);
+			log.info("viewParticipators:: studentDetails fetch successfully: "+studentTestDetails.toString());
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, studentTestDetails);
 		} catch (Exception e) {
 			log.error("viewParticipators:: Exception occured in viewParticipators :: "+e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

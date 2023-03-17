@@ -14,14 +14,15 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import com.codecompiler.dto.*;
+import com.codecompiler.entity.StudentTestDetail;
+import com.codecompiler.repository.StudentTestDetailRepository;
+import com.codecompiler.service.CodeProcessingService;
 import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.codecompiler.dto.MyCellDTO;
-import com.codecompiler.dto.StudentDTO;
-import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
@@ -39,136 +40,142 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StudentServiceImpl implements StudentService {
 
-	@Autowired
-	private StudentRepository studentRepository;
+  @Autowired
+  private StudentRepository studentRepository;
 
-	@Autowired
-	private QuestionService questionService;
+  @Autowired
+  private StudentTestDetailRepository studentTestDetailRepository;
 
-	@Resource(name = "excelPOIHelper")
-	private ExcelPOIHelper excelPOIHelper;
+  @Autowired
+  private QuestionService questionService;
 
-	@Autowired
-	private ExcelConvertorService excelConvertorService;
+  @Autowired
+  private CodeProcessingService codeProcessingService;
 
-	public Student findById(String studentId) {
-		log.info("findById:: has started with studentId: " + studentId);
-		if (studentId == null)
-			throw new NullPointerException();
-		else if (studentId.isBlank())
-			throw new IllegalArgumentException();
-		Student student = studentRepository.findById(studentId);
-		if (student == null) {
-			throw new UserNotFoundException("Student with id :: " + studentId + " does not found");
-		}
-		log.info("findById:: ended with Student: " + student.toString());
-		return student;
-	}
+  @Resource(name = "excelPOIHelper")
+  private ExcelPOIHelper excelPOIHelper;
 
-	public Student findByEmailAndPassword(String email, String password) {
-		if (email == null || password == null)
-			throw new NullPointerException();
-		if (email.isBlank() || password.isBlank())
-			throw new IllegalArgumentException(
-					"Method parameter should not be blank or should not contain whitespace only");
-		Student student = studentRepository.findByEmailAndPassword(email, password);
-		if (student == null) {
-			throw new UserNotFoundException("Student with id :: " + email + " does not found");
-		}
-		return student;
-	}
+  @Autowired
+  private ExcelConvertorService excelConvertorService;
 
-	public Student findByEmail(String studentEmail) {
-		if (studentEmail == null)
-			throw new NullPointerException();
-		else if (studentEmail.isBlank())
-			throw new IllegalArgumentException();
-		Student student = studentRepository.findByEmail(studentEmail);
-		if (student == null) {
-			throw new UserNotFoundException("Student with id :: " + studentEmail + " does not found");
-		}
-		return student;
-	}
+  public Student findById(String studentId) {
+    log.info("findById:: has started with studentId: " + studentId);
+    if (studentId == null)
+      throw new NullPointerException();
+    else if (studentId.isBlank())
+      throw new IllegalArgumentException();
+    Student student = studentRepository.findById(studentId);
+    if (student == null) {
+      throw new UserNotFoundException("Student with id :: " + studentId + " does not found");
+    }
+    log.info("findById:: ended with Student: " + student.toString());
+    return student;
+  }
 
-	public List<StudentDTO> findByContestId(String contestId) {
-		if (contestId == null)
-			throw new NullPointerException();
-		else if (contestId.isBlank())
-			throw new IllegalArgumentException();
+  public Student findByEmailAndPassword(String email, String password) {
+    if (email == null || password == null)
+      throw new NullPointerException();
+    if (email.isBlank() || password.isBlank())
+      throw new IllegalArgumentException(
+          "Method parameter should not be blank or should not contain whitespace only");
+    Student student = studentRepository.findByEmailAndPassword(email, password);
+    if (student == null) {
+      throw new UserNotFoundException("Student with id :: " + email + " does not found");
+    }
+    return student;
+  }
 
-		log.info("findByContestId:: has started with contestId: " + contestId);
-		List<Student> students = studentRepository.findByContestId(contestId);
-		if (students == null || students.size() == 0) {
-			throw new RecordNotFoundException("No Student Found in Contest with id ::" + contestId);
-		}
-		List<StudentDTO> studentDetails = new ArrayList<StudentDTO>();
-		for (Student student : students) {
-			StudentDTO studentDto = new StudentDTO();
-			studentDto.setId(student.getId());
-			studentDto.setEmail(student.getEmail());
-			studentDetails.add(studentDto);
-		}
-		log.info("findByContestId:: has been ended with studentDetails" + studentDetails.size());
-		return studentDetails;
-	}
+  public Student findByEmail(String studentEmail) {
+    if (studentEmail == null)
+      throw new NullPointerException();
+    else if (studentEmail.isBlank())
+      throw new IllegalArgumentException();
+    Student student = studentRepository.findByEmail(studentEmail);
+    if (student == null) {
+      throw new UserNotFoundException("Student with id :: " + studentEmail + " does not found");
+    }
+    return student;
+  }
 
-	public Student saveStudent(Student studentDetails) {
-		if (studentDetails == null) {
-			throw new NullPointerException();
-		}
-		if (studentDetails.getEmail() == null)
-			throw new IllegalArgumentException("Student entity must contain email id");
-		return studentRepository.save(studentDetails);
-	}
+  public List<StudentDTO> findByContestId(String contestId) {
+    if (contestId == null)
+      throw new NullPointerException();
+    else if (contestId.isBlank())
+      throw new IllegalArgumentException();
 
-	public List<String> findEmailByStatus(Boolean True) {
-		if (True == null) {
-			throw new NullPointerException();
-		}
-		List<Student> sentMail = studentRepository.findEmailByStatus(True);
-		return sentMail.stream().map(Student::getEmail).collect(Collectors.toList());
-	}
+    log.info("findByContestId:: has started with contestId: " + contestId);
+    List<Student> students = studentRepository.findByContestId(contestId);
+    if (students == null || students.size() == 0) {
+      throw new RecordNotFoundException("No Student Found in Contest with id ::" + contestId);
+    }
+    List<StudentDTO> studentDetails = new ArrayList<StudentDTO>();
+    for (Student student : students) {
+      StudentDTO studentDto = new StudentDTO();
+      studentDto.setId(student.getId());
+      studentDto.setEmail(student.getEmail());
+      studentDetails.add(studentDto);
+    }
+    log.info("findByContestId:: has been ended with studentDetails" + studentDetails.size());
+    return studentDetails;
+  }
 
-	@Override
-	public List<String> saveFileForBulkParticipator(MultipartFile file) {
-		log.info("saveFileForBulkParticipator:: has started");
-		if (!ExcelConvertorService.checkExcelFormat(file)) {
-			throw new UnSupportedFormatException("Please check excel file format");
-		}
-		List<Student> uploadParticipator = new ArrayList<>();
-		try {
-			Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
-					file.getOriginalFilename());
-			uploadParticipator = excelConvertorService.convertExcelToListOfStudent(data);
-			studentRepository.saveAll(uploadParticipator);
-			log.info("saveFileForBulkParticipator:: bulk participators saved successfully");
-		} catch (IOException e) {
-			log.info("Exception occurs in saveFileForBulkParticipator: " + e.getMessage());
-		}
-		return uploadParticipator.stream().map(Student::getEmail).collect(Collectors.toList());
-	}
+  public Student saveStudent(Student studentDetails) {
+    if (studentDetails == null) {
+      throw new NullPointerException();
+    }
+    if (studentDetails.getEmail() == null)
+      throw new IllegalArgumentException("Student entity must contain email id");
+    return studentRepository.save(studentDetails);
+  }
 
-	public Student deleteByEmail(String emailId) {
-		log.info("deleteByEmail:: started with an email: " + emailId);
-		if (emailId == null)
-			throw new NullPointerException();
-		else if (emailId.isBlank())
-			throw new IllegalArgumentException();
-		Student student = studentRepository.findByEmail(emailId);
-		if (student == null)
-			throw new UserNotFoundException("User with email :: " + emailId + " not found");
-		return studentRepository.deleteByEmail(emailId);
-	}
+  public List<String> findEmailByStatus(Boolean True) {
+    if (True == null) {
+      throw new NullPointerException();
+    }
+    List<Student> sentMail = studentRepository.findEmailByStatus(True);
+    return sentMail.stream().map(Student::getEmail).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<String> saveFileForBulkParticipator(MultipartFile file) {
+    log.info("saveFileForBulkParticipator:: has started");
+    if (!ExcelConvertorService.checkExcelFormat(file)) {
+      throw new UnSupportedFormatException("Please check excel file format");
+    }
+    List<Student> uploadParticipator = new ArrayList<>();
+    try {
+      Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
+          file.getOriginalFilename());
+      uploadParticipator = excelConvertorService.convertExcelToListOfStudent(data);
+      studentRepository.saveAll(uploadParticipator);
+      log.info("saveFileForBulkParticipator:: bulk participators saved successfully");
+    } catch (IOException e) {
+      log.info("Exception occurs in saveFileForBulkParticipator: " + e.getMessage());
+    }
+    return uploadParticipator.stream().map(Student::getEmail).collect(Collectors.toList());
+  }
+
+  public Student deleteByEmail(String emailId) {
+    log.info("deleteByEmail:: started with an email: " + emailId);
+    if (emailId == null)
+      throw new NullPointerException();
+    else if (emailId.isBlank())
+      throw new IllegalArgumentException();
+    Student student = studentRepository.findByEmail(emailId);
+    if (student == null)
+      throw new UserNotFoundException("User with email :: " + emailId + " not found");
+    return studentRepository.deleteByEmail(emailId);
+  }
 
 	public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
-			ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName) {
-		log.info("updateStudentDetails: has started");
+			ArrayList<Boolean> testCasesSuccess, String compilationMessage, String fileName) {
+		log.info("updateStudentDetails() : has started");
 		TestCaseDTO testCaseRecord = new TestCaseDTO();
 		List<TestCaseDTO> testCasesRecord1 = new ArrayList<>(); // need to remove in future
 		testCaseRecord.setQuestionId(questionIds);
 		testCaseRecord.setFileName(fileName);
-		testCaseRecord.setComplilationMessage(complilationMessage);
-		testCaseRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testcasesrecord and save that
+		testCaseRecord.setComplilationMessage(compilationMessage);
+		testCaseRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testCasesRecord and save that
 																// pass id in get method
 		Student existingRecord = studentRepository.findById(studentId);
 		existingRecord.setContestId(contestId);
@@ -189,85 +196,147 @@ public class StudentServiceImpl implements StudentService {
 		return studentRepository.save(existingRecord);
 	}
 
-	public Student finalSubmitContest(String studentId, Double percentage) {
+	public StudentTestDetail updateStudentPercentage(String studentId, Double percentage) {
 		if (studentId == null)
 			throw new NullPointerException();
 		else if (studentId.isBlank())
 			throw new IllegalArgumentException();
+
+		//Old API implementation, updating password field with null
+		// Need to discuss on this
 		Student student = this.studentRepository.findById(studentId);
-		System.out.println("StudentServiceImpl.finalSubmitContest() "+student.getId());
 		student.setPassword(null);
-		student.setPercentage(percentage);
-		return studentRepository.save(student);
+		studentRepository.save(student);
+
+		//new API implementation, Updating studentPercentage Field
+		StudentTestDetail savedStudentDetail = this.studentTestDetailRepository.findByStudentId(studentId);
+		System.out.println("StudentServiceImpl.updateStudentPercentage() "+savedStudentDetail.getId());
+
+		savedStudentDetail.setPercentage(percentage);
+
+		return this.studentTestDetailRepository.save(savedStudentDetail);
 	}
 
-	@Override
-	public List<String> findAll() {
-		List<Student> presentStudent = studentRepository.findEmailByStatus(false);
-		List<String> emailList = presentStudent.stream().map(Student::getEmail).collect(Collectors.toList());
-		if (emailList.isEmpty()) {
-			throw new RecordNotFoundException("No Participator is in active state");
-		}
-		return emailList;
-	}
+  @Override
+  public List<String> findAll() {
+    List<Student> presentStudent = studentRepository.findEmailByStatus(false);
+    List<String> emailList = presentStudent.stream().map(Student::getEmail).collect(Collectors.toList());
+    if (emailList.isEmpty()) {
+      throw new RecordNotFoundException("No Participator is in active state");
+    }
+    return emailList;
+  }
 
-	@Override
-	public Map<String, Object> getParticipatorDetail(String studentId) throws IOException {
-		log.info("getParticipatorDetail:: has started with studentId: " + studentId);
-		Student student = this.findById(studentId);
-		if (student.getQuestionId() == null) {
-			throw new RecordNotFoundException("Participant did not submit a single Question");
-		}
-		log.info("getParticipatorDetail:: student :" + student.toString());
-		List<TestCaseDTO> testCaseDTO = student.getTestCaseRecord();
-		List<TestCaseDTO> testCaseDTOTemp = new ArrayList<>();
-		for (TestCaseDTO editTestCaseDTO : testCaseDTO) {
-			BufferedReader br = new BufferedReader(new FileReader(
-					new File("src/main/resources/CodeSubmittedByCandidate/" + editTestCaseDTO.getFileName())));
-			String line;
-			String code = "";
-			while ((line = br.readLine()) != null)
-				code += line + "\n";
-			editTestCaseDTO.setFileName(code);
-			testCaseDTOTemp.add(editTestCaseDTO);
-		}
-		student.setTestCaseRecord(testCaseDTOTemp);
-		Map<String, Object> mp = new HashedMap<>();
-		List<Question> questionDetail = new ArrayList<>();
-		for (String questionId : student.getQuestionId()) {
-			Question question = questionService.findByQuestionId(questionId);
-			Question questionTemp = new Question();
-			questionTemp.setQuestionId(question.getQuestionId());
-			questionTemp.setQuestion(question.getQuestion());
-			questionTemp.setSampleTestCase(question.getSampleTestCase());
-			questionDetail.add(questionTemp);
+  @Override
+  public Map<String, Object> getParticipatorDetail(String studentId) throws IOException {
+    log.info("getParticipatorDetail:: has started with studentId: " + studentId);
+    Student student = this.findById(studentId);
+    if (student.getQuestionId() == null) {
+      throw new RecordNotFoundException("Participant did not submit a single Question");
+    }
+    log.info("getParticipatorDetail:: student :" + student.toString());
+    List<TestCaseDTO> testCaseDTO = student.getTestCaseRecord();
+    List<TestCaseDTO> testCaseDTOTemp = new ArrayList<>();
+    for (TestCaseDTO editTestCaseDTO : testCaseDTO) {
+      BufferedReader br = new BufferedReader(new FileReader(
+          new File("src/main/resources/CodeSubmittedByCandidate/" + editTestCaseDTO.getFileName())));
+      String line;
+      String code = "";
+      while ((line = br.readLine()) != null)
+        code += line + "\n";
+      editTestCaseDTO.setFileName(code);
+      testCaseDTOTemp.add(editTestCaseDTO);
+    }
+    student.setTestCaseRecord(testCaseDTOTemp);
+    Map<String, Object> mp = new HashedMap<>();
+    List<Question> questionDetail = new ArrayList<>();
+    for (String questionId : student.getQuestionId()) {
+      Question question = questionService.findByQuestionId(questionId);
+      Question questionTemp = new Question();
+      questionTemp.setQuestionId(question.getQuestionId());
+      questionTemp.setQuestion(question.getQuestion());
+      questionTemp.setSampleTestCase(question.getSampleTestCase());
+      questionDetail.add(questionTemp);
 
-		}
-		mp.put("studentDetail", student);
-		mp.put("questionSubmitedByStudent", questionDetail);
-		return mp;
-	}
-	
-	@Override
-	public List<String> filterParticipants(String filterByString) {
-		List<String> totalParticipantsByFilter = new ArrayList<String>();
-		if (filterByString.isBlank() || filterByString == null) {
-			throw new NullPointerException("Method parameter should be Level 1, Level 2 or All only");
-		}
-		if (filterByString.equals("Level 1") || filterByString.equals("Level 2"))
-			totalParticipantsByFilter = findByContestLevel(filterByString);
-		else
-			totalParticipantsByFilter = findAll();
-		return totalParticipantsByFilter;
-	}
+    }
+    mp.put("studentDetail", student);
+    mp.put("questionSubmitedByStudent", questionDetail);
+    return mp;
+  }
 
-	public List<String> findByContestLevel(String filterByString) {
-		if (filterByString == null)
-			throw new NullPointerException();
-		else if (filterByString.isBlank())
-			throw new IllegalArgumentException();
-		List<Student> participants = studentRepository.findByContestLevelAndStatus(filterByString, false);
-		return participants.stream().map(Student::getEmail).collect(Collectors.toList());
-	}
+  @Override
+  public List<String> filterParticipants(String filterByString) {
+    List<String> totalParticipantsByFilter = new ArrayList<String>();
+    if (filterByString == null || filterByString.isBlank()) {
+      throw new NullPointerException("Method parameter should be Level 1, Level 2 or All only");
+    }
+    if (filterByString.equals("Level 1") || filterByString.equals("Level 2"))
+      totalParticipantsByFilter = findByContestLevel(filterByString);
+    else
+      totalParticipantsByFilter = findAll();
+    return totalParticipantsByFilter;
+  }
 
+  public List<String> findByContestLevel(String filterByString) {
+    if (filterByString == null)
+      throw new NullPointerException();
+    else if (filterByString.isBlank())
+      throw new IllegalArgumentException();
+    List<Student> participants = studentRepository.findByContestLevelAndStatus(filterByString, false);
+    return participants.stream().map(Student::getEmail).collect(Collectors.toList());
+  }
+
+  @Override
+  public Student finalSubmitContest(String studentId, double percentage) {
+    if (studentId == null)
+      throw new NullPointerException();
+    else if (studentId.isBlank())
+      throw new IllegalArgumentException();
+    Student student = this.studentRepository.findById(studentId);
+    System.out.println("StudentServiceImpl.finalSubmitContest() " + student.getId());
+    student.setPassword(null);
+    student.setPercentage(percentage);
+    return studentRepository.save(student);
+  }
+
+  public List<StudentFinalResponse> evaluateStudentTestResult(String contestId) {
+    log.info("evaluateStudentTestResult() :: has started with contestId: " + contestId);
+    List<StudentFinalResponse> studentsFinalResponse = new ArrayList<>();
+    if (contestId == null || contestId.isBlank())
+      throw new NullPointerException();
+
+    List<StudentTestDetail> participatedStudents = this.studentTestDetailRepository.findByContestId(contestId);
+    if (participatedStudents == null || participatedStudents.size() == 0) {
+      throw new RecordNotFoundException("No Student Found in Contest with id ::" + contestId);
+    }
+    List<StudentTestDetailDTO> studentDetails = new ArrayList<>();
+    for (StudentTestDetail studentTestDetail : participatedStudents) {
+      //Write Thread for this student
+      StudentFinalResponse studentFinalResponse = new StudentFinalResponse();
+      //preparing object to call compileCode() to test List of questions with list of TestCases
+      CodeDetailsDTO codeDetailsDTO = new CodeDetailsDTO();
+      codeDetailsDTO.setStudentId(studentTestDetail.getStudentId());
+      codeDetailsDTO.setLanguage(studentTestDetail.getCodeLanguage());
+      codeDetailsDTO.setFlag(1);
+      codeDetailsDTO.setTimeOut(true);
+      codeDetailsDTO.setContestId(studentTestDetail.getContestId());
+      codeDetailsDTO.setQuestionsAndCode(studentTestDetail.getQuestionDetails());
+
+      try {
+        final CodeResponseDTO codeResponseDTO = this.codeProcessingService.compileCode(codeDetailsDTO);
+        studentFinalResponse.setStudentPercentage(codeResponseDTO.getStudentPercentage());
+      } catch (IOException e) {
+        throw new RuntimeException("evaluateStudentTestResult() -> Something went wrong " + e);
+      }
+
+      final Student student = studentRepository.findById(studentTestDetail.getStudentId()); //fetching student for email only
+      studentFinalResponse.setStudentId(studentTestDetail.getStudentId());
+      studentFinalResponse.setStudentEmail(student.getEmail());
+      studentsFinalResponse.add(studentFinalResponse);
+    }
+    log.info("evaluateStudentTestResult() :: has been ended with studentDetails" + studentDetails.size());
+//		return studentDetails; final response would be()-> studentId, studentEmail, studentPercentage;   StudentFinalResponse
+   System.out.println(studentsFinalResponse);
+    return studentsFinalResponse;
+  }
 }

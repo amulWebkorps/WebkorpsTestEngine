@@ -1,40 +1,39 @@
 package com.codecompiler.service.impl;
 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.*;
-import java.util.stream.Collectors;
-
 import com.codecompiler.dto.*;
+import com.codecompiler.entity.Student;
 import com.codecompiler.entity.StudentTestDetail;
+import com.codecompiler.entity.TestCases;
 import com.codecompiler.exception.StudentNotFoundException;
+import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.repository.StudentTestDetailRepository;
-import org.springframework.beans.BeanUtils;
+import com.codecompiler.service.CodeProcessingService;
+import com.codecompiler.service.QuestionService;
+import com.codecompiler.util.CodeProcessingUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.codecompiler.entity.TestCases;
-import com.codecompiler.service.CodeProcessingService;
-import com.codecompiler.service.QuestionService;
-import com.codecompiler.service.StudentService;
-import com.codecompiler.util.CodeProcessingUtil;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class CodeProcessingServiceImpl implements CodeProcessingService {
 
   @Autowired
-  private StudentService studentService;
+  private StudentRepository studentRepository;
 
   @Autowired
   private QuestionService questionService;
@@ -44,8 +43,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
   @Autowired
   private StudentTestDetailRepository studentTestDetailRepository;
-
-  int count = 0;
 
   private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO, int index, ArrayList<Boolean> testCasesSuccess,
                                             String complilationMessage) throws IOException {
@@ -59,7 +56,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     FileWriter flSubmitted = new FileWriter("src/main/resources/CodeSubmittedByCandidate/" + submittedCodeFileName);
     PrintWriter prSubmitted = new PrintWriter(flSubmitted);
     prSubmitted.write(codeDetailsDTO.getQuestionsAndCode().get(index).getCode());
-    studentService.updateStudentDetails(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(),
+    this.updateStudentDetails(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(),
         studentQuestionIds, testCasesSuccess, complilationMessage, submittedCodeFileName);
     prSubmitted.flush();
     prSubmitted.close();
@@ -87,10 +84,11 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     log.info("compile code: started");
     String language = codeDetailsDTO.getLanguage();
     String studentId = codeDetailsDTO.getStudentId();
-    List<QuestionAndCodeDTO> questionIds = codeDetailsDTO.getQuestionsAndCode();
+    List<QuestionDetailDTO> questionIds = codeDetailsDTO.getQuestionsAndCode();
     int flag = codeDetailsDTO.getFlag();
     CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
     Double percentage = 0.00;
+    int count = 0;
     for (int i = 0; i < questionIds.size(); i++) {
       codeProcessingUtil.saveCodeTemporary(questionIds.get(i).getCode(), language, studentId);
       try {
@@ -122,7 +120,8 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
             testCasesSuccess.add(false);
           }
         }
-        if (flag == 1) {
+        //default value is 1 but to avoid this for now assign it to 2 or need to remove this bcz we're already saving the data
+        if (flag == 2) {
           codeResponseDTO = saveSubmittedCode(codeDetailsDTO, i, testCasesSuccess, complilationMessage);
         }
         codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
@@ -133,14 +132,15 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     }
     if (codeDetailsDTO.getTimeOut()) {
       percentage = generatePercentage(questionIds, count);
-      studentService.finalSubmitContest(codeDetailsDTO.getStudentId(), percentage);
+      StudentTestDetail savedStudent = this.updateStudentPercentage(codeDetailsDTO.getStudentId(), percentage);
+      codeResponseDTO.setStudentPercentage(savedStudent.getPercentage());
     }
     log.info("compile code: ended");
 
     return codeResponseDTO;
   }
 
-  public Double generatePercentage(List<QuestionAndCodeDTO> questionIds, int count) {
+  public Double generatePercentage(List<QuestionDetailDTO> questionIds, int count) {
     List<String> questionId = questionIds.stream().map(id -> id.getQuestionId()).collect(Collectors.toList());
     List<List<TestCases>> testCases = questionService.findByQuestionIdIn(questionId);
     List<String> testCasesSize = new ArrayList<String>();
@@ -270,7 +270,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     if (interpretationMessage.contains(testCase.getOutput())
         || interpretationMessage.equals(testCase.getOutput())) {
       testCaseResponse = true;
-      count++;
     } else {
       testCaseResponse = false;
     }
@@ -284,7 +283,8 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
     TestCaseDTO testCases = questionService.getSampleTestCase(questionId);
 
-    String input = sliptInput(testCases.getInput());
+//    String input = sliptInput(testCases.getInput());
+    String input = testCases.getInput();
     String interpretationMessage = executeProcess(interpretationCommand + input);
     if (interpretationMessage.isBlank()) {
       codeResponseDTO.setComplilationMessage(interpretationMessage);
@@ -295,7 +295,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     if (interpretationMessage.contains(testCases.getOutput())
         || interpretationMessage.equals(testCases.getOutput())) {
       testCasesSuccess.add(true);
-      count++;
     } else {
       testCasesSuccess.add(false);
     }
@@ -308,5 +307,59 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     String separator = "- ";
     int sepPos = input.indexOf(separator);
     return input.substring(sepPos + separator.length());
+  }
+
+  public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
+                                      ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName) {
+    log.info("updateStudentDetails: has started");
+    TestCaseDTO testCaseRecord = new TestCaseDTO();
+    List<TestCaseDTO> testCasesRecord1 = new ArrayList<>(); // need to remove in future
+    testCaseRecord.setQuestionId(questionIds);
+    testCaseRecord.setFileName(fileName);
+    testCaseRecord.setComplilationMessage(complilationMessage);
+    testCaseRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testcasesrecord and save that
+    // pass id in get method
+    Student existingRecord = studentRepository.findById(studentId);
+    existingRecord.setContestId(contestId);
+    existingRecord.setParticipateDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+    log.info("updateStudentDetails:: existingRecord: " + existingRecord);
+    if (existingRecord.getQuestionId() != null) {
+      existingRecord.getQuestionId().addAll(questionIds);
+    } else {
+      existingRecord.setQuestionId(questionIds);
+    }
+    if (existingRecord.getTestCaseRecord() != null) {
+      existingRecord.getTestCaseRecord().removeIf(x -> x.getQuestionId().equals(questionIds));
+      existingRecord.getTestCaseRecord().add(testCaseRecord);
+    } else {
+      testCasesRecord1.add(testCaseRecord);
+      existingRecord.setTestCaseRecord(testCasesRecord1);
+    }
+    return studentRepository.save(existingRecord);
+  }
+
+  public StudentTestDetail updateStudentPercentage(String studentId, Double percentage) {
+    if (studentId == null)
+      throw new NullPointerException();
+    else if (studentId.isBlank())
+      throw new IllegalArgumentException();
+
+    //Old API implementation, updating password field with null
+    // Need to discuss on this
+    Student student = this.studentRepository.findById(studentId);
+    if(student == null || student.getId().isBlank())
+      throw new StudentNotFoundException("Student not preset with given ID");
+
+    student.setPassword(null);
+    student.setPercentage(percentage);
+    studentRepository.save(student);
+
+    //new API implementation, Updating studentPercentage Field
+    StudentTestDetail savedStudentDetail = this.studentTestDetailRepository.findByStudentId(studentId);
+    System.out.println("StudentServiceImpl.updateStudentPercentage() "+savedStudentDetail.getId());
+
+    savedStudentDetail.setPercentage(percentage);
+
+    return this.studentTestDetailRepository.save(savedStudentDetail);
   }
 }
