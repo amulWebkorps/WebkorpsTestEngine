@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -167,55 +168,55 @@ public class StudentServiceImpl implements StudentService {
     return studentRepository.deleteByEmail(emailId);
   }
 
-	public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
-			ArrayList<Boolean> testCasesSuccess, String compilationMessage, String fileName) {
-		log.info("updateStudentDetails() : has started");
-		TestCaseDTO testCaseRecord = new TestCaseDTO();
-		List<TestCaseDTO> testCasesRecord1 = new ArrayList<>(); // need to remove in future
-		testCaseRecord.setQuestionId(questionIds);
-		testCaseRecord.setFileName(fileName);
-		testCaseRecord.setComplilationMessage(compilationMessage);
-		testCaseRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testCasesRecord and save that
-																// pass id in get method
-		Student existingRecord = studentRepository.findById(studentId);
-		existingRecord.setContestId(contestId);
-		existingRecord.setParticipateDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
-		log.info("updateStudentDetails:: existingRecord: " + existingRecord);
-		if (existingRecord.getQuestionId() != null) {
-			existingRecord.getQuestionId().addAll(questionIds);
-		} else {
-			existingRecord.setQuestionId(questionIds);
-		}
-		if (existingRecord.getTestCaseRecord() != null) {
-			existingRecord.getTestCaseRecord().removeIf(x -> x.getQuestionId().equals(questionIds));
-			existingRecord.getTestCaseRecord().add(testCaseRecord);
-		} else {
-			testCasesRecord1.add(testCaseRecord);
-			existingRecord.setTestCaseRecord(testCasesRecord1);
-		}
-		return studentRepository.save(existingRecord);
-	}
+  public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
+                                      ArrayList<Boolean> testCasesSuccess, String compilationMessage, String fileName) {
+    log.info("updateStudentDetails() : has started");
+    TestCaseDTO testCaseRecord = new TestCaseDTO();
+    List<TestCaseDTO> testCasesRecord1 = new ArrayList<>(); // need to remove in future
+    testCaseRecord.setQuestionId(questionIds);
+    testCaseRecord.setFileName(fileName);
+    testCaseRecord.setComplilationMessage(compilationMessage);
+    testCaseRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testCasesRecord and save that
+    // pass id in get method
+    Student existingRecord = studentRepository.findById(studentId);
+    existingRecord.setContestId(contestId);
+    existingRecord.setParticipateDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+    log.info("updateStudentDetails:: existingRecord: " + existingRecord);
+    if (existingRecord.getQuestionId() != null) {
+      existingRecord.getQuestionId().addAll(questionIds);
+    } else {
+      existingRecord.setQuestionId(questionIds);
+    }
+    if (existingRecord.getTestCaseRecord() != null) {
+      existingRecord.getTestCaseRecord().removeIf(x -> x.getQuestionId().equals(questionIds));
+      existingRecord.getTestCaseRecord().add(testCaseRecord);
+    } else {
+      testCasesRecord1.add(testCaseRecord);
+      existingRecord.setTestCaseRecord(testCasesRecord1);
+    }
+    return studentRepository.save(existingRecord);
+  }
 
-	public StudentTestDetail updateStudentPercentage(String studentId, Double percentage) {
-		if (studentId == null)
-			throw new NullPointerException();
-		else if (studentId.isBlank())
-			throw new IllegalArgumentException();
+  public StudentTestDetail updateStudentPercentage(String studentId, Double percentage) {
+    if (studentId == null)
+      throw new NullPointerException();
+    else if (studentId.isBlank())
+      throw new IllegalArgumentException();
 
-		//Old API implementation, updating password field with null
-		// Need to discuss on this
-		Student student = this.studentRepository.findById(studentId);
-		student.setPassword(null);
-		studentRepository.save(student);
+    //Old API implementation, updating password field with null
+    // Need to discuss on this
+    Student student = this.studentRepository.findById(studentId);
+    student.setPassword(null);
+    studentRepository.save(student);
 
-		//new API implementation, Updating studentPercentage Field
-		StudentTestDetail savedStudentDetail = this.studentTestDetailRepository.findByStudentId(studentId);
-		System.out.println("StudentServiceImpl.updateStudentPercentage() "+savedStudentDetail.getId());
+    //new API implementation, Updating studentPercentage Field
+    StudentTestDetail savedStudentDetail = this.studentTestDetailRepository.findByStudentId(studentId);
+    System.out.println("StudentServiceImpl.updateStudentPercentage() " + savedStudentDetail.getId());
 
-		savedStudentDetail.setPercentage(percentage);
+    savedStudentDetail.setPercentage(percentage);
 
-		return this.studentTestDetailRepository.save(savedStudentDetail);
-	}
+    return this.studentTestDetailRepository.save(savedStudentDetail);
+  }
 
   @Override
   public List<String> findAll() {
@@ -307,36 +308,32 @@ public class StudentServiceImpl implements StudentService {
 
     List<StudentTestDetail> participatedStudents = this.studentTestDetailRepository.findByContestId(contestId);
     if (participatedStudents == null || participatedStudents.size() == 0) {
+      log.info("evaluateStudentTestResult() :: participants not found for this contestId " + contestId);
       throw new RecordNotFoundException("No Student Found in Contest with id ::" + contestId);
     }
-    List<StudentTestDetailDTO> studentDetails = new ArrayList<>();
+
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
     for (StudentTestDetail studentTestDetail : participatedStudents) {
-      //Write Thread for this student
       StudentFinalResponse studentFinalResponse = new StudentFinalResponse();
-      //preparing object to call compileCode() to test List of questions with list of TestCases
-      CodeDetailsDTO codeDetailsDTO = new CodeDetailsDTO();
-      codeDetailsDTO.setStudentId(studentTestDetail.getStudentId());
-      codeDetailsDTO.setLanguage(studentTestDetail.getCodeLanguage());
-      codeDetailsDTO.setFlag(1);
-      codeDetailsDTO.setTimeOut(true);
-      codeDetailsDTO.setContestId(studentTestDetail.getContestId());
-      codeDetailsDTO.setQuestionsAndCode(studentTestDetail.getQuestionDetails());
-
+      Future<StudentTestDetailDTO> studentTestDetailFutureResult = executorService.submit(new Callable<StudentTestDetailDTO>() {
+        @Override
+        public StudentTestDetailDTO call() throws Exception {
+          return codeProcessingService.compileCode(studentTestDetail);
+        }
+      });
       try {
-        final CodeResponseDTO codeResponseDTO = this.codeProcessingService.compileCode(codeDetailsDTO);
-        studentFinalResponse.setStudentPercentage(codeResponseDTO.getStudentPercentage());
-      } catch (IOException e) {
-        throw new RuntimeException("evaluateStudentTestResult() -> Something went wrong " + e);
+        StudentTestDetailDTO updatedStudentTestDetail = studentTestDetailFutureResult.get();
+        studentFinalResponse.setStudentId(updatedStudentTestDetail.getStudentId());
+        studentFinalResponse.setStudentPercentage(updatedStudentTestDetail.getStudentPercentage());
+        Student student = this.studentRepository.findById(updatedStudentTestDetail.getStudentId());
+        studentFinalResponse.setStudentEmail(student.getEmail());
+        studentsFinalResponse.add(studentFinalResponse);
+      } catch (InterruptedException | ExecutionException e) {
+        throw new RuntimeException("Something went wrong, Please contact to HR " + e.getMessage());
       }
-
-      final Student student = studentRepository.findById(studentTestDetail.getStudentId()); //fetching student for email only
-      studentFinalResponse.setStudentId(studentTestDetail.getStudentId());
-      studentFinalResponse.setStudentEmail(student.getEmail());
-      studentsFinalResponse.add(studentFinalResponse);
     }
-    log.info("evaluateStudentTestResult() :: has been ended with studentDetails" + studentDetails.size());
-//		return studentDetails; final response would be()-> studentId, studentEmail, studentPercentage;   StudentFinalResponse
-   System.out.println(studentsFinalResponse);
+    executorService.shutdownNow();
+    log.info("evaluateStudentTestResult() :: has been ended with studentDetails" + studentsFinalResponse.size());
     return studentsFinalResponse;
   }
 }

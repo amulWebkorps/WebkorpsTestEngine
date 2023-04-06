@@ -56,7 +56,7 @@ public class StudentServiceTest {
     contest.setDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
   }
 
-//  @AfterEach
+  //  @AfterEach
   @Disabled
   void deletObject() {
     studentService.deleteByEmail(savedStudent.getEmail());
@@ -220,7 +220,7 @@ public class StudentServiceTest {
 
   @Test
   public void evaluateStudentTestResultSuccessTest() {
-    String contestId = "62f3ba1e9c7ec130d623e47f"; //"633468d1abd43a63776b303b";
+    String contestId = "633468d1abd43a63776b303b";
     final List<StudentFinalResponse> studentFinalResponses = this.studentService.evaluateStudentTestResult(contestId);
     Assertions.assertNotNull(studentFinalResponses);
   }

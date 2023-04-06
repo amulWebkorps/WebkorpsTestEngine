@@ -37,124 +37,119 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ParticipantController {
 
-	@Autowired
-	private StudentService studentService;
+  @Autowired
+  private StudentService studentService;
 
-	@Autowired
-	private AuthenticationManager authenticationManager;
+  @Autowired
+  private AuthenticationManager authenticationManager;
 
-	@Autowired
-	private JwtUtil jwtUtil;
+  @Autowired
+  private JwtUtil jwtUtil;
 
-	@PostMapping("public/doSignInForParticipator")
-	public ResponseEntity<Object> doSignIn(@RequestBody Student student ,@RequestParam("contestId") String contestId) {
-		log.info("doSignIn:: Started : "+contestId);
-		try {
-			Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getEmail().toLowerCase(), student.getPassword()));
-			Student studentExists  = this.studentService.findByEmailAndPassword(student.getEmail().toLowerCase(), student.getPassword());
-			JwtResponseDTO jwtResponseDTO = new JwtResponseDTO();
-			studentExists.setContestId(contestId);
-			jwtResponseDTO.setToken(this.jwtUtil.generateToken(authObj.getName()));
-			jwtResponseDTO.setStudent(studentExists);
-			log.info("doSignIn:: Particepant authenticate successfully :"+jwtResponseDTO);
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, jwtResponseDTO);
-		} catch (BadCredentialsException e) {
-			log.info("Exception occurs in doSignIn: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.UNAUTHORIZED,"email and password does not match");
-		}
-	}
+  @PostMapping("public/doSignInForParticipator")
+  public ResponseEntity<Object> doSignIn(@RequestBody Student student, @RequestParam("contestId") String contestId) {
+    log.info("doSignIn:: Started : " + contestId);
+    try {
+      Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getEmail().toLowerCase(), student.getPassword()));
+      Student studentExists = this.studentService.findByEmailAndPassword(student.getEmail().toLowerCase(), student.getPassword());
+      JwtResponseDTO jwtResponseDTO = new JwtResponseDTO();
+      studentExists.setContestId(contestId);
+      jwtResponseDTO.setToken(this.jwtUtil.generateToken(authObj.getName()));
+      jwtResponseDTO.setStudent(studentExists);
+      log.info("doSignIn:: Particepant authenticate successfully :" + jwtResponseDTO);
+      return ResponseHandler.generateResponse("success", HttpStatus.OK, jwtResponseDTO);
+    } catch (BadCredentialsException e) {
+      log.info("Exception occurs in doSignIn: " + e.getMessage());
+      return ResponseHandler.generateResponse("error", HttpStatus.UNAUTHORIZED, "email and password does not match");
+    }
+  }
 
-	@GetMapping("admin/getParticipatorDetail")
-	public ResponseEntity<Object> getParticipatorDetail(@RequestParam String studentId) {
-		log.info("getParticipatorDetail started studentId :: "+studentId);
-		try {
-			Map<String, Object> participatorDetail = this.studentService.getParticipatorDetail(studentId);
-			log.info("getParticipatorDetail:: participatorDetail : "+participatorDetail.size());
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, participatorDetail);
-		} 
-		catch (Exception e) {
-			log.error("Exception occured in getParticipatorDetail :: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-		}
-	}
+  @GetMapping("admin/getParticipatorDetail")
+  public ResponseEntity<Object> getParticipatorDetail(@RequestParam String studentId) {
+    log.info("getParticipatorDetail started studentId :: " + studentId);
+    try {
+      Map<String, Object> participatorDetail = this.studentService.getParticipatorDetail(studentId);
+      log.info("getParticipatorDetail:: participatorDetail : " + participatorDetail.size());
+      return ResponseHandler.generateResponse("success", HttpStatus.OK, participatorDetail);
+    } catch (Exception e) {
+      log.error("Exception occured in getParticipatorDetail :: " + e.getMessage());
+      return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+  }
 
-	@GetMapping("admin/participatorOfContest")
-	public ResponseEntity<Object> viewParticipators(@RequestParam String contestId) {			
-		log.info("viewParticipators:: started with contestId: " + contestId);
-		try {
+  @GetMapping("admin/contest/result")
+  public ResponseEntity<Object> evaluateStudentResult(@RequestParam String contestId) {
+    log.info("viewParticipators:: started with contestId: " + contestId);
+    try {
 //		List<StudentDTO> studentDetails = this.studentService.findByContestId(contestId); this is just commented, Functionality is still in code as per requirement you can use
-			List<StudentFinalResponse> studentTestDetails = this.studentService.evaluateStudentTestResult(contestId);
-			log.info("viewParticipators:: studentDetails fetch successfully: "+studentTestDetails.toString());
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, studentTestDetails);
-		} catch (Exception e) {
-			log.error("viewParticipators:: Exception occured in viewParticipators :: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-		}
-	}
+      List<StudentFinalResponse> studentTestDetails = this.studentService.evaluateStudentTestResult(contestId);
+      log.info("viewParticipators:: studentDetails fetch successfully: " + studentTestDetails.toString());
+      return ResponseHandler.generateResponse("success", HttpStatus.OK, studentTestDetails);
+    } catch (Exception e) {
+      log.error("viewParticipators:: Exception occurred in viewParticipators :: " + e.getMessage());
+      return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+  }
 
 
-	@PostMapping(value = "admin/studentUpload", headers = "content-type=multipart/*")
-	public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file) {
-		log.info("upload:: Started ");
-		try {
-			List<String> allStudents = this.studentService.saveFileForBulkParticipator(file);
-			log.info("upload:: File bulk students are saved succesfully : "+allStudents.size());
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, allStudents);
-		}catch (UnSupportedFormatException e) {
-			log.error("Exception occured in upload :: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.UNSUPPORTED_MEDIA_TYPE, e.getMessage());
-		}
-		catch (Exception e) {
-			log.error("Exception occured in upload :: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-		}
-	}
+  @PostMapping(value = "admin/studentUpload", headers = "content-type=multipart/*")
+  public ResponseEntity<Object> upload(@RequestParam("file") MultipartFile file) {
+    log.info("upload:: Started ");
+    try {
+      List<String> allStudents = this.studentService.saveFileForBulkParticipator(file);
+      log.info("upload:: File bulk students are saved succesfully : " + allStudents.size());
+      return ResponseHandler.generateResponse("success", HttpStatus.OK, allStudents);
+    } catch (UnSupportedFormatException e) {
+      log.error("Exception occured in upload :: " + e.getMessage());
+      return ResponseHandler.generateResponse("error", HttpStatus.UNSUPPORTED_MEDIA_TYPE, e.getMessage());
+    } catch (Exception e) {
+      log.error("Exception occured in upload :: " + e.getMessage());
+      return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+  }
 
-	@GetMapping("admin/getAllParticipator")
-	public ResponseEntity<Object> getAllParticipator() {
-		log.info("getAllParticipator:: started");
-		try {
-			List<String> allParticipator =  this.studentService.findAll();
-			log.info("getAllParticipator:: participators found successfully"+allParticipator.size());
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, allParticipator);
-		}
-		catch (RecordNotFoundException ex) {
-			log.error("Exception occured in getAllParticipator :: "+ex.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.NOT_FOUND, ex.getMessage());
-		}
-		catch (Exception ex) {
-			//log.error("Exception occured in getAllParticipator :: "+ex.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
-		}
+  @GetMapping("admin/getAllParticipator")
+  public ResponseEntity<Object> getAllParticipator() {
+    log.info("getAllParticipator:: started");
+    try {
+      List<String> allParticipator = this.studentService.findAll();
+      log.info("getAllParticipator:: participators found successfully" + allParticipator.size());
+      return ResponseHandler.generateResponse("success", HttpStatus.OK, allParticipator);
+    } catch (RecordNotFoundException ex) {
+      log.error("Exception occured in getAllParticipator :: " + ex.getMessage());
+      return ResponseHandler.generateResponse("error", HttpStatus.NOT_FOUND, ex.getMessage());
+    } catch (Exception ex) {
+      //log.error("Exception occured in getAllParticipator :: "+ex.getMessage());
+      return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    }
 
-	}
+  }
 
-	@DeleteMapping("admin/deleteStudent")
-	private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {
-		log.info("deleteStudent:: has started with an email id: " + emailId);
-		try {
-			this.studentService.deleteByEmail(emailId);
-			log.info("Student Deleted Successfully");
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, "Student Deleted Successfully");
-		}
-		catch (Exception ex) {
-			log.error("Exception occured in deleteStudent :: "+ex.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
-		}
+  @DeleteMapping("admin/deleteStudent")
+  private ResponseEntity<Object> deleteStudent(@RequestParam String emailId) {
+    log.info("deleteStudent:: has started with an email id: " + emailId);
+    try {
+      this.studentService.deleteByEmail(emailId);
+      log.info("Student Deleted Successfully");
+      return ResponseHandler.generateResponse("success", HttpStatus.OK, "Student Deleted Successfully");
+    } catch (Exception ex) {
+      log.error("Exception occured in deleteStudent :: " + ex.getMessage());
+      return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    }
 
-	}
-	
-	@GetMapping("admin/filterParticipants")
-	public ResponseEntity<Object> filterParticipants(@RequestParam String filterByString) {
-		log.info("filterParticipants: started filterByString = "+filterByString);
-		try {
-			List<String> totalParticipantsByFilter = studentService.filterParticipants(filterByString);
-			log.info("filterParticipants:: totalparticipantsByFilter size : " + totalParticipantsByFilter.size());
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, totalParticipantsByFilter);
-		} catch (Exception e) {
-			log.error("filterParticipants:: Exception occured: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-		}
-	}
+  }
+
+  @GetMapping("admin/filterParticipants")
+  public ResponseEntity<Object> filterParticipants(@RequestParam String filterByString) {
+    log.info("filterParticipants: started filterByString = " + filterByString);
+    try {
+      List<String> totalParticipantsByFilter = studentService.filterParticipants(filterByString);
+      log.info("filterParticipants:: totalparticipantsByFilter size : " + totalParticipantsByFilter.size());
+      return ResponseHandler.generateResponse("success", HttpStatus.OK, totalParticipantsByFilter);
+    } catch (Exception e) {
+      log.error("filterParticipants:: Exception occured: " + e.getMessage());
+      return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+  }
 
 }
