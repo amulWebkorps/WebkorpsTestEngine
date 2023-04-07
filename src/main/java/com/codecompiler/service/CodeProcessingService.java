@@ -7,10 +7,9 @@ import com.codecompiler.entity.StudentTestDetail;
 
 public interface CodeProcessingService {
 
-  public CodeResponseDTO compileCode(CodeDetailsDTO codeDetailsDTO) throws IOException;
+  StudentTestDetailDTO compileCode(StudentTestDetail studentTestDetail) throws IOException;
 
-  public CodeResponseDTO runORExecuteAllTestCases(ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IOException;
-
+  CodeResponseDTO runORExecuteAllTestCases(ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IOException;
 
   StudentTestDetail saveStudentTestDetail(StudentTestDetailDTO studentTestDetailsDTO);
 }

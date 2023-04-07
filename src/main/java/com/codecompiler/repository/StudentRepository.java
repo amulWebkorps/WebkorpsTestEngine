@@ -10,7 +10,7 @@ public interface StudentRepository extends UserRepository<Student> {
 
 	Student findByEmail(String email);
 
-	public Student findById(String studentId);
+	Student findById(String id);
 
 	List<Student> findByContestId(String contestId);
 	

@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -20,20 +20,22 @@ public class StudentTestDetail {
   private String studentId;
   private String contestId;
   private String codeLanguage;
-  private String code;
 
-  private Set<QuestionDetailDTO> questionDetails;
+//  private String code;
+  private List<QuestionDetailDTO> questionDetails;
 
   private double percentage;
-
   private LocalDateTime testSubmissionDate;
 
+  private int count; //successTestCaseCount
+
   public StudentTestDetail(String studentId, String contestId, String codeLanguage,
-                           LocalDateTime testSubmissionDate,Set<QuestionDetailDTO> questionDetails) {
+                           LocalDateTime testSubmissionDate, List<QuestionDetailDTO> questionDetails) {
     this.studentId = studentId;
     this.questionDetails = questionDetails;
     this.contestId = contestId;
     this.codeLanguage = codeLanguage;
     this.testSubmissionDate = testSubmissionDate;
   }
+
 }
