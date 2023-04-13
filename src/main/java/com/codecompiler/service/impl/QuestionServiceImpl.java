@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -20,7 +19,6 @@ import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.TestCases;
-import com.codecompiler.exception.RecordMisMatchedException;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.helper.ExcelPOIHelper;
@@ -102,8 +100,8 @@ public class QuestionServiceImpl implements QuestionService {
 
 	// point of discussion regarding contest save, length, question save 2 times ,
 	public Question saveQuestion(Question question) {
-		if(question == null) 
-			throw new IllegalArgumentException();		
+		if (question == null)
+			throw new IllegalArgumentException();
 		String[] stringOfCidAndCl = new String[2];
 		stringOfCidAndCl = question.getContestLevel().split("@");
 		String tempQid = question.getQuestionId();
@@ -126,7 +124,7 @@ public class QuestionServiceImpl implements QuestionService {
 			questionStatus.setStatus(true);
 			contest.getQuestionStatus().add(questionStatus);
 			contestService.saveContest(contest);
-		}         
+		}
 		return savedQuestion;
 	}
 
@@ -163,7 +161,7 @@ public class QuestionServiceImpl implements QuestionService {
 		else if (questionId.isBlank())
 			throw new IllegalArgumentException();
 		Question questions = questionRepository.findByQuestionId(questionId);
-		List<TestCases> testCasesRelatedToQuestionId = questions.getTestcases();		
+		List<TestCases> testCasesRelatedToQuestionId = questions.getTestcases();
 		return testCasesRelatedToQuestionId;
 	}
 
@@ -179,20 +177,20 @@ public class QuestionServiceImpl implements QuestionService {
 		}
 
 		List<Question> questionDetails = questionRepository.findByQuestionIdIn(questionIdList.get("questionsIds"));
-		if  (questionDetails == null) {
+		if (questionDetails == null) {
 			throw new RecordNotFoundException("getAllQuestions:: Questions does not found");
 		}
-		Contest contest = saveContests(contestId, questionIdList);
+		this.saveContests(contestId, questionIdList);
 		return questionDetails;
 	}
 
-	public Contest saveContests(String contestId,  Map<String, List<String>> questionIdList) {
+	public Contest saveContests(String contestId, Map<String, List<String>> questionIdList) {
 		Contest contest = contestService.findByContestId(contestId);
-		if  (contest == null) {
+		if (contest == null) {
 			throw new RecordNotFoundException("saveContests:: Content does not found for contestId: " + contestId);
 		}
 		ArrayList<QuestionStatusDTO> questionStatus = contest.getQuestionStatus();
-		if  (questionStatus == null) {
+		if (questionStatus == null) {
 			throw new RecordNotFoundException("saveContests:: QuestionStatus does not found");
 		}
 		boolean flag = false;
@@ -260,11 +258,11 @@ public class QuestionServiceImpl implements QuestionService {
 	public void deleteQuestionForTestCase(Question question) {
 		questionRepository.delete(question);
 	}
-	
+
 	public List<List<TestCases>> findByQuestionIdIn(List<String> questionsIds) {
-		return questionRepository.findByQuestionIdIn(questionsIds).stream().map(Question::getTestcases).collect(Collectors.toList());
+		return questionRepository.findByQuestionIdIn(questionsIds).stream().map(Question::getTestcases)
+				.collect(Collectors.toList());
 	}
-	
 	@Override
 	public TestCaseDTO getSampleTestCase(String questionId) {
 		if (questionId == null)
@@ -275,5 +273,4 @@ public class QuestionServiceImpl implements QuestionService {
 		List<TestCaseDTO> testCasesRelatedToQuestionId = questions.getSampleTestCase();		
 		return testCasesRelatedToQuestionId.get(0);
 	}
-	
 }

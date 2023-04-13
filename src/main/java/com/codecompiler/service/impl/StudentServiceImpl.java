@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.dto.MyCellDTO;
+import com.codecompiler.dto.ParticipantDTO;
 import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.Question;
@@ -122,10 +123,11 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	public List<String> findEmailByStatus(Boolean True) {
-		if (True == null) {
+		if(True==null) {
 			throw new NullPointerException();
 		}
 		List<Student> sentMail = studentRepository.findEmailByStatus(True);
+		//List<Student> sentMail = studentRepository.findEmailByfinalMailSent("SuccessFullSent");
 		return sentMail.stream().map(Student::getEmail).collect(Collectors.toList());
 	}
 
@@ -270,4 +272,33 @@ public class StudentServiceImpl implements StudentService {
 		return participants.stream().map(Student::getEmail).collect(Collectors.toList());
 	}
 
+	
+	public List<ParticipantDTO> findByContestIdForMCQ(String contestId) {
+		if (contestId == null)
+			throw new NullPointerException();
+		else if (contestId.isBlank())
+			throw new IllegalArgumentException();
+
+		log.info("findByContestId:: has started with contestId: " + contestId);
+		List<Student> students = studentRepository.findByContestId(contestId);
+		if (students == null || students.size() == 0) {
+			throw new RecordNotFoundException("No Student Found in Contest with id ::" + contestId);
+		}
+		List<ParticipantDTO> studentDetails = new ArrayList<ParticipantDTO>();
+		for (Student student : students) {
+			ParticipantDTO participantDTO = new ParticipantDTO();
+			participantDTO.setEmail(student.getEmail());
+			participantDTO.setPercentage(student.getPercentage());
+			if(!(student.getFinalMailSent().equals("SuccessFullSent"))) {
+			studentDetails.add(participantDTO);
+			}
+		}
+		log.info("findByContestId:: has been ended with studentDetails" + studentDetails.size());
+		return studentDetails;
+	}
+	
+	public List<String> findEmailByfinalMailSent() {
+		List<Student> sentMail = studentRepository.findEmailByfinalMailSent("SuccessFullSent");
+		return sentMail.stream().map(Student::getEmail).collect(Collectors.toList());
+	}
 }

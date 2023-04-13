@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,8 +21,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.entity.MCQ;
 import com.codecompiler.entity.Question;
 import com.codecompiler.reponse.ResponseHandler;
+import com.codecompiler.service.MCQService;
 import com.codecompiler.service.QuestionService;
 
 @Controller
@@ -32,7 +35,9 @@ public class QuestionController {
 
 	@Autowired
 	private QuestionService questionService;
-
+	
+	@Autowired
+	private MCQService  mcqService;
 
 	@PostMapping(value = "/admin/questionUpload", headers = "content-type=multipart/*")
 	public ResponseEntity<Object> questionUpload(@RequestParam("file") MultipartFile file,
@@ -47,8 +52,8 @@ public class QuestionController {
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
 		}
 	}
-
-
+	
+	
 	@PostMapping("admin/saveQuestion")
 	public ResponseEntity<Object> saveQuestion(@RequestBody Question question){
 		logger.info("saveQuestion:: started with question: " + question);
@@ -77,7 +82,21 @@ public class QuestionController {
 		}
 	}
 
-
+	/* Available MCQ Upload */
+	
+	@PostMapping("admin/addSelectedAvailableMCQtoContest")
+	public ResponseEntity<Object> addSelectedAvailableMCQToContest(@RequestBody Map<String, List<String>> MCQIdList) {
+		logger.info("addSelectedAvailableQueToContest:: started with questionIdList: "+MCQIdList.size());
+		try {
+			List<MCQ> mcqDetails = mcqService.getAllMCQs(MCQIdList);
+			logger.info("addSelectedAvailableMCQToContest:: MCQ saved in Contest successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, mcqDetails);
+		} catch (Exception ex) {
+			logger.error("addSelectedAvailableMCQToContest:: Exception occured: "+ex.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
+	}
+	
 	@PutMapping("admin/deleteQuestion") // cid, qid
 	public ResponseEntity<Object> updateQuestionStatus(@RequestBody ArrayList<String> contestAndQuestionId) {
 		logger.info("updateQuestionStatus:: started with contestAndQuestionId: " + contestAndQuestionId.toString());
@@ -90,7 +109,20 @@ public class QuestionController {
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
-
+	
+	/* Delete MCQ Questions */
+	@PutMapping("admin/deleteMcqQuestion") // cid, qid
+	public ResponseEntity<Object> updateMcqQuestionStatus(@RequestBody ArrayList<String> contestAndMcqQuestionId) {
+		logger.info("updateMcqQuestionStatus:: started with contestAndQuestionId: " + contestAndMcqQuestionId.toString());
+		try {
+			mcqService.saveMcqQuestionOrContest(contestAndMcqQuestionId);
+			logger.info("updateMcqQuestionStatus:: saveQuestionOrContest saved successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, contestAndMcqQuestionId);
+		} catch (Exception e) {
+			logger.info("updateMcqQuestionStatus:: Exception occured : " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
 
 	@GetMapping("admin/filterQuestion")
 	public ResponseEntity<Object> filterQuestion(@RequestParam String filterByString) {
@@ -101,6 +133,48 @@ public class QuestionController {
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, totalQuestionByFilter);
 		} catch (Exception e) {
 			logger.error("filterQuestion:: Exception occured: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
+	
+	@PostMapping(value = "/admin/mcqUpload", headers = "content-type=multipart/*")
+	public ResponseEntity<Object> mcqUpload(@RequestParam("file") MultipartFile file,
+			@RequestParam("contestId") String contestId) {
+		logger.info("MCQUpload:: Uploading Bulk MCQ on contestId: " + contestId);
+		try {
+			List<MCQ> allMCQList = mcqService.saveFileForBulkMCQ(file, contestId);
+			logger.info("MCQUpload:: Bulk MCQ saved successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, allMCQList);
+		}catch (Exception e) {
+			logger.error("MCQUpload:: Exception occured: " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
+	
+	@GetMapping(value="/admin/getAllMcq")
+	public ResponseEntity<Object> getAllMcq(){
+		logger.info("Get All quetions:");
+		try {
+			List<MCQ> allMcqs = mcqService.getAllMcq();
+			logger.info("GetAllMcq:: GetAllQuetion successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, allMcqs);
+		}
+		catch(Exception e) {
+			logger.error("GetAllmcq:: Exception occured " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
+	
+	@DeleteMapping(value="/admin/deleteMcq")
+	public ResponseEntity<Object> deleteMcq(@RequestParam("mcqId") String mcqId){
+		logger.info("Delete MCQ :: MCQId :"+mcqId);
+		try {
+			MCQ mcq = mcqService.deleteMcq(mcqId);
+			logger.info("Delete MCQ :: Mcq Delete Successfully");
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, mcq);
+		}
+		catch(Exception e) {
+			logger.error("D:: Exception occured " + e.getMessage());
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}

@@ -77,7 +77,7 @@ public class ContestServiceTest {
 	@Test
 	public void getContestDetailSuccessTest() {
 		afterSaveContest = contestService.saveContest(contest);
-		Map map = contestService.getContestDetail(afterSaveContest.getContestId());
+		Map map = contestService.getContestDetail(afterSaveContest.getContestId(), afterSaveContest.getContestType());
 		Assertions.assertNotNull(map);
 		Assertions.assertTrue(map.get("contest") != null);
 		Assertions.assertTrue(map.get("totalAvailableQuestion") != null);
@@ -86,9 +86,9 @@ public class ContestServiceTest {
 	@Test
 	public void getContestDetailFailureTest() {
 		afterSaveContest = contestService.saveContest(contest);	
-		Assertions.assertThrows(NullPointerException.class, ()->contestService.getContestDetail(null));		
-		Assertions.assertThrows(IllegalArgumentException.class, ()->contestService.getContestDetail(""));		
-		Assertions.assertThrows(IllegalArgumentException.class, ()->contestService.getContestDetail(" "));		
+		Assertions.assertThrows(NullPointerException.class, ()->contestService.getContestDetail(null, null));		
+		Assertions.assertThrows(IllegalArgumentException.class, ()->contestService.getContestDetail("", ""));		
+		Assertions.assertThrows(IllegalArgumentException.class, ()->contestService.getContestDetail(" ", " "));		
 	}
 	
 	@Test
