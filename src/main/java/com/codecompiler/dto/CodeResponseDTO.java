@@ -7,6 +7,8 @@ public class CodeResponseDTO {
 	private String complilationMessage;
 	private ArrayList<Boolean> testCasesSuccess;
 	private String successMessage;
+
+	private Double studentPercentage;
 	public String getComplilationMessage() {
 		return complilationMessage;
 	}
@@ -42,4 +44,11 @@ public class CodeResponseDTO {
 		// TODO Auto-generated constructor stub
 	}
 
+	public Double getStudentPercentage() {
+		return studentPercentage;
+	}
+
+	public void setStudentPercentage(Double studentPercentage) {
+		this.studentPercentage = studentPercentage;
+	}
 }
