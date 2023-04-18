@@ -1,40 +1,37 @@
 package com.codecompiler.service.impl;
 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.*;
-import java.util.stream.Collectors;
-
 import com.codecompiler.dto.*;
+import com.codecompiler.entity.Student;
 import com.codecompiler.entity.StudentTestDetail;
+import com.codecompiler.entity.TestCases;
 import com.codecompiler.exception.StudentNotFoundException;
+import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.repository.StudentTestDetailRepository;
-import org.springframework.beans.BeanUtils;
+import com.codecompiler.service.CodeProcessingService;
+import com.codecompiler.service.QuestionService;
+import com.codecompiler.util.CodeProcessingUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.codecompiler.entity.TestCases;
-import com.codecompiler.service.CodeProcessingService;
-import com.codecompiler.service.QuestionService;
-import com.codecompiler.service.StudentService;
-import com.codecompiler.util.CodeProcessingUtil;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class CodeProcessingServiceImpl implements CodeProcessingService {
-
+  private static final String CODE_FILE_PATH = "src/main/resources/temp/";
   @Autowired
-  private StudentService studentService;
+  private StudentRepository studentRepository;
 
   @Autowired
   private QuestionService questionService;
@@ -45,10 +42,8 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
   @Autowired
   private StudentTestDetailRepository studentTestDetailRepository;
 
-  int count = 0;
-
   private CodeResponseDTO saveSubmittedCode(CodeDetailsDTO codeDetailsDTO, int index, ArrayList<Boolean> testCasesSuccess,
-                                            String complilationMessage) throws IOException {
+                                            String compilationMessage) throws IOException {
     log.info("saveSubmittedCode :: started");
     String submittedCodeFileName = codeDetailsDTO.getQuestionsAndCode().get(index).getQuestionId() + "_"
         + codeDetailsDTO.getStudentId();
@@ -59,8 +54,8 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     FileWriter flSubmitted = new FileWriter("src/main/resources/CodeSubmittedByCandidate/" + submittedCodeFileName);
     PrintWriter prSubmitted = new PrintWriter(flSubmitted);
     prSubmitted.write(codeDetailsDTO.getQuestionsAndCode().get(index).getCode());
-    studentService.updateStudentDetails(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(),
-        studentQuestionIds, testCasesSuccess, complilationMessage, submittedCodeFileName);
+    this.updateStudentDetails(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(),
+        studentQuestionIds, testCasesSuccess, compilationMessage, submittedCodeFileName);
     prSubmitted.flush();
     prSubmitted.close();
     codeResponseDTO.setSuccessMessage("Code Submitted Successfully");
@@ -81,67 +76,125 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
   }
 
+  int counter = 0;
 
   @Override
-  public CodeResponseDTO compileCode(CodeDetailsDTO codeDetailsDTO) throws IOException {
-    log.info("compile code: started");
-    String language = codeDetailsDTO.getLanguage();
-    String studentId = codeDetailsDTO.getStudentId();
-    List<QuestionAndCodeDTO> questionIds = codeDetailsDTO.getQuestionsAndCode();
-    int flag = codeDetailsDTO.getFlag();
-    CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
+  public StudentTestDetailDTO compileCode(StudentTestDetail studentTestDetail) throws IOException {
+    log.info("compileCode(): started");
+    StudentTestDetailDTO studentTestDetailDTO = null;
+    String language = studentTestDetail.getCodeLanguage();
+    String studentId = studentTestDetail.getStudentId();
+    List<QuestionDetailDTO> questionDetailsList = studentTestDetail.getQuestionDetails();
+    List<QuestionDetailDTO> questionDetailDTOList = new ArrayList<>();
     Double percentage = 0.00;
-    for (int i = 0; i < questionIds.size(); i++) {
-      codeProcessingUtil.saveCodeTemporary(questionIds.get(i).getCode(), language, studentId);
+    int count = 0;
+
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    for (QuestionDetailDTO questionDetailDTO : questionDetailsList) {
+      Future<QuestionDetailDTO> testCaseSuccessFutureResult = executorService.submit(new Callable<QuestionDetailDTO>() {
+        public QuestionDetailDTO call() throws Exception {
+          return testCaseSuccessCount(questionDetailDTO, language, studentId);
+        }
+      });
+
       try {
-        ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
-        String compilationCommand = codeProcessingUtil.compilationCommand(language, studentId);
-        String complilationMessage = executeProcess(compilationCommand);
-        if (!complilationMessage.isEmpty() && flag == 0) {
-          codeResponseDTO.setComplilationMessage(complilationMessage);
-          log.info("compile code :: compilation error :: " + complilationMessage);
-          return codeResponseDTO;
-        }
-        List<TestCases> testCases = questionService.getTestCase(questionIds.get(i).getQuestionId());
-        String interpretationCommand = codeProcessingUtil.interpretationCommand(language, studentId);
-        String exceptionMessage = executeProcess(interpretationCommand);
-        if (!exceptionMessage.isEmpty() && flag == 0) {
-          codeResponseDTO.setComplilationMessage(exceptionMessage);
-          log.info("compile code :: exception occured :: " + exceptionMessage);
-          return codeResponseDTO;
-        }
-        for (TestCases testCase : testCases) {
-          String input = testCase.getInput();
-          String interpretationMessage = executeProcess(interpretationCommand + input);
-          interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
-          if (interpretationMessage.contains(testCase.getOutput())
-              || interpretationMessage.equals(testCase.getOutput())) {
-            testCasesSuccess.add(true);
-            count++;
-          } else {
-            testCasesSuccess.add(false);
-          }
-        }
-        if (flag == 1) {
-          codeResponseDTO = saveSubmittedCode(codeDetailsDTO, i, testCasesSuccess, complilationMessage);
-        }
-        codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
-      } catch (Exception e) {
-        log.error("Object is null " + e.getMessage());
-        codeResponseDTO.setComplilationMessage("Something wents wrong. Please contact to HR");
+        QuestionDetailDTO updatedQuestionDetailDTO = testCaseSuccessFutureResult.get();
+        count += updatedQuestionDetailDTO.getCount();
+        questionDetailDTOList.add(updatedQuestionDetailDTO);
+      } catch (InterruptedException | ExecutionException e) {
+        throw new RuntimeException("Something went wrong, Please contact to HR" + e.getMessage());
       }
     }
-    if (codeDetailsDTO.getTimeOut()) {
-      percentage = generatePercentage(questionIds, count);
-      studentService.finalSubmitContest(codeDetailsDTO.getStudentId(), percentage);
-    }
-    log.info("compile code: ended");
+    percentage = generatePercentage(questionDetailsList, count);
+    StudentTestDetail savedStudentDetails = this.studentTestDetailRepository.findByStudentId(studentId);
+    savedStudentDetails.setCount(count);
+    savedStudentDetails.setPercentage(percentage);
+    savedStudentDetails.setQuestionDetails(questionDetailDTOList);
+    this.studentTestDetailRepository.save(savedStudentDetails);
 
-    return codeResponseDTO;
+    studentTestDetailDTO = new StudentTestDetailDTO(studentTestDetail.getStudentId(), studentTestDetail.getContestId(),
+        savedStudentDetails.getCodeLanguage(), savedStudentDetails.getQuestionDetails(), percentage);
+
+    log.info("compileCode(): ended");
+    return studentTestDetailDTO;
   }
 
-  public Double generatePercentage(List<QuestionAndCodeDTO> questionIds, int count) {
-    List<String> questionId = questionIds.stream().map(id -> id.getQuestionId()).collect(Collectors.toList());
+  private QuestionDetailDTO testCaseSuccessCount(QuestionDetailDTO questionDetailDTO, String language, String studentId) {
+    log.info("testCaseSuccessCount() started");
+    List<Boolean> testCaseResult = new ArrayList<>();
+    AtomicInteger count = new AtomicInteger();
+    StringBuffer code = new StringBuffer(questionDetailDTO.getCode());
+    counter = ++counter;
+    code.insert(37, counter);
+    try {
+      String codeFile = this.codeProcessingUtil.saveCodeTemporary(String.valueOf(code), language, studentId, counter);
+      String compilationCommand = this.codeProcessingUtil.compilationCommand(language, studentId, counter);
+      String compilationMessage = this.executeProcess(compilationCommand);
+      if (!compilationMessage.isEmpty()) {
+        questionDetailDTO.setCompilationMsg(compilationMessage);
+        log.info("compile code :: compilation error :: " + compilationMessage);
+        return questionDetailDTO;
+      }
+      List<TestCases> testCases = this.questionService.getTestCase(questionDetailDTO.getQuestionId());
+      String interpretationCommand = this.codeProcessingUtil.interpretationCommand(language, studentId, counter);
+      String exceptionMessage = executeProcess(interpretationCommand);
+      if (!exceptionMessage.isEmpty()) {
+        questionDetailDTO.setCompilationMsg(exceptionMessage);
+        log.info("compile code :: exception occurred :: " + exceptionMessage);
+        return questionDetailDTO;
+      }
+
+      //preparing command line argument
+      List<String> inputList = new ArrayList<>();
+      List<String> outputList = new ArrayList<>();
+      testCases.forEach(testCases1 -> {
+        inputList.add(testCases1.getInput());
+        outputList.add(testCases1.getOutput());
+      });
+      String commandLineArgInput = inputList.stream().collect(Collectors.joining(","));
+
+      //Executing student code for all test Cases of this question
+      String interpretationMessage = executeProcess(interpretationCommand + commandLineArgInput);
+      interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
+
+      if (interpretationMessage == null || interpretationMessage.isBlank()) {
+        questionDetailDTO.setCompilationMsg(interpretationMessage);
+        log.error("Error in testCases execution: " + interpretationMessage);
+        return questionDetailDTO;
+      }
+
+      interpretationMessage = interpretationMessage.substring(1, interpretationMessage.length() - 1);
+      String[] strArr = interpretationMessage.split(", ");
+      ArrayList<String> programOutputList = new ArrayList<>(Arrays.asList(strArr));
+
+      for (String output : programOutputList) {
+        if (outputList.contains(output)) {
+          testCaseResult.add(true);
+          count.incrementAndGet();
+        } else {
+          testCaseResult.add(false);
+        }
+      }
+      //deleting the saved java file & java dot class file after completing program execution
+      File savedJavaFile = new File(CODE_FILE_PATH + codeFile);
+      File savedJavaDotClassFile = new File(CODE_FILE_PATH + "Main" + counter + ".class");
+      if (savedJavaFile.delete() && savedJavaDotClassFile.delete()) {
+        log.info(savedJavaFile.getName() + " is successfully deleted");
+      } else {
+        log.info("Failed to delete " + savedJavaFile.getName() + " file");
+      }
+    } catch (Exception e) {
+      log.error("Object is null " + e.getMessage());
+      throw new RuntimeException("Something went wrong, Please contact to HR" + e.getMessage());
+    }
+    questionDetailDTO.setTestCasesResult(testCaseResult);
+    questionDetailDTO.setCount(count.intValue());
+    log.info("testCaseSuccessCount() ended");
+    return questionDetailDTO;
+  }
+
+  public Double generatePercentage(List<QuestionDetailDTO> questionDetailDTO, int count) {
+    List<String> questionId = questionDetailDTO.stream().map(id -> id.getQuestionId()).collect(Collectors.toList());
     List<List<TestCases>> testCases = questionService.findByQuestionIdIn(questionId);
     List<String> testCasesSize = new ArrayList<String>();
     testCases.stream().forEach(testCase -> testCase.stream().forEach(testcase -> testCasesSize.add(testcase.getInput())));
@@ -168,7 +221,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
       codeResponseDTO = futureResult.get();
     } catch (Exception e) {
       log.error("Object is null " + e.getMessage());
-      codeResponseDTO.setComplilationMessage("Something wents wrong. Please contact to HR");
+      codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR");
     } finally {
       executorService.shutdown();
       futureResult = null;
@@ -203,11 +256,11 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     String questionId = executeAllTestCasesDTO.getQuestionId();
 
     String compilationCommand = codeProcessingUtil.compilationCommand(language, studentId);
-    String complilationMessage = executeProcess(compilationCommand);
+    String compilationMessage = executeProcess(compilationCommand);
 
-    if (!complilationMessage.isEmpty()) {
-      codeResponseDTO.setComplilationMessage(complilationMessage);
-      log.info("runORExecuteAllTestCases code :: compilation error message :: " + complilationMessage);
+    if (!compilationMessage.isEmpty()) {
+      codeResponseDTO.setComplilationMessage(compilationMessage);
+      log.info("runORExecuteAllTestCases code :: compilation error message :: " + compilationMessage);
       return codeResponseDTO;
     }
     String interpretationCommand = codeProcessingUtil.interpretationCommand(language, studentId);
@@ -270,7 +323,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     if (interpretationMessage.contains(testCase.getOutput())
         || interpretationMessage.equals(testCase.getOutput())) {
       testCaseResponse = true;
-      count++;
     } else {
       testCaseResponse = false;
     }
@@ -284,7 +336,8 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
     TestCaseDTO testCases = questionService.getSampleTestCase(questionId);
 
-    String input = sliptInput(testCases.getInput());
+//    String input = sliptInput(testCases.getInput());
+    String input = testCases.getInput();
     String interpretationMessage = executeProcess(interpretationCommand + input);
     if (interpretationMessage.isBlank()) {
       codeResponseDTO.setComplilationMessage(interpretationMessage);
@@ -295,7 +348,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     if (interpretationMessage.contains(testCases.getOutput())
         || interpretationMessage.equals(testCases.getOutput())) {
       testCasesSuccess.add(true);
-      count++;
     } else {
       testCasesSuccess.add(false);
     }
@@ -308,5 +360,58 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     String separator = "- ";
     int sepPos = input.indexOf(separator);
     return input.substring(sepPos + separator.length());
+  }
+
+  public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
+                                      ArrayList<Boolean> testCasesSuccess, String complilationMessage, String fileName) {
+    log.info("updateStudentDetails: has started");
+    TestCaseDTO testCaseRecord = new TestCaseDTO();
+    List<TestCaseDTO> testCasesRecord1 = new ArrayList<>(); // need to remove in future
+    testCaseRecord.setQuestionId(questionIds);
+    testCaseRecord.setFileName(fileName);
+    testCaseRecord.setComplilationMessage(complilationMessage);
+    testCaseRecord.setTestCasesSuccess(testCasesSuccess); // create new collection for testcasesrecord and save that
+    // pass id in get method
+    Student existingRecord = studentRepository.findById(studentId);
+    existingRecord.setContestId(contestId);
+    existingRecord.setParticipateDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+    log.info("updateStudentDetails:: existingRecord: " + existingRecord);
+    if (existingRecord.getQuestionId() != null) {
+      existingRecord.getQuestionId().addAll(questionIds);
+    } else {
+      existingRecord.setQuestionId(questionIds);
+    }
+    if (existingRecord.getTestCaseRecord() != null) {
+      existingRecord.getTestCaseRecord().removeIf(x -> x.getQuestionId().equals(questionIds));
+      existingRecord.getTestCaseRecord().add(testCaseRecord);
+    } else {
+      testCasesRecord1.add(testCaseRecord);
+      existingRecord.setTestCaseRecord(testCasesRecord1);
+    }
+    return studentRepository.save(existingRecord);
+  }
+
+  public StudentTestDetail updateStudentPercentage(String studentId, Double percentage) {
+    if (studentId == null)
+      throw new NullPointerException();
+    else if (studentId.isBlank())
+      throw new IllegalArgumentException();
+
+    //Old API implementation, updating password field with null
+    // Need to discuss on this
+    Student student = this.studentRepository.findById(studentId);
+    if (student == null || student.getId().isBlank())
+      throw new StudentNotFoundException("Student not preset with given ID");
+
+    student.setPassword(null);
+    student.setPercentage(percentage);
+    studentRepository.save(student);
+
+    //new API implementation, Updating studentPercentage Field
+    StudentTestDetail savedStudentDetail = this.studentTestDetailRepository.findByStudentId(studentId);
+
+    savedStudentDetail.setPercentage(percentage);
+
+    return this.studentTestDetailRepository.save(savedStudentDetail);
   }
 }

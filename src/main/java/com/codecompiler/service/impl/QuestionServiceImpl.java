@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -154,6 +155,7 @@ public class QuestionServiceImpl implements QuestionService {
 		return totalQuestionWithStatusTrue;
 	}
 
+	@Cacheable(value = "TestCases" , key = "#questionId")
 	@Override
 	public List<TestCases> getTestCase(String questionId) {
 		if (questionId == null)

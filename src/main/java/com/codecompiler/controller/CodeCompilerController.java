@@ -1,5 +1,6 @@
 package com.codecompiler.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.codecompiler.dto.*;
@@ -42,7 +43,10 @@ public class CodeCompilerController {
   @PostMapping("runAndCompilerCode")
   public ResponseEntity<Object> getCompiler(@RequestBody CodeDetailsDTO codeDetailsDTO) throws Exception {
     log.info("getCompiler: started");
-    CodeResponseDTO response = codeProcessingService.compileCode(codeDetailsDTO);
+    StudentTestDetail studentTestDetail = new StudentTestDetail(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(),
+        codeDetailsDTO.getLanguage(), LocalDateTime.now(), codeDetailsDTO.getQuestionsAndCode());
+//    CodeResponseDTO response = codeProcessingService.compileCode(codeDetailsDTO);
+    StudentTestDetailDTO response = codeProcessingService.compileCode(studentTestDetail);
     log.info("getCompiler: ended");
     return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
   }
@@ -50,9 +54,14 @@ public class CodeCompilerController {
   @PostMapping("runORExecuteAllTestCases")
   public ResponseEntity<Object> runORExecuteAllTestCases(@RequestBody ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws Exception {
     log.info("runORExecuteAllTestCases: started");
-    CodeResponseDTO response = codeProcessingService.runORExecuteAllTestCases(executeAllTestCasesDTO);
-    log.info("runORExecuteAllTestCases: ended");
-    return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
+    try {
+      CodeResponseDTO response = codeProcessingService.runORExecuteAllTestCases(executeAllTestCasesDTO);
+      log.info("runORExecuteAllTestCases: ended");
+      return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
+    } catch (Exception e) {
+      log.info("Something went wrong with this message: " + e.getMessage());
+      return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
   }
 
   @PostMapping("save/code")
