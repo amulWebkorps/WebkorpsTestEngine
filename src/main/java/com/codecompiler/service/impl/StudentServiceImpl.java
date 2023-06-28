@@ -24,6 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.MyCellDTO;
+import com.codecompiler.dto.ParticipantDTO;
+import com.codecompiler.dto.StudentDTO;
+import com.codecompiler.dto.TestCaseDTO;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
@@ -103,7 +107,6 @@ public class StudentServiceImpl implements StudentService {
       throw new NullPointerException();
     else if (contestId.isBlank())
       throw new IllegalArgumentException();
-
     log.info("findByContestId:: has started with contestId: " + contestId);
     List<Student> students = studentRepository.findByContestId(contestId);
     if (students == null || students.size() == 0) {
@@ -169,7 +172,7 @@ public class StudentServiceImpl implements StudentService {
   }
 
   public Student updateStudentDetails(String studentId, String contestId, Set<String> questionIds,
-                                      ArrayList<Boolean> testCasesSuccess, String compilationMessage, String fileName) {
+      ArrayList<Boolean> testCasesSuccess, String compilationMessage, String fileName) {
     log.info("updateStudentDetails() : has started");
     TestCaseDTO testCaseRecord = new TestCaseDTO();
     List<TestCaseDTO> testCasesRecord1 = new ArrayList<>(); // need to remove in future
@@ -203,19 +206,47 @@ public class StudentServiceImpl implements StudentService {
     else if (studentId.isBlank())
       throw new IllegalArgumentException();
 
-    //Old API implementation, updating password field with null
+    // Old API implementation, updating password field with null
     // Need to discuss on this
     Student student = this.studentRepository.findById(studentId);
     student.setPassword(null);
     studentRepository.save(student);
 
-    //new API implementation, Updating studentPercentage Field
+    // new API implementation, Updating studentPercentage Field
     StudentTestDetail savedStudentDetail = this.studentTestDetailRepository.findByStudentId(studentId);
     System.out.println("StudentServiceImpl.updateStudentPercentage() " + savedStudentDetail.getId());
-
     savedStudentDetail.setPercentage(percentage);
 
     return this.studentTestDetailRepository.save(savedStudentDetail);
+  }
+
+  public List<ParticipantDTO> findByContestIdForMCQ(String contestId) {
+    if (contestId == null)
+      throw new NullPointerException();
+    else if (contestId.isBlank())
+      throw new IllegalArgumentException();
+
+    log.info("findByContestId:: has started with contestId: " + contestId);
+    List<Student> students = studentRepository.findByContestId(contestId);
+    if (students == null || students.size() == 0) {
+      throw new RecordNotFoundException("No Student Found in Contest with id ::" + contestId);
+    }
+    List<ParticipantDTO> studentDetails = new ArrayList<ParticipantDTO>();
+    for (Student student : students) {
+      ParticipantDTO participantDTO = new ParticipantDTO();
+      participantDTO.setEmail(student.getEmail());
+      participantDTO.setPercentage(student.getPercentage());
+      if (!(student.getFinalMailSent().equals("SuccessFullSent"))) {
+        studentDetails.add(participantDTO);
+      }
+    }
+    log.info("findByContestId:: has been ended with studentDetails" + studentDetails.size());
+    return studentDetails;
+  }
+
+  public List<String> findEmailByfinalMailSent() {
+    List<Student> sentMail = studentRepository.findEmailByfinalMailSent("SuccessFullSent");
+    return sentMail.stream().map(Student::getEmail).collect(Collectors.toList());
   }
 
   @Override
@@ -315,12 +346,13 @@ public class StudentServiceImpl implements StudentService {
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     for (StudentTestDetail studentTestDetail : participatedStudents) {
       StudentFinalResponse studentFinalResponse = new StudentFinalResponse();
-      Future<StudentTestDetailDTO> studentTestDetailFutureResult = executorService.submit(new Callable<StudentTestDetailDTO>() {
-        @Override
-        public StudentTestDetailDTO call() throws Exception {
-          return codeProcessingService.compileCode(studentTestDetail);
-        }
-      });
+      Future<StudentTestDetailDTO> studentTestDetailFutureResult = executorService
+          .submit(new Callable<StudentTestDetailDTO>() {
+            @Override
+            public StudentTestDetailDTO call() throws Exception {
+              return codeProcessingService.compileCode(studentTestDetail);
+            }
+          });
       try {
         StudentTestDetailDTO updatedStudentTestDetail = studentTestDetailFutureResult.get();
         studentFinalResponse.setStudentId(updatedStudentTestDetail.getStudentId());

@@ -16,6 +16,8 @@ public interface StudentRepository extends UserRepository<Student> {
 	
 	List<Student> findEmailByStatus(Boolean True);
 	
+	List<Student> findEmailByfinalMailSent(String SuccessFullSent);
+	
 	public Student deleteByEmail(String emailId);
 	
 	public List<Student> findByContestLevelAndStatus(String filterByString, Boolean True);

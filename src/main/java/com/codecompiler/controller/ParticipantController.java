@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.codecompiler.dto.StudentFinalResponse;
-import com.codecompiler.dto.StudentTestDetailDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codecompiler.dto.JwtResponseDTO;
-import com.codecompiler.dto.StudentDTO;
+import com.codecompiler.dto.ParticipantDTO;
 import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.reponse.ResponseHandler;
+import com.codecompiler.service.ContestService;
 import com.codecompiler.service.StudentService;
 import com.codecompiler.util.JwtUtil;
 
@@ -39,30 +39,34 @@ public class ParticipantController {
 
   @Autowired
   private StudentService studentService;
-
-  @Autowired
-  private AuthenticationManager authenticationManager;
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private ContestService contestService;
 
   @Autowired
   private JwtUtil jwtUtil;
 
-  @PostMapping("public/doSignInForParticipator")
-  public ResponseEntity<Object> doSignIn(@RequestBody Student student, @RequestParam("contestId") String contestId) {
-    log.info("doSignIn:: Started : " + contestId);
-    try {
-      Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getEmail().toLowerCase(), student.getPassword()));
-      Student studentExists = this.studentService.findByEmailAndPassword(student.getEmail().toLowerCase(), student.getPassword());
-      JwtResponseDTO jwtResponseDTO = new JwtResponseDTO();
-      studentExists.setContestId(contestId);
-      jwtResponseDTO.setToken(this.jwtUtil.generateToken(authObj.getName()));
-      jwtResponseDTO.setStudent(studentExists);
-      log.info("doSignIn:: Particepant authenticate successfully :" + jwtResponseDTO);
-      return ResponseHandler.generateResponse("success", HttpStatus.OK, jwtResponseDTO);
-    } catch (BadCredentialsException e) {
-      log.info("Exception occurs in doSignIn: " + e.getMessage());
-      return ResponseHandler.generateResponse("error", HttpStatus.UNAUTHORIZED, "email and password does not match");
-    }
-  }
+	@PostMapping("public/doSignInForParticipator")
+	public ResponseEntity<Object> doSignIn(@RequestBody Student student ,@RequestParam("contestId") String contestId) {
+		log.info("doSignIn:: Started : "+contestId);
+		try {
+			Authentication authObj = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getEmail().toLowerCase(), student.getPassword()));
+			Student studentExists  = this.studentService.findByEmailAndPassword(student.getEmail().toLowerCase(), student.getPassword());
+			String contestType = contestService.findContestTypeByContestId(contestId);
+			JwtResponseDTO jwtResponseDTO = new JwtResponseDTO();
+			studentExists.setContestId(contestId);
+			studentExists.setContestType(contestType);
+			jwtResponseDTO.setToken(this.jwtUtil.generateToken(authObj.getName()));
+			jwtResponseDTO.setStudent(studentExists);
+			log.info("doSignIn:: Particepant authenticate successfully :"+jwtResponseDTO);
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, jwtResponseDTO);
+		} catch (BadCredentialsException e) {
+			log.info("Exception occurs in doSignIn: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.UNAUTHORIZED,"email and password does not match");
+		}
+	}
 
   @GetMapping("admin/getParticipatorDetail")
   public ResponseEntity<Object> getParticipatorDetail(@RequestParam String studentId) {
@@ -137,19 +141,32 @@ public class ParticipantController {
       return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
-  }
-
-  @GetMapping("admin/filterParticipants")
-  public ResponseEntity<Object> filterParticipants(@RequestParam String filterByString) {
-    log.info("filterParticipants: started filterByString = " + filterByString);
-    try {
-      List<String> totalParticipantsByFilter = studentService.filterParticipants(filterByString);
-      log.info("filterParticipants:: totalparticipantsByFilter size : " + totalParticipantsByFilter.size());
-      return ResponseHandler.generateResponse("success", HttpStatus.OK, totalParticipantsByFilter);
-    } catch (Exception e) {
-      log.error("filterParticipants:: Exception occured: " + e.getMessage());
-      return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-    }
-  }
+	}
+	
+	@GetMapping("admin/filterParticipants")
+	public ResponseEntity<Object> filterParticipants(@RequestParam String filterByString) {
+		log.info("filterParticipants: started filterByString = "+filterByString);
+		try {
+			List<String> totalParticipantsByFilter = studentService.filterParticipants(filterByString);
+			log.info("filterParticipants:: totalparticipantsByFilter size : " + totalParticipantsByFilter.size());
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, totalParticipantsByFilter);
+		} catch (Exception e) {
+			log.error("filterParticipants:: Exception occured: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
+	
+	@GetMapping("admin/participatorOfMCQContest")
+	public ResponseEntity<Object> viewMCQParticipators(@RequestParam String contestId) {			
+		log.info("viewMCQParticipators:: started with contestId: " + contestId);
+		try {
+			List<ParticipantDTO> studentDetails = this.studentService.findByContestIdForMCQ(contestId);
+			log.info("viewMCQParticipators:: studentDetails fetch successfully: "+studentDetails.toString());
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, studentDetails);
+		} catch (Exception e) {
+			log.error("viewMCQParticipators:: Exception occured in viewParticipators :: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
 
 }

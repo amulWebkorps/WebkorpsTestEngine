@@ -22,8 +22,13 @@ public class Student extends User{
 	private Set<String> questionId;
 	private List<TestCaseDTO> testCaseRecord;
 	private boolean status;
+	private String finalMailSent;
 	private String participateDate;
 	private double percentage;
+	private List<String> correctAnswers;
+	private List<String> mcqQuetionsId;
+	private String mcqContestId;
+	private String contestType;
 	
 	public String getId() {
 		return id;
@@ -94,8 +99,14 @@ public class Student extends User{
 	public void setPercentage(double percentage2) {
 		this.percentage = percentage2;
 	}
+	public String getContestType() {
+		return contestType;
+	}
+	public void setContestType(String contestType) {
+		this.contestType = contestType;
+	}
 	public Student(String id, String name, String mobileNumber, String contestLevel, String contestId,
-			Set<String> questionId, List<TestCaseDTO> testCaseRecord, boolean status, String participateDate) {
+			Set<String> questionId, List<TestCaseDTO> testCaseRecord, boolean status, String participateDate,String finalMailSent) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -106,12 +117,42 @@ public class Student extends User{
 		this.testCaseRecord = testCaseRecord;
 		this.status = status;
 		this.participateDate = participateDate;
+		this.finalMailSent=finalMailSent;
 	}
+
 	@Override
 	public String toString() {
 		return "Student [id=" + id + ", name=" + name + ", mobileNumber=" + mobileNumber + ", contestLevel="
 				+ contestLevel + ", contestId=" + contestId + ", questionId=" + questionId + ", testCaseRecord="
-				+ testCaseRecord + ", status=" + status + ", participateDate=" + participateDate + ", percentage=" + percentage
-				+ "]";
-	}		
+				+ testCaseRecord + ", status=" + status + ", finalMailSent=" + finalMailSent + ", participateDate="
+				+ participateDate + ", percentage=" + percentage + ", correctAnswers=" + correctAnswers
+				+ ", mcqQuetionsId=" + mcqQuetionsId + ", mcqContestId=" + mcqContestId + "]";
+	}
+	public List<String> getCorrectAnswers() {
+		return correctAnswers;
+	}
+	public void setCorrectAnswers(List<String> correctAnswers) {
+		this.correctAnswers = correctAnswers;
+	}
+	public List<String> getMcqQuetionsId() {
+		return mcqQuetionsId;
+	}
+	public void setMcqQuetionsId(List<String> mcqQuetionsId) {
+		this.mcqQuetionsId = mcqQuetionsId;
+	}
+	public String getMcqContestId() {
+		return mcqContestId;
+	}
+	public void setMcqContestId(String mcqContestId) {
+		this.mcqContestId = mcqContestId;
+	}
+	public String getFinalMailSent() {
+		return finalMailSent;
+	}
+	public void setFinalMailSent(String finalMailSent) {
+		this.finalMailSent = finalMailSent;
+	}
+		
+	
+	
 }

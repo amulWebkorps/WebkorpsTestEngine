@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.codecompiler.dto.McqSubmitDto;
 import com.codecompiler.entity.Contest;
+import com.codecompiler.entity.MCQ;
+import com.codecompiler.entity.Student;
 import com.codecompiler.reponse.ResponseHandler;
 import com.codecompiler.service.ContestService;
 
@@ -76,10 +79,10 @@ public class ContestController {
 	}
 
 	@GetMapping("admin/getContestDetail")
-	public ResponseEntity<Object> getContestDetail(@RequestParam String contestId) {
-		log.info("getContestDetail: started contestId = "+contestId);
+	public ResponseEntity<Object> getContestDetail(@RequestParam String contestId, @RequestParam String contestType) {
+		log.info("getContestDetail: started contestId "+contestId+" and contestType = "+contestType);
 		try {
-			Map<String, Object> contestDetail = contestService.getContestDetail(contestId);
+			Map<String, Object> contestDetail = contestService.getContestDetail(contestId, contestType);
 			log.info("getContestDetail: ended contestDetails size ::"+contestDetail.size());
 			return ResponseHandler.generateResponse("success", HttpStatus.OK, contestDetail);
 		} catch (Exception ex) {
@@ -88,7 +91,6 @@ public class ContestController {
 		}
 		
 	}
-	
 	
 	@PostMapping("startContestPage")
 	public ResponseEntity<Object> contestPage(@RequestParam(value = "contestId", required = false) String contestId,
@@ -104,6 +106,32 @@ public class ContestController {
 		
 	}
 	
-
-
+	@PostMapping("startMCQContest")
+	public ResponseEntity<Object> fetchAllUploadedQuetions(@RequestParam(value = "contestId") String contestId,@RequestParam(value = "studentId") String studentId){
+		log.info("Start MCQ Contest : And contestId = " + contestId);
+		try {
+			 Map<String, Object> mcq=contestService.findAllUploadedQuetions(contestId,studentId);
+			 if(mcq!=null)
+				 return ResponseHandler.generateResponse("success", HttpStatus.OK,mcq);
+			 else
+				 return ResponseHandler.generateResponse("Contest Or Contest Quetions is not present", HttpStatus.NOT_FOUND,null);
+		}catch (Exception e) {
+			log.error("Exception occured in contestPage :: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
+	
+	@PostMapping("submitMcqContest")
+	public ResponseEntity<Object> submitMcqContest(@RequestBody McqSubmitDto mcqSubmitDto){
+		log.info("Mcq contest submit : ");
+		try {
+			if(contestService.submitMcqContest(mcqSubmitDto))
+				return ResponseHandler.generateResponse("success", HttpStatus.OK,"Test Submited Successfully");
+			else
+				return ResponseHandler.generateResponse("Something went wrong....", HttpStatus.OK,null);
+		}catch (Exception e) {
+			log.info("Exception occured in submitQuetion :: " + e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
 }

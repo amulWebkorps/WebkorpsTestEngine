@@ -22,4 +22,5 @@ public class StudentDTO extends User{
 	private List<TestCaseDTO> testCaseRecord;
 	private boolean status;
 	private String participateDate;	
+	private double percentage;
 }

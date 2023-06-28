@@ -11,6 +11,7 @@ import com.codecompiler.dto.StudentTestDetailDTO;
 import com.codecompiler.entity.StudentTestDetail;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.codecompiler.dto.ParticipantDTO;
 import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
@@ -47,6 +48,9 @@ public interface StudentService {
 
   public List<String> findByContestLevel(String filterByString);
 
+	public List<ParticipantDTO> findByContestIdForMCQ(String contestId);
+	
+	public List<String> findEmailByfinalMailSent();
 
   Student finalSubmitContest(String studentId, double percentage);
 }
