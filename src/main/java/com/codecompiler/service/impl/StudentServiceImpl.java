@@ -21,6 +21,7 @@ import com.codecompiler.repository.StudentTestDetailRepository;
 import com.codecompiler.service.CodeProcessingService;
 import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -367,5 +368,31 @@ public class StudentServiceImpl implements StudentService {
     executorService.shutdownNow();
     log.info("evaluateStudentTestResult() :: has been ended with studentDetails" + studentsFinalResponse.size());
     return studentsFinalResponse;
+  }
+  
+  public List<ParticipantDTO> findByContestIdForProgramming(String contestId){
+	  if (contestId == null)
+	      throw new NullPointerException();
+	    else if (contestId.isBlank())
+	      throw new IllegalArgumentException();
+
+	    log.info("findByContestId:: has started with contestId: " + contestId);
+	    List<StudentTestDetail> students = studentTestDetailRepository.findByContestId(contestId);
+	    if (students == null || students.size() == 0) {
+	      throw new RecordNotFoundException("No Student Found in Contest with id ::" + contestId);
+	    }
+	    
+	    List<ParticipantDTO> studentResult = students.stream().map(student -> {
+	        Student s = studentRepository.findById(student.getStudentId());
+	        ParticipantDTO participant = new ParticipantDTO();
+	        participant.setEmail(s.getEmail());
+	        participant.setPercentage(student.getPercentage());
+	        participant.setStatus(s.getStatus());
+	        participant.setId(s.getId());
+	        return participant;
+	    }).collect(Collectors.toList());
+	    
+	    log.info("findByContestId:: has been ended with studentDetails" + studentResult.size());
+	    return studentResult;
   }
 }

@@ -2,6 +2,7 @@ package com.codecompiler.helper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -106,17 +108,22 @@ public class ExcelPOIHelper {
             XSSFSheet sheet = workbook.getSheetAt(0);
             FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
             
-            for (int i = sheet.getFirstRowNum(); i <= sheet.getLastRowNum(); i++) {
+            for (int i = sheet.getFirstRowNum(); i <sheet.getLastRowNum(); i++) {
                 XSSFRow row = sheet.getRow(i);
                 data.put(i, new ArrayList<>());
                 if (row != null) {
-                    for (int j = 0; j < row.getLastCellNum(); j++) {
+                    for (int j = 0; j <=row.getLastCellNum(); j++) {
                         XSSFCell cell = row.getCell(j);
                         CellValue cellValue= evaluator.evaluate(cell);
                         if (cellValue != null) {
-                            MyCellDTO myCell = new MyCellDTO();
-                            myCell.setContent(readCellContent(cellValue));
-                            data.get(i).add(myCell);
+                        	MyCellDTO myCell = new MyCellDTO();
+                        	if(cellValue.getCellType() == CellType.NUMERIC) {
+                        		myCell.setContent(formatNumericCellValue(cellValue.getNumberValue()));
+                                
+                        	}else {
+                        		myCell.setContent(readCellContent(cellValue));
+                        	}
+                        	data.get(i).add(myCell);   
                         }
                     }
                 }
@@ -128,5 +135,8 @@ public class ExcelPOIHelper {
         }
         return data;
     }
-    
+    private String formatNumericCellValue(double value) {
+        DecimalFormat decimalFormat = new DecimalFormat("0.########");
+        return decimalFormat.format(value);
+    }
 }

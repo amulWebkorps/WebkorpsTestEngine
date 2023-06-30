@@ -53,4 +53,6 @@ public interface StudentService {
 	public List<String> findEmailByfinalMailSent();
 
   Student finalSubmitContest(String studentId, double percentage);
+  
+  public List<ParticipantDTO> findByContestIdForProgramming(String contestId);
 }
