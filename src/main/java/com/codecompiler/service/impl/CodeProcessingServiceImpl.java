@@ -102,7 +102,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
         count += updatedQuestionDetailDTO.getCount();
         questionDetailDTOList.add(updatedQuestionDetailDTO);
       } catch (InterruptedException | ExecutionException e) {
-        throw new RuntimeException("Something went wrong, Please contact to HR" + e.getMessage());
+        throw new RuntimeException("Something went wrong, Please contact to HR\n" + e.getMessage());
       }
     }
     percentage = generatePercentage(questionDetailsList, count);
@@ -185,7 +185,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
       }
     } catch (Exception e) {
       log.error("Object is null " + e.getMessage());
-      throw new RuntimeException("Something went wrong, Please contact to HR" + e.getMessage());
+      throw new RuntimeException("Something went wrong, Please contact to HR\n" + e.getMessage());
     }
     questionDetailDTO.setTestCasesResult(testCaseResult);
     questionDetailDTO.setCount(count.intValue());
@@ -221,7 +221,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
       codeResponseDTO = futureResult.get();
     } catch (Exception e) {
       log.error("Object is null " + e.getMessage());
-      codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR");
+      codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR\n"+e.getMessage());
     } finally {
       executorService.shutdown();
       futureResult = null;

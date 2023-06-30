@@ -168,5 +168,18 @@ public class ParticipantController {
 			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
+	
+	@GetMapping("/admin/participatorOfContest")
+	public ResponseEntity<?> participatorOfContest(@RequestParam("contestId") String contestId){
+		log.info("participatorOfContest:: started with contestId: " + contestId);
+		try {
+			List<ParticipantDTO> studentDetails=this.studentService.findByContestIdForProgramming(contestId);
+			log.info("participatorOfContest:: studentDetails fetch successfully: "+studentDetails.toString());
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, studentDetails);
+		}catch(Exception e) {
+			log.error("participatorOfContest:: Exception occured in participatorOfContest :: "+e.getMessage());
+			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		}
+	}
 
 }
