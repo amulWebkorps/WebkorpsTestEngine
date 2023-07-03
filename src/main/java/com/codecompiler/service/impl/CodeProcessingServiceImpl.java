@@ -20,6 +20,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
@@ -29,7 +34,10 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class CodeProcessingServiceImpl implements CodeProcessingService {
-  private static final String CODE_FILE_PATH = "src/main/resources/temp/";
+  private static final String SAVED_CODE_FILE_PATH = "src/main/resources/";
+  private static final String CODE_FILE_PATH = "src/main/resources/static";
+  private static final String CLASS_NAME = "Main";
+  private static final String METHOD_NAME = "writeCode";
   @Autowired
   private StudentRepository studentRepository;
 
@@ -66,7 +74,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
   private String executeProcess(String command) {
     Process pro;
     try {
-      pro = Runtime.getRuntime().exec(command, null, new File("src/main/resources/temp/"));
+      pro = Runtime.getRuntime().exec(command, null, new File("src/main/resources/"));
       String message = codeProcessingUtil.getMessagesFromProcessInputStream(pro.getInputStream());
       return message;
     } catch (IOException e) {
@@ -151,33 +159,31 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
         inputList.add(testCases1.getInput());
         outputList.add(testCases1.getOutput());
       });
-      String commandLineArgInput = inputList.stream().collect(Collectors.joining(","));
 
-      //Executing student code for all test Cases of this question
-      String interpretationMessage = executeProcess(interpretationCommand + commandLineArgInput);
-      interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
-
-      if (interpretationMessage == null || interpretationMessage.isBlank()) {
-        questionDetailDTO.setCompilationMsg(interpretationMessage);
-        log.error("Error in testCases execution: " + interpretationMessage);
-        return questionDetailDTO;
-      }
-
-      interpretationMessage = interpretationMessage.substring(1, interpretationMessage.length() - 1);
-      String[] strArr = interpretationMessage.split(", ");
-      ArrayList<String> programOutputList = new ArrayList<>(Arrays.asList(strArr));
-
-      for (String output : programOutputList) {
-        if (outputList.contains(output)) {
-          testCaseResult.add(true);
-          count.incrementAndGet();
-        } else {
-          testCaseResult.add(false);
+      inputList.forEach(input -> {
+        try {
+          //Creating an object of dynamically generated class and testing against testCase input at once
+          File savedJavaFile = new File(CODE_FILE_PATH);
+          URL[] urls = new URL[]{new File(String.valueOf(savedJavaFile)).getParentFile().toURI().toURL()};
+          ClassLoader cl = new URLClassLoader(urls);
+          Class<?> yourClass = cl.loadClass(CLASS_NAME+counter);
+          Method method = yourClass.getMethod(METHOD_NAME, String.class);
+          Object programOutput = method.invoke(METHOD_NAME, input);
+          if (outputList.contains(programOutput)) {
+            testCaseResult.add(true);
+            count.incrementAndGet();
+          } else {
+            testCaseResult.add(false);
+          }
+        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException | MalformedURLException e) {
+          throw new RuntimeException(e);
         }
-      }
+      });
+
       //deleting the saved java file & java dot class file after completing program execution
-      File savedJavaFile = new File(CODE_FILE_PATH + codeFile);
-      File savedJavaDotClassFile = new File(CODE_FILE_PATH + "Main" + counter + ".class");
+      File savedJavaFile = new File(SAVED_CODE_FILE_PATH + codeFile);
+      File savedJavaDotClassFile = new File(SAVED_CODE_FILE_PATH + "Main" + counter + ".class");
       if (savedJavaFile.delete() && savedJavaDotClassFile.delete()) {
         log.info(savedJavaFile.getName() + " is successfully deleted");
       } else {

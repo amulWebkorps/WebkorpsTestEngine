@@ -1,15 +1,9 @@
 package com.codecompiler.util;
 
-import java.io.BufferedReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.*;
 
 @Slf4j
 @Service
@@ -77,7 +71,7 @@ public class CodeProcessingUtil {
     String fileNameInLocal = null;
     if (language.equalsIgnoreCase("java")) {
       fileNameInLocal = "Main" + counter + ".java";
-      fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
+      fl = new FileWriter("src/main/resources/" + fileNameInLocal);
     } else if (language.equalsIgnoreCase("python")) {
       fileNameInLocal = "python" + studentId + ".py";
       fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
