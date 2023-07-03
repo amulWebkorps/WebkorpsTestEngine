@@ -1,16 +1,7 @@
 package com.codecompiler;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
-import com.codecompiler.dto.StudentFinalResponse;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import com.codecompiler.dto.StudentDTO;
+import com.codecompiler.dto.StudentFinalResponse;
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
@@ -18,6 +9,17 @@ import com.codecompiler.exception.UserNotFoundException;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.QuestionService;
 import com.codecompiler.service.StudentService;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 @SpringBootTest
 public class StudentServiceTest {
@@ -207,8 +209,8 @@ public class StudentServiceTest {
     Assertions.assertThrows(NullPointerException.class, () -> studentService.finalSubmitContest(null, 0.0));
     Assertions.assertThrows(IllegalArgumentException.class, () -> studentService.finalSubmitContest("", 0.0));
     Assertions.assertThrows(IllegalArgumentException.class, () -> studentService.finalSubmitContest(" ", 0.0));
-//		Assertions.assertThrows(RecordMisMatchedException.class, () -> studentService.finalSubmitContest(savedStudent.getEmail()));
-//		Assertions.assertThrows(NullPointerException.class, () -> studentService.finalSubmitContest(savedStudent.getEmail()));
+//	Assertions.assertThrows(RecordMisMatchedException.class, () -> studentService.finalSubmitContest(savedStudent.getEmail()));
+//	Assertions.assertThrows(NullPointerException.class, () -> studentService.finalSubmitContest(savedStudent.getEmail()));
   }
 
   @Test
@@ -220,7 +222,7 @@ public class StudentServiceTest {
 
   @Test
   public void evaluateStudentTestResultSuccessTest() {
-    String contestId = "633468d1abd43a63776b303b";
+    String contestId = "633468d1abd43a63776b303a";
     final List<StudentFinalResponse> studentFinalResponses = this.studentService.evaluateStudentTestResult(contestId);
     Assertions.assertNotNull(studentFinalResponses);
   }
