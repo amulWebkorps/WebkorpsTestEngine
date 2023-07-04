@@ -1,22 +1,10 @@
 package com.codecompiler.service.impl;
 
 
-import com.codecompiler.dto.*;
-import com.codecompiler.entity.Student;
-import com.codecompiler.entity.StudentTestDetail;
-import com.codecompiler.entity.TestCases;
-import com.codecompiler.exception.StudentNotFoundException;
-import com.codecompiler.repository.StudentRepository;
-import com.codecompiler.repository.StudentTestDetailRepository;
-import com.codecompiler.service.CodeProcessingService;
-import com.codecompiler.service.QuestionService;
-import com.codecompiler.util.CodeProcessingUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-
+import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,10 +14,42 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.stereotype.Service;
+
+import com.codecompiler.dto.CodeDetailsDTO;
+import com.codecompiler.dto.CodeResponseDTO;
+import com.codecompiler.dto.ExecuteAllTestCasesDTO;
+import com.codecompiler.dto.QuestionDetailDTO;
+import com.codecompiler.dto.StudentTestDetailDTO;
+import com.codecompiler.dto.TestCaseDTO;
+import com.codecompiler.entity.Student;
+import com.codecompiler.entity.StudentTestDetail;
+import com.codecompiler.entity.TestCases;
+import com.codecompiler.exception.StudentNotFoundException;
+import com.codecompiler.repository.StudentRepository;
+import com.codecompiler.repository.StudentTestDetailRepository;
+import com.codecompiler.service.CodeProcessingService;
+import com.codecompiler.service.QuestionService;
+import com.codecompiler.util.CodeProcessingUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -76,6 +96,8 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     try {
       pro = Runtime.getRuntime().exec(command, null, new File("src/main/resources/"));
       String message = codeProcessingUtil.getMessagesFromProcessInputStream(pro.getInputStream());
+      if(message=="" || message.isBlank())
+    	  message = codeProcessingUtil.getMessagesFromProcessInputStream(pro.getErrorStream());
       return message;
     } catch (IOException e) {
       log.error("Object is null " + e.getMessage());
@@ -90,7 +112,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
   public StudentTestDetailDTO compileCode(StudentTestDetail studentTestDetail) throws IOException {
     log.info("compileCode(): started");
     StudentTestDetailDTO studentTestDetailDTO = null;
-    String language = studentTestDetail.getCodeLanguage();
+    String language = studentTestDetail.getLanguage();
     String studentId = studentTestDetail.getStudentId();
     List<QuestionDetailDTO> questionDetailsList = studentTestDetail.getQuestionDetails();
     List<QuestionDetailDTO> questionDetailDTOList = new ArrayList<>();
@@ -121,7 +143,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     this.studentTestDetailRepository.save(savedStudentDetails);
 
     studentTestDetailDTO = new StudentTestDetailDTO(studentTestDetail.getStudentId(), studentTestDetail.getContestId(),
-        savedStudentDetails.getCodeLanguage(), savedStudentDetails.getQuestionDetails(), percentage);
+        savedStudentDetails.getLanguage(), savedStudentDetails.getQuestionDetails(), percentage);
 
     log.info("compileCode(): ended");
     return studentTestDetailDTO;
@@ -146,6 +168,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
       List<TestCases> testCases = this.questionService.getTestCase(questionDetailDTO.getQuestionId());
       String interpretationCommand = this.codeProcessingUtil.interpretationCommand(language, studentId, counter);
       String exceptionMessage = executeProcess(interpretationCommand);
+     
       if (!exceptionMessage.isEmpty()) {
         questionDetailDTO.setCompilationMsg(exceptionMessage);
         log.info("compile code :: exception occurred :: " + exceptionMessage);
@@ -168,8 +191,12 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
           ClassLoader cl = new URLClassLoader(urls);
           Class<?> yourClass = cl.loadClass(CLASS_NAME+counter);
           Method method = yourClass.getMethod(METHOD_NAME, String.class);
-          Object programOutput = method.invoke(METHOD_NAME, input);
-          if (outputList.contains(programOutput)) {
+          Object programOutput = method.invoke(METHOD_NAME, input.toString());
+         String result="";
+          
+          if(programOutput!=null)
+        	  result=programOutput+"";
+          if (outputList.contains(result)) {
             testCaseResult.add(true);
             count.incrementAndGet();
           } else {
@@ -184,11 +211,15 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
       //deleting the saved java file & java dot class file after completing program execution
       File savedJavaFile = new File(SAVED_CODE_FILE_PATH + codeFile);
       File savedJavaDotClassFile = new File(SAVED_CODE_FILE_PATH + "Main" + counter + ".class");
-      if (savedJavaFile.delete() && savedJavaDotClassFile.delete()) {
-        log.info(savedJavaFile.getName() + " is successfully deleted");
-      } else {
-        log.info("Failed to delete " + savedJavaFile.getName() + " file");
-      }
+      if(savedJavaDotClassFile.exists()) {
+    	  if (savedJavaFile.delete() && savedJavaDotClassFile.delete()) {
+    	        log.info(savedJavaFile.getName() + " is successfully deleted");
+    	      } else {
+    	        log.info("Failed to delete " + savedJavaFile.getName() + " file");
+    	      }
+      }else
+    	  savedJavaFile.delete();
+     
     } catch (Exception e) {
       log.error("Object is null " + e.getMessage());
       throw new RuntimeException("Something went wrong, Please contact to HR\n" + e.getMessage());
@@ -249,12 +280,12 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     if (savedStudentDetails == null || savedStudentDetails.getId().isBlank()) {
       return studentTestDetailRepository.save(studentTestDetail);
     } else {
-      savedStudentDetails.setQuestionDetails(studentTestDetailsDTO.getQuestionDetails());
+      savedStudentDetails.setQuestionDetails(studentTestDetailsDTO.getQuestionsAndCode());
       return studentTestDetailRepository.save(savedStudentDetails);
     }
   }
 
-  private Object executeStudentCode(ExecuteAllTestCasesDTO executeAllTestCasesDTO) {
+  private Object executeStudentCode(ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IllegalArgumentException, InstantiationException {
     log.info("executeStudentCode() -> started");
     CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
     String language = executeAllTestCasesDTO.getLanguage();
@@ -263,13 +294,13 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
     String compilationCommand = codeProcessingUtil.compilationCommand(language, studentId);
     String compilationMessage = executeProcess(compilationCommand);
-
     if (!compilationMessage.isEmpty()) {
       codeResponseDTO.setComplilationMessage(compilationMessage);
       log.info("runORExecuteAllTestCases code :: compilation error message :: " + compilationMessage);
       return codeResponseDTO;
     }
     String interpretationCommand = codeProcessingUtil.interpretationCommand(language, studentId);
+    System.out.println("INTER COMMAND : "+interpretationCommand);
     if (executeAllTestCasesDTO.getFlag() == 1) {
       codeResponseDTO = executeAllTestCases(questionId, interpretationCommand);
     } else {
@@ -304,11 +335,11 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
       }
     } catch (InterruptedException e) {
       log.error("executeAllTestCases() -> Something went wrong with this message: " + e.getMessage());
-      codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR");
+      codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR\n"+e.getMessage());
       return codeResponseDTO;
     } catch (Exception e) {
       log.error("executeAllTestCases() -> Something went wrong with this message: " + e.getMessage());
-      codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR");
+      codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR\n"+e.getMessage());
       return codeResponseDTO;
     } finally {
       executorService.shutdown();
@@ -320,42 +351,94 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     return codeResponseDTO;
   }
 
-  private Boolean getTestCaseResponse(TestCases testCase, String interpretationCommand) {
+  private Boolean getTestCaseResponse(TestCases testCase, String interpretationCommand) throws IllegalArgumentException, InstantiationException {
     log.info("executeAllTestCases() -> started");
     Boolean testCaseResponse;
     String input = testCase.getInput();
-    String interpretationMessage = executeProcess(interpretationCommand + input);
-    interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
-    if (interpretationMessage.contains(testCase.getOutput())
-        || interpretationMessage.equals(testCase.getOutput())) {
-      testCaseResponse = true;
-    } else {
-      testCaseResponse = false;
+    try {
+        //Creating an object of dynamically generated class and testing against testCase input at once
+        File savedJavaFile = new File(SAVED_CODE_FILE_PATH);
+        URL[] urls = new URL[]{new File(String.valueOf(savedJavaFile)).getParentFile().toURI().toURL()};
+        ClassLoader cl = new URLClassLoader(urls);
+        Class<?> yourClass = cl.loadClass(CLASS_NAME);
+        Method method = yourClass.getMethod(METHOD_NAME, String.class);
+        Object programOutput =method.invoke(METHOD_NAME, input+"");
+        
+        String result=String.valueOf(programOutput);
+        if (result.contains(testCase.getOutput()) || result.equalsIgnoreCase(testCase.getOutput())) {
+        	
+        	testCaseResponse=true;
+        } else {
+        	testCaseResponse=false;
+        }
+      } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException |
+               NoSuchMethodException | MalformedURLException e) {
+        throw new RuntimeException(e);
+      }
+    
+    File savedJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+".java");
+    if(savedJavaFile.exists()) {
+  	  if (savedJavaFile.delete()) {
+  	        log.info(savedJavaFile.getName() + " is successfully deleted");
+  	      } else {
+  	        log.info("Failed to delete " + savedJavaFile.getName() + " file");
+  	      }
     }
     log.info("executeAllTestCases() -> end");
     return testCaseResponse;
   }
 
-  private CodeResponseDTO executeSampleTestCase(String questionId, String interpretationCommand) {
+  private CodeResponseDTO executeSampleTestCase(String questionId, String interpretationCommand) throws IllegalArgumentException, InstantiationException {
     log.info("executeSampleTestCase() -> started");
     CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
     ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
     TestCaseDTO testCases = questionService.getSampleTestCase(questionId);
-
-//    String input = sliptInput(testCases.getInput());
     String input = testCases.getInput();
-    String interpretationMessage = executeProcess(interpretationCommand + input);
-    if (interpretationMessage.isBlank()) {
-      codeResponseDTO.setComplilationMessage(interpretationMessage);
-      log.info("runORExecuteAllTestCases code :: exception occured :: " + interpretationMessage);
-      return codeResponseDTO;
-    }
-    interpretationMessage = interpretationMessage.substring(0, interpretationMessage.length() - 1);
-    if (interpretationMessage.contains(testCases.getOutput())
-        || interpretationMessage.equals(testCases.getOutput())) {
-      testCasesSuccess.add(true);
-    } else {
-      testCasesSuccess.add(false);
+    ClassLoader cl =null;
+    try {
+        //Creating an object of dynamically generated class and testing against testCase input at once
+//        File savedJavaFile = new File(SAVED_CODE_FILE_PATH);
+//        URL[] urls = new URL[]{new File(String.valueOf(savedJavaFile)).getParentFile().toURI().toURL()};
+//        cl = new URLClassLoader(urls);
+//        Class<?> yourClass = cl.loadClass(CLASS_NAME);
+//        Method method = yourClass.getMethod(METHOD_NAME, String.class);
+//        Object programOutput =method.invoke(CLASS_NAME, input+"");
+    	
+    	String filePath = SAVED_CODE_FILE_PATH+"Main.java";
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Process each line of the file
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    	Class<?> yourClass = Class.forName(CLASS_NAME);
+        Method method = yourClass.getMethod(METHOD_NAME, String.class);
+        Object programOutput = method.invoke(yourClass.getDeclaredConstructor().newInstance(), input);
+        yourClass=null;
+        
+        String result=String.valueOf(programOutput);
+        System.out.println("RESULT : "+result);
+        System.out.println("OUTPIT : "+programOutput);
+        System.out.println("TEST : "+input+"======"+testCases.getOutput());
+        if (result.equalsIgnoreCase(testCases.getOutput())) {
+        	testCasesSuccess.add(true);
+        } else {
+        	testCasesSuccess.add(false);
+        }
+      } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException |
+               NoSuchMethodException e) {
+        throw new RuntimeException(e);
+      }
+    File savedJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+".java");
+    if(savedJavaFile.exists()) {
+  	  if (savedJavaFile.delete()) {
+  	        log.info(savedJavaFile.getName() + " is successfully deleted");
+  	      } else {
+  	        log.info("Failed to delete " + savedJavaFile.getName() + " file");
+  	      }
     }
     codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
     log.info("executeSampleTestCase() -> end");
@@ -420,4 +503,21 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
     return this.studentTestDetailRepository.save(savedStudentDetail);
   }
+  private static int counter1 = 0;
+  private static String[] array = new String[5];
+  private static void resetProjectState() {
+      // Reset variables
+      counter1 = 0;
+      Arrays.fill(array, null);
+  }
+
+  private static void refreshProject() {
+      // Reinitialize variables
+      counter1 = 0;
+      Arrays.fill(array, null);
+
+      List<String> list = new ArrayList<>();
+      list.clear();
+  }
 }
+

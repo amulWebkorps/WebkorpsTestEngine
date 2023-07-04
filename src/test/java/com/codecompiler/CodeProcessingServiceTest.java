@@ -97,8 +97,8 @@ public class CodeProcessingServiceTest {
 // preparing StudentTestDetailDTO
     studentTestDetailDTO.setStudentId("4150cb93-7973-4996-ad68-d5cc85debef4");
     studentTestDetailDTO.setContestId("633468d1abd43a63776b303b");
-    studentTestDetailDTO.setCodeLanguage("Java");
-    studentTestDetailDTO.setQuestionDetails(questionDetailDTOS);
+//    studentTestDetailDTO.setCodeLanguage("Java");
+//    studentTestDetailDTO.setQuestionDetails(questionDetailDTOS);
   }
 
   @Test

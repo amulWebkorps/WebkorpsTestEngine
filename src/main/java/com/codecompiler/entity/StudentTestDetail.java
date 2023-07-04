@@ -19,7 +19,7 @@ public class StudentTestDetail {
   private String id;
   private String studentId;
   private String contestId;
-  private String codeLanguage;
+  private String language;
 
 //  private String code;
   private List<QuestionDetailDTO> questionDetails;
@@ -34,7 +34,7 @@ public class StudentTestDetail {
     this.studentId = studentId;
     this.questionDetails = questionDetails;
     this.contestId = contestId;
-    this.codeLanguage = codeLanguage;
+    this.language = codeLanguage;
     this.testSubmissionDate = testSubmissionDate;
   }
 

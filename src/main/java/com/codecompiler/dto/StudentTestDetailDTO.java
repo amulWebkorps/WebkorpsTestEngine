@@ -19,9 +19,10 @@ public class StudentTestDetailDTO extends User {
 
   private String code;
 
-  private String codeLanguage;
+  private String language;
 
-  private List<QuestionDetailDTO> questionDetails;
+  private List<QuestionDetailDTO> questionsAndCode
+;
 
   private Double studentPercentage;
 
@@ -30,26 +31,26 @@ public class StudentTestDetailDTO extends User {
   public StudentTestDetailDTO(String studentId, String contestId, String codeLanguage, List<QuestionDetailDTO> questionDetails) {
     this.studentId = studentId;
     this.contestId = contestId;
-    this.codeLanguage = codeLanguage;
-    this.questionDetails = questionDetails;
+    this.language = codeLanguage;
+    this.questionsAndCode = questionDetails;
   }
 
   public StudentTestDetailDTO(String studentId, String contestId, String codeLanguage, List<QuestionDetailDTO> questionDetails,
                               Double studentPercentage) {
     this.studentId = studentId;
     this.contestId = contestId;
-    this.codeLanguage = codeLanguage;
-    this.questionDetails = questionDetails;
+    this.language = codeLanguage;
+    this.questionsAndCode = questionDetails;
     this.studentPercentage = studentPercentage;
   }
 
   public StudentTestDetail prepareStudentObj(StudentTestDetailDTO studentTestDetailsDTO) {
     return new StudentTestDetail(studentTestDetailsDTO.getStudentId(), studentTestDetailsDTO.getContestId(),
-        studentTestDetailsDTO.getCodeLanguage(), LocalDateTime.now(), studentTestDetailsDTO.getQuestionDetails());
+        studentTestDetailsDTO.getLanguage(), LocalDateTime.now(), studentTestDetailsDTO.getQuestionsAndCode());
   }
 
   public StudentTestDetailDTO prepareStudentObj(StudentTestDetail studentTestDetails) {
     return new StudentTestDetailDTO(studentTestDetails.getStudentId(), studentTestDetails.getContestId(),
-        studentTestDetails.getCodeLanguage(), studentTestDetails.getQuestionDetails());
+        studentTestDetails.getLanguage(), studentTestDetails.getQuestionDetails());
   }
 }

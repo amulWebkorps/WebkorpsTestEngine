@@ -378,17 +378,18 @@ public class StudentServiceImpl implements StudentService {
 
 	    log.info("findByContestId:: has started with contestId: " + contestId);
 	    List<StudentTestDetail> students = studentTestDetailRepository.findByContestId(contestId);
-	    if (students == null || students.size() == 0) {
-	      throw new RecordNotFoundException("No Student Found in Contest with id ::" + contestId);
-	    }
 	    
 	    List<ParticipantDTO> studentResult = students.stream().map(student -> {
+	    	System.err.println("ID : "+student.getStudentId());
 	        Student s = studentRepository.findById(student.getStudentId());
+	        System.out.println("STUDENT : "+s);
 	        ParticipantDTO participant = new ParticipantDTO();
-	        participant.setEmail(s.getEmail());
-	        participant.setPercentage(student.getPercentage());
-	        participant.setStatus(s.getStatus());
-	        participant.setId(s.getId());
+	        if(s!=null) {
+		        participant.setEmail(s.getEmail());
+		        participant.setPercentage(student.getPercentage());
+		        participant.setStatus(s.getStatus());
+		        participant.setId(s.getId());
+	        }
 	        return participant;
 	    }).collect(Collectors.toList());
 	    
