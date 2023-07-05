@@ -23,6 +23,26 @@ public class Question implements Serializable{
 	private List<TestCaseDTO> sampleTestCase;
 	private List<TestCases> testcases;
 	private String createdDate;
+	private String sampleCode;
+	private String questionType;
+	
+	
+
+	public String getQuestionType() {
+		return questionType;
+	}
+
+	public void setQuestionType(String questionType) {
+		this.questionType = questionType;
+	}
+
+	public String getSampleCode() {
+		return sampleCode;
+	}
+
+	public void setSampleCode(String sampleCode) {
+		this.sampleCode = sampleCode;
+	}
 
 	public Question() {
 		super();
@@ -89,6 +109,13 @@ public class Question implements Serializable{
 	public String toString() {
 		return "Question [questionId=" + questionId + ", question=" + question + ", contestLevel=" + contestLevel
 				+ ", questionStatus=" + questionStatus + ", sampleTestCase=" + sampleTestCase + ", testcases="
-				+ testcases + ", createdDate=" + createdDate + "]";
+				+ testcases + ", createdDate=" + createdDate + ", sampleCode=" + sampleCode + ", getSampleCode()="
+				+ getSampleCode() + ", getQuestionStatus()=" + getQuestionStatus() + ", getQuestionId()="
+				+ getQuestionId() + ", getQuestion()=" + getQuestion() + ", getContestLevel()=" + getContestLevel()
+				+ ", getSampleTestCase()=" + getSampleTestCase() + ", getTestcases()=" + getTestcases()
+				+ ", getCreatedDate()=" + getCreatedDate() + ", getClass()=" + getClass() + ", hashCode()=" + hashCode()
+				+ ", toString()=" + super.toString() + "]";
 	}
+
+	
 }

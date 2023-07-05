@@ -123,7 +123,8 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				question.setTestcases(listTestCases);
 				question.setSampleTestCase(ListSampleTestCase);
 				question.setCreatedDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
-
+				question.setSampleCode(row.get(5).getContent());
+				question.setQuestionType(row.get(6).getContent());
 				Question result = listOfQuestions.stream()
 						.filter(obj -> obj.getQuestion().equals(question.getQuestion())).findFirst().orElse(null);
 

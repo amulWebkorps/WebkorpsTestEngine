@@ -71,7 +71,7 @@ public class CodeProcessingUtil {
     String fileNameInLocal = null;
     if (language.equalsIgnoreCase("java")) {
       fileNameInLocal = "Main" + counter + ".java";
-      fl = new FileWriter("src/main/resources/" + fileNameInLocal);
+      fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
     } else if (language.equalsIgnoreCase("python")) {
       fileNameInLocal = "python" + studentId + ".py";
       fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);

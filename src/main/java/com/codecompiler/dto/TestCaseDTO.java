@@ -23,6 +23,13 @@ public class TestCaseDTO implements Serializable {
 	private String complilationMessage;
 	private ArrayList<Boolean> testCasesSuccess;
 	private String fileName;
+	private String questionType;
+	public String getQuestionType() {
+		return questionType;
+	}
+	public void setQuestionType(String questionType) {
+		this.questionType = questionType;
+	}
 	public String getConstraints() {
 		return constraints;
 	}
