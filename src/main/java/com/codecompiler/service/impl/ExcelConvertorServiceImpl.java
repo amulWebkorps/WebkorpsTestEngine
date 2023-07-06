@@ -101,7 +101,7 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				sampleTestCases.setConstraints(row.get(2).getContent());
 				sampleTestCases.setInput(row.get(3).getContent());
 				sampleTestCases.setOutput(row.get(4).getContent());
-				for (int k = 5; k < headerRow.size(); k++) {
+				for (int k = 7; k < headerRow.size(); k++) {
 					if (row.get(k).getContent() != "") {
 						int flag = 0;
 						if (k % 2 != 0) {
