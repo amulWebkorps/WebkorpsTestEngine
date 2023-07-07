@@ -39,10 +39,12 @@ import com.codecompiler.dto.ExecuteAllTestCasesDTO;
 import com.codecompiler.dto.QuestionDetailDTO;
 import com.codecompiler.dto.StudentTestDetailDTO;
 import com.codecompiler.dto.TestCaseDTO;
+import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.StudentTestDetail;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.exception.StudentNotFoundException;
+import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.repository.StudentTestDetailRepository;
 import com.codecompiler.service.CodeProcessingService;
@@ -60,6 +62,9 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
   private static final String METHOD_NAME = "writeCode";
   @Autowired
   private StudentRepository studentRepository;
+  
+  @Autowired
+  private QuestionRepository questionRepository;
 
   @Autowired
   private QuestionService questionService;
@@ -132,20 +137,23 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     for (QuestionDetailDTO questionDetailDTO : questionDetailsList) {
-      Future<QuestionDetailDTO> testCaseSuccessFutureResult = executorService.submit(new Callable<QuestionDetailDTO>() {
-        public QuestionDetailDTO call() throws Exception {
-          return testCaseSuccessCount(questionDetailDTO, language, studentId);
-        }
-      });
+	      Future<QuestionDetailDTO> testCaseSuccessFutureResult = executorService.submit(new Callable<QuestionDetailDTO>() {
+	        public QuestionDetailDTO call() throws Exception {
+	          return testCaseSuccessCount(questionDetailDTO, language, studentId);
+	        }
+	      });
+    	
 
-      try {
-        QuestionDetailDTO updatedQuestionDetailDTO = testCaseSuccessFutureResult.get();
-        count += updatedQuestionDetailDTO.getCount();
-        questionDetailDTOList.add(updatedQuestionDetailDTO);
-      } catch (InterruptedException | ExecutionException e) {
-        throw new RuntimeException("Something went wrong, Please contact to HR\n" + e.getMessage());
-      }
-    }
+	      try {
+	    	  
+	        QuestionDetailDTO updatedQuestionDetailDTO = testCaseSuccessFutureResult.get();
+	        count += updatedQuestionDetailDTO.getCount();
+	        questionDetailDTOList.add(updatedQuestionDetailDTO);
+	      } catch (InterruptedException | ExecutionException e) {
+	        throw new RuntimeException("Something went wrong, Please contact to HR\n" + e.getMessage());
+	      }
+	    }
+    
     percentage = generatePercentage(questionDetailsList, count);
     StudentTestDetail savedStudentDetails = this.studentTestDetailRepository.findByStudentId(studentId);
     savedStudentDetails.setCount(count);
@@ -167,7 +175,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     String code = questionDetailDTO.getCode();
     counter = ++counter;
 //    code.insert(37, counter);
-    String result = code.replace("Main", CLASS_NAME+ ++counterForTempSaveCode);
+    String result = code.replace("Main", CLASS_NAME+ counter);
     try {
       String codeFile = this.codeProcessingUtil.saveCodeTemporary(String.valueOf(result), language, studentId, counter);
       String compilationCommand = this.codeProcessingUtil.compilationCommand(language, studentId, counter);
@@ -177,16 +185,10 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
         log.info("compile code :: compilation error :: " + compilationMessage);
         return questionDetailDTO;
       }
-      List<TestCases> testCases = this.questionService.getTestCase(questionDetailDTO.getQuestionId());
-      String interpretationCommand = this.codeProcessingUtil.interpretationCommand(language, studentId, counter);
-      String exceptionMessage = executeProcess(interpretationCommand);
-     
-      if (!exceptionMessage.isEmpty()) {
-        questionDetailDTO.setCompilationMsg(exceptionMessage);
-        log.info("compile code :: exception occurred :: " + exceptionMessage);
-        return questionDetailDTO;
-      }
-
+//      List<TestCases> testCases = this.questionService.getTestCase(questionDetailDTO.getQuestionId());
+      Question questions = questionRepository.findByQuestionId(questionDetailDTO.getQuestionId());
+      List<TestCases> testCases = questions.getTestcases();
+      String questionType=questions.getQuestionType();
       //preparing command line argument
       List<String> inputList = new ArrayList<>();
       List<String> outputList = new ArrayList<>();
@@ -194,43 +196,82 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
         inputList.add(testCases1.getInput());
         outputList.add(testCases1.getOutput());
       });
+      String interpretationCommand = this.codeProcessingUtil.interpretationCommand(language, studentId, counter);
+      for(int i=0;i<inputList.size();i++) {
+    	  String input=inputList.get(i);
+    	  try {
+          	
+          	if(questionType.equalsIgnoreCase("Array")) {
+              	Pattern keyValuePattern = Pattern.compile("([^=,]+)=([^=,]+)");
+              	Matcher keyValueMatcher = keyValuePattern.matcher(input);
+              	while (keyValueMatcher.find()) {
+              	    String value = keyValueMatcher.group(2);
 
-      inputList.forEach(input -> {
-        try {
-          //Creating an object of dynamically generated class and testing against testCase input at once
-          File savedJavaFile = new File(CODE_FILE_PATH);
-          URL[] urls = new URL[]{new File(String.valueOf(savedJavaFile)).getParentFile().toURI().toURL()};
-          ClassLoader cl = new URLClassLoader(urls);
-          Class<?> yourClass = cl.loadClass(CLASS_NAME+counter);
-          Method method = yourClass.getMethod(METHOD_NAME, String.class);
-          Object programOutput = method.invoke(METHOD_NAME, input.toString());
-          String result1="";
-          
-          if(programOutput!=null)
-        	  result1=programOutput+"";
-          if (outputList.contains(result)) {
-            testCaseResult.add(true);
-            count.incrementAndGet();
-          } else {
-            testCaseResult.add(false);
+              	    if (value.startsWith("[") && value.endsWith("]")) {
+              	        // Extract array values
+              	        String[] stringArray = value.substring(1, value.length() - 1).split("/");
+              	        int[] intArray = new int[stringArray.length];
+              	        for (int j = 0; j < stringArray.length; j++) {
+              	            intArray[j] = Integer.parseInt(stringArray[j]);
+              	        }
+              	        String arr="[";
+              	        for(int j=0;j<intArray.length-1;j++)
+              	        	arr=arr+intArray[j]+",";
+              	        arr=arr+intArray[intArray.length-1]+"]";
+              	        interpretationCommand=interpretationCommand+" "+arr;
+              	    } else {
+              	        // Treat value as integer
+              	        int intValue = Integer.parseInt(value);
+              	        interpretationCommand=interpretationCommand+" "+intValue;
+              	    }
+              	}
+              }else if(questionType.equalsIgnoreCase("String")) {
+              	String[] parts = input.split(",");
+          		for (String part : parts) {
+              	    String[] keyValue = part.split("=");
+              	    if (keyValue.length == 2) {
+              	        String value = keyValue[1];
+              	        interpretationCommand=interpretationCommand+" "+value;
+              	    }else if (keyValue.length==1) {
+              	    	String value = keyValue[0];
+              	        interpretationCommand=interpretationCommand+" "+value;
+          			}
+              	}
+              	
+              }
+              String interpritionMessage = executeProcess(interpretationCommand);
+              if (interpritionMessage.isEmpty()) {
+                questionDetailDTO.setCompilationMsg(interpritionMessage);
+                log.info("compile code :: exception occurred :: " + interpritionMessage);
+                return questionDetailDTO;
+              }
+              
+            if (outputList.get(i).equals(interpritionMessage)) {
+              testCaseResult.add(true);
+              count.incrementAndGet();
+            } else {
+              testCaseResult.add(false);
+            }
+          } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
           }
-        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException |
-                 NoSuchMethodException | MalformedURLException e) {
-          throw new RuntimeException(e);
-        }
-      });
+      }
 
       //deleting the saved java file & java dot class file after completing program execution
-      File savedJavaFile = new File(SAVED_CODE_FILE_PATH + codeFile);
-      File savedJavaDotClassFile = new File(SAVED_CODE_FILE_PATH + "Main" + counter + ".class");
-      if(savedJavaDotClassFile.exists()) {
-    	  if (savedJavaFile.delete() && savedJavaDotClassFile.delete()) {
-    	        log.info(savedJavaFile.getName() + " is successfully deleted");
-    	      } else {
-    	        log.info("Failed to delete " + savedJavaFile.getName() + " file");
-    	      }
-      }else
-    	  savedJavaFile.delete();
+      File savedJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+counter+".java");
+	   if(savedJavaFile.exists()) {
+		  	 if (savedJavaFile.delete()) 
+		  		 log.info(savedJavaFile.getName() + " is successfully deleted");
+		  	 else
+		  	     log.info("Failed to delete " + savedJavaFile.getName() + " file");
+	   }
+	   File savedClassJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+counter+".class");
+	   if(savedClassJavaFile.exists()) {
+		  	 if (savedClassJavaFile.delete()) 
+		  		 log.info(savedJavaFile.getName() + " is successfully deleted");
+		  	 else
+		  	     log.info("Failed to delete " + savedClassJavaFile.getName() + " file");
+	   }
      
     } catch (Exception e) {
       log.error("Object is null " + e.getMessage());
@@ -406,7 +447,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     	        for(int i=0;i<intArray.length-1;i++)
     	        	arr=arr+intArray[i]+",";
     	        arr=arr+intArray[intArray.length-1]+"]";
-    	        System.out.println("ARRAY : "+arr);
     	        interpretationCommand=interpretationCommand+" "+arr;
     	    } else {
     	        // Treat value as integer
@@ -429,8 +469,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     	}
     	
     }
-    System.out.println("INPUT : "+testCase.getInput());
-    System.out.println("OUTPUT : "+testCase.getOutput());
     String interprationMessage = executeProcess(interpretationCommand);
     if (interprationMessage.isEmpty()) {
  	   codeResponseDTO.setComplilationMessage(interprationMessage);
@@ -541,9 +579,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     	}
     	
     }
-    System.out.println("COMMAND : "+interpretationCommand);
     String interprationMessage = executeProcess(interpretationCommand);
-    System.out.println("MESSAGE : "+interprationMessage);
     if (interprationMessage.isEmpty()) {
  	   codeResponseDTO.setComplilationMessage(interprationMessage);
  	   log.info("runORExecuteAllTestCases code :: compilation error message :: " + interprationMessage);
@@ -561,6 +597,8 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
  		  	 else
  		  	     log.info("Failed to delete " + savedClassJavaFile.getName() + " file");
  	   }
+ 	   testCasesSuccess.add(false);
+ 	   codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
  	   return codeResponseDTO;
  	}
     if(interprationMessage.equals(testCases.getOutput()))

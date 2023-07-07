@@ -345,6 +345,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
+    List<StudentFinalResponse> ans=new ArrayList<StudentFinalResponse>();
     for (StudentTestDetail studentTestDetail : participatedStudents) {
       StudentFinalResponse studentFinalResponse = new StudentFinalResponse();
       Future<StudentTestDetailDTO> studentTestDetailFutureResult = executorService
@@ -360,14 +361,14 @@ public class StudentServiceImpl implements StudentService {
         studentFinalResponse.setStudentPercentage(updatedStudentTestDetail.getStudentPercentage());
         Student student = this.studentRepository.findById(updatedStudentTestDetail.getStudentId());
         studentFinalResponse.setStudentEmail(student.getEmail());
-        studentsFinalResponse.add(studentFinalResponse);
+        ans.add(studentFinalResponse);
       } catch (InterruptedException | ExecutionException e) {
         throw new RuntimeException("Something went wrong, Please contact to HR " + e.getMessage());
       }
     }
     executorService.shutdownNow();
     log.info("evaluateStudentTestResult() :: has been ended with studentDetails" + studentsFinalResponse.size());
-    return studentsFinalResponse;
+    return ans;
   }
   
   public List<ParticipantDTO> findByContestIdForProgramming(String contestId){

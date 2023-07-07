@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
@@ -172,6 +174,107 @@ public class ContestServiceImpl implements ContestService {
 		Language language = languageService.findByLanguage(selectlanguage);
 		Contest contestTime = this.findByContestId(contestId);
 		List<Question> contestQuestionsList = getAllQuestion(contestId, studentId);
+		
+		for(int i=0;i<contestQuestionsList.size();i++) {
+			String result="";
+			String input=contestQuestionsList.get(i).getSampleTestCase().get(0).getInput();
+			if(contestQuestionsList.get(i).getQuestionType().equalsIgnoreCase("Array")) {
+				if(contestQuestionsList.get(i).getQuestionType().equalsIgnoreCase("Array")) {
+	              	Pattern keyValuePattern = Pattern.compile("([^=,]+)=([^=,]+)");
+	              	Matcher keyValueMatcher = keyValuePattern.matcher(input);
+	              	
+	              	while (keyValueMatcher.find()) {
+	              	    String value = keyValueMatcher.group(2);
+	              	    String key= keyValueMatcher.group(1);
+//	              	    String key="a";
+	              	    if (value.startsWith("[") && value.endsWith("]")) {
+	              	        // Extract array values
+	              	        String[] stringArray = value.substring(1, value.length() - 1).split("/");
+	              	        int[] intArray = new int[stringArray.length];
+	              	        for (int k = 0; k < stringArray.length; k++) {
+	              	            intArray[k] = Integer.parseInt(stringArray[k]);
+	              	        }
+	              	        String arr="[";
+	              	        for(int k=0;k<intArray.length-1;k++)
+	              	        	arr=arr+intArray[k]+",";
+	              	        arr=arr+intArray[intArray.length-1]+"]";
+	              	      result = result + key + "=" + arr + "\n";
+	              	    } else {
+	              	        // Treat value as integer
+	              	        int intValue = Integer.parseInt(value);
+	              	      result = result + key + "=" + intValue + "\n";
+	              	    }
+	              	}
+	              }else if(contestQuestionsList.get(i).getQuestionType().equalsIgnoreCase("String")) {
+	              	String[] parts = input.split(",");
+	          		for (String part : parts) {
+	              	    String[] keyValue = part.split("=");
+	              	    if (keyValue.length == 2) {
+	              	        String value = keyValue[1];
+	              	        String key = keyValue[0];
+	              	      result = result+key+"=" + value + "\n";
+	              	    }else if (keyValue.length==1) {
+	              	    	String key = "a";
+	              	    	String value = keyValue[0];
+	              	    	result = result +key+ "=" + value + "\n";
+	          			}
+	              	}
+	              	
+	              }
+				contestQuestionsList.get(i).getSampleTestCase().get(0).setInput(result);
+			}
+		}
+		
+		for(int i=0;contestQuestionsList.size()>i;i++) {
+			for(int j=0;j<contestQuestionsList.get(i).getTestcases().size();j++) {
+				String input=contestQuestionsList.get(i).getTestcases().get(j).getInput();
+				String result="";
+				if(contestQuestionsList.get(i).getQuestionType().equalsIgnoreCase("Array")) {
+	              	Pattern keyValuePattern = Pattern.compile("([^=,]+)=([^=,]+)");
+	              	Matcher keyValueMatcher = keyValuePattern.matcher(input);
+	              	
+	              	while (keyValueMatcher.find()) {
+	              	    String value = keyValueMatcher.group(2);
+	              	    String key= keyValueMatcher.group(1);
+	              	    if (value.startsWith("[") && value.endsWith("]")) {
+	              	        // Extract array values
+	              	        String[] stringArray = value.substring(1, value.length() - 1).split("/");
+	              	        int[] intArray = new int[stringArray.length];
+	              	        for (int k = 0; k < stringArray.length; k++) {
+	              	            intArray[k] = Integer.parseInt(stringArray[k]);
+	              	        }
+	              	        String arr="[";
+	              	        for(int k=0;k<intArray.length-1;k++)
+	              	        	arr=arr+intArray[k]+",";
+	              	        arr=arr+intArray[intArray.length-1]+"]";
+	              	      result = result + key + "=" + arr + "\n";
+	              	    } else {
+	              	        // Treat value as integer
+	              	        int intValue = Integer.parseInt(value);
+	              	      result = result + key + "=" + intValue + "\n";
+	              	    }
+	              	}
+	              }else if(contestQuestionsList.get(i).getQuestionType().equalsIgnoreCase("String")) {
+	              	String[] parts = input.split(",");
+	          		for (String part : parts) {
+	              	    String[] keyValue = part.split("=");
+	              	    if (keyValue.length == 2) {
+	              	        String value = keyValue[1];
+	              	        String key = keyValue[0];
+	              	      result = result+key+"=" + value + "\n";
+	              	    }else if (keyValue.length==1) {
+	              	    	String key = "a";
+	              	    	String value = keyValue[0];
+	              	    	result = result +key+ "=" + value + "\n";
+	          			}
+	              	}
+	              	
+	              }
+				contestQuestionsList.get(i).getTestcases().get(j).setInput(result);
+			}
+			
+		}
+		
 		Map<String, Object> mp = new HashedMap<String, Object>();
 		mp.put("QuestionList", contestQuestionsList);
 		mp.put("languageCode", language);
