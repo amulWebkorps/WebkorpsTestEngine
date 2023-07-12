@@ -23,10 +23,52 @@ public class Question implements Serializable{
 	private List<TestCaseDTO> sampleTestCase;
 	private List<TestCases> testcases;
 	private String createdDate;
-	private String sampleCode;
+	private String cSampleCode;
 	private String questionType;
+	private String javaSampleCode;
+	private String cPlusPluseSampleCode;
+	private String pythonSampleCoe;
+	private String sampleCode;
 	
-	
+	public String getcSampleCode() {
+		return cSampleCode;
+	}
+
+	public void setcSampleCode(String cSampleCode) {
+		this.cSampleCode = cSampleCode;
+	}
+
+	public String getSampleCode() {
+		return sampleCode;
+	}
+
+	public void setSampleCode(String sampleCode) {
+		this.sampleCode = sampleCode;
+	}
+
+	public String getJavaSampleCode() {
+		return javaSampleCode;
+	}
+
+	public void setJavaSampleCode(String javaSampleCode) {
+		this.javaSampleCode = javaSampleCode;
+	}
+
+	public String getcPlusPluseSampleCode() {
+		return cPlusPluseSampleCode;
+	}
+
+	public void setcPlusPluseSampleCode(String cPlusPluseSampleCode) {
+		this.cPlusPluseSampleCode = cPlusPluseSampleCode;
+	}
+
+	public String getPythonSampleCoe() {
+		return pythonSampleCoe;
+	}
+
+	public void setPythonSampleCoe(String pythonSampleCoe) {
+		this.pythonSampleCoe = pythonSampleCoe;
+	}
 
 	public String getQuestionType() {
 		return questionType;
@@ -36,12 +78,12 @@ public class Question implements Serializable{
 		this.questionType = questionType;
 	}
 
-	public String getSampleCode() {
-		return sampleCode;
+	public String getCSampleCode() {
+		return cSampleCode;
 	}
 
-	public void setSampleCode(String sampleCode) {
-		this.sampleCode = sampleCode;
+	public void setCSampleCode(String sampleCode) {
+		this.cSampleCode = sampleCode;
 	}
 
 	public Question() {
@@ -109,8 +151,8 @@ public class Question implements Serializable{
 	public String toString() {
 		return "Question [questionId=" + questionId + ", question=" + question + ", contestLevel=" + contestLevel
 				+ ", questionStatus=" + questionStatus + ", sampleTestCase=" + sampleTestCase + ", testcases="
-				+ testcases + ", createdDate=" + createdDate + ", sampleCode=" + sampleCode + ", getSampleCode()="
-				+ getSampleCode() + ", getQuestionStatus()=" + getQuestionStatus() + ", getQuestionId()="
+				+ testcases + ", createdDate=" + createdDate + ", getSampleCode()="
+				+ ", getQuestionStatus()=" + getQuestionStatus() + ", getQuestionId()="
 				+ getQuestionId() + ", getQuestion()=" + getQuestion() + ", getContestLevel()=" + getContestLevel()
 				+ ", getSampleTestCase()=" + getSampleTestCase() + ", getTestcases()=" + getTestcases()
 				+ ", getCreatedDate()=" + getCreatedDate() + ", getClass()=" + getClass() + ", hashCode()=" + hashCode()

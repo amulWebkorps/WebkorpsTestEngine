@@ -101,10 +101,10 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				sampleTestCases.setConstraints(row.get(2).getContent());
 				sampleTestCases.setInput(row.get(3).getContent());
 				sampleTestCases.setOutput(row.get(4).getContent());
-				for (int k = 7; k < headerRow.size(); k++) {
+				for (int k = 10; k < headerRow.size(); k++) {
 					if (row.get(k).getContent() != "") {
 						int flag = 0;
-						if (k % 2 != 0) {
+						if (k % 2 != 1) {
 							testCases.setInput(row.get(k).getContent());
 							flag = 1;
 						} else {
@@ -123,8 +123,11 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 				question.setTestcases(listTestCases);
 				question.setSampleTestCase(ListSampleTestCase);
 				question.setCreatedDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
-				question.setSampleCode(row.get(5).getContent());
-				question.setQuestionType(row.get(6).getContent());
+				question.setJavaSampleCode(row.get(5).getContent());
+				question.setCSampleCode(row.get(6).getContent());
+				question.setcPlusPluseSampleCode(row.get(7).getContent());
+				question.setPythonSampleCoe(row.get(8).getContent());
+				question.setQuestionType(row.get(9).getContent());
 				Question result = listOfQuestions.stream()
 						.filter(obj -> obj.getQuestion().equals(question.getQuestion())).findFirst().orElse(null);
 

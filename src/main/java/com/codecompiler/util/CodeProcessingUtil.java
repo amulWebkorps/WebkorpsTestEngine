@@ -28,11 +28,11 @@ public class CodeProcessingUtil {
     if (language.equalsIgnoreCase("java")) {
       command = "javac Main" + counter + ".java";
     } else if (language.equalsIgnoreCase("python")) {
-      command = "src/main/resources/temp/python" + studentId + ".py";
+      command = "python Main" + counter + ".py";
     } else if (language.equalsIgnoreCase("cpp")) {
-      command = "g++ cpp" + studentId + ".cpp -o cpp" + studentId;
+      command = "g++ Main" + counter + ".cpp -o Main" + counter;
     } else if (language.equalsIgnoreCase("c")) {
-      command = "gcc c" + studentId + ".c -o c" + studentId;
+      command = "gcc Main" + counter + ".c -o Main"+counter;
     }
     return command;
   }
@@ -42,11 +42,11 @@ public class CodeProcessingUtil {
     if (language.equalsIgnoreCase("java")) {
       command = "java Main" + counter + " ";
     } else if (language.equalsIgnoreCase("python")) {
-      command = "py python" + studentId + ".py ";
+      command = "py Main" + counter + ".py ";
     } else if (language.equalsIgnoreCase("cpp")) {
-      command = "src/main/resources/temp/" + "exeofCPP ";
+      command = "src/main/resources/temp/" + "Main"+counter+".exe";
     } else if (language.equalsIgnoreCase("c")) {
-      command = "src/main/resources/temp/exeofc ";
+      command = "src/main/resources/temp/Main"+counter+".exe";
     }
     return command;
   }
@@ -73,13 +73,13 @@ public class CodeProcessingUtil {
       fileNameInLocal = "Main" + counter + ".java";
       fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
     } else if (language.equalsIgnoreCase("python")) {
-      fileNameInLocal = "python" + studentId + ".py";
+      fileNameInLocal = "Main" + counter + ".py";
       fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
     } else if (language.equalsIgnoreCase("cpp")) {
-      fileNameInLocal = "cpp" + studentId + ".cpp";
+      fileNameInLocal = "Main" + counter + ".cpp";
       fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
     } else if (language.equalsIgnoreCase("c")) {
-      fileNameInLocal = "c" + studentId + ".c";
+      fileNameInLocal = "Main" + counter + ".c";
       fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
     }
     PrintWriter pr = new PrintWriter(fl);

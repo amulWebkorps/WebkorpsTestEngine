@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
@@ -175,6 +176,27 @@ public class ContestServiceImpl implements ContestService {
 		Contest contestTime = this.findByContestId(contestId);
 		List<Question> contestQuestionsList = getAllQuestion(contestId, studentId);
 		
+		if(selectlanguage.equalsIgnoreCase("java")) {
+			contestQuestionsList=contestQuestionsList.stream().map(q -> {
+				q.setSampleCode(q.getJavaSampleCode());
+				return q;
+			}).collect(Collectors.toList());
+		}else if(selectlanguage.equalsIgnoreCase("c")) {
+			contestQuestionsList=contestQuestionsList.stream().map(q -> {
+				q.setSampleCode(q.getCSampleCode());
+				return q;
+			}).collect(Collectors.toList());
+		}else if(selectlanguage.equalsIgnoreCase("cpp")) {
+			contestQuestionsList=contestQuestionsList.stream().map(q -> {
+				q.setSampleCode(q.getcPlusPluseSampleCode());
+				return q;
+			}).collect(Collectors.toList());
+		}else if(selectlanguage.equalsIgnoreCase("Python")) {
+			contestQuestionsList=contestQuestionsList.stream().map(q -> {
+				q.setSampleCode(q.getPythonSampleCoe());
+				return q;
+			}).collect(Collectors.toList());
+		}
 		for(int i=0;i<contestQuestionsList.size();i++) {
 			String result="";
 			String input=contestQuestionsList.get(i).getSampleTestCase().get(0).getInput();
