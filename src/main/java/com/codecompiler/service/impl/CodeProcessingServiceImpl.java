@@ -52,7 +52,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class CodeProcessingServiceImpl implements CodeProcessingService {
-  private static final String SAVED_CODE_FILE_PATH = "src/main/resources/temp/";
+//  private static final String SAVED_CODE_FILE_PATH = "src/main/resources/temp/";
+	private static final String SAVED_CODE_FILE_PATH ="/home/server/SERVERS/Testengine Jar/temp/";
   private static final String CLASS_NAME = "Main";
   @Autowired
   private StudentRepository studentRepository;
@@ -94,7 +95,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	  ProcessBuilder processBuilder = new ProcessBuilder(command.split("\\s+"));
 	  Process pro = processBuilder.start();
     try {
-      pro = Runtime.getRuntime().exec(command, null, new File("src/main/resources/temp/"));
+      pro = Runtime.getRuntime().exec(command, null, new File(SAVED_CODE_FILE_PATH));
       String message = codeProcessingUtil.getMessagesFromProcessInputStream(pro.getInputStream());
       
       int exitCode = pro.waitFor();
@@ -170,6 +171,9 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     counter = ++counter;
 //    code.insert(37, counter);
     String result = code.replace("Main", CLASS_NAME+ counter);
+    if(language.equalsIgnoreCase("java")) {
+    	result = result.replaceAll("Solution", "Solution"+ counter);
+    }
     try {
       String codeFile = this.codeProcessingUtil.saveCodeTemporary(String.valueOf(result), language, studentId, counter);
       String compilationCommand = this.codeProcessingUtil.compilationCommand(language, studentId, counter);
@@ -190,9 +194,10 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
         inputList.add(testCases1.getInput());
         outputList.add(testCases1.getOutput());
       });
-      String interpretationCommand = this.codeProcessingUtil.interpretationCommand(language, studentId, counter);
+      
       for(int i=0;i<inputList.size();i++) {
     	  String input=inputList.get(i);
+    	  String interpretationCommand = this.codeProcessingUtil.interpretationCommand(language, studentId, counter);
     	  try {
           	
           	if(questionType.equalsIgnoreCase("Array")) {
@@ -339,6 +344,10 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     codeProcessingUtil.saveCodeTemporary(result, executeAllTestCasesDTO.getLanguage(),
          executeAllTestCasesDTO.getStudentId(),counterForTempSaveCode);
     
+    if(executeAllTestCasesDTO.getLanguage().equalsIgnoreCase("java")) {
+    	result = result.replaceAll("Solution", "Solution"+ counterForTempSaveCode);
+    }
+    
     codeResponseDTO=javaCodeTestCases(counterForTempSaveCode,executeAllTestCasesDTO.getStudentId(),executeAllTestCasesDTO.getLanguage(),executeAllTestCasesDTO,questionId);
    
     log.info("executeAllTestCases() -> end");
@@ -384,6 +393,9 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     
     //Save Temporary Code
     String result = executeAllTestCasesDTO.getCode().replace("Main", CLASS_NAME+ ++counterForTempSaveCode);
+    if(language.equalsIgnoreCase("java")) {
+    	result = result.replaceAll("Solution", "Solution"+ counterForTempSaveCode);
+    }
     codeProcessingUtil.saveCodeTemporary(result, executeAllTestCasesDTO.getLanguage(),
          executeAllTestCasesDTO.getStudentId(),counterForTempSaveCode);
     
@@ -602,6 +614,13 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	 		  		 log.info(savedJavaFile.getName() + " is successfully deleted");
 	 		  	 else
 	 		  	     log.info("Failed to delete " + savedClassJavaFile.getName() + " file");
+	 	   }
+	 	  File solutionClassJavaFile = new File(SAVED_CODE_FILE_PATH + "Solution"+counterForTempSaveCode+".class");
+	 	   if(solutionClassJavaFile.exists()) {
+	 		  	 if (solutionClassJavaFile.delete()) 
+	 		  		 log.info(solutionClassJavaFile.getName() + " is successfully deleted");
+	 		  	 else
+	 		  	     log.info("Failed to delete " + solutionClassJavaFile.getName() + " file");
 	 	   }
 	  }else if(language.equalsIgnoreCase("c")) {
 		  File savedJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+counterForTempSaveCode+".c");

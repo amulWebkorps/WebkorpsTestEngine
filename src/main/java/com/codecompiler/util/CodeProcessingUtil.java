@@ -8,13 +8,16 @@ import java.io.*;
 @Slf4j
 @Service
 public class CodeProcessingUtil {
+	
+	public static final String PATH="/home/server/SERVERS/Testengine Jar/temp/";
+//	public static final String PATH="src/main/resources/temp/";
 
   public String compilationCommand(String language, String studentId) {
     String command = null;
     if (language.equalsIgnoreCase("java")) {
       command = "javac Main.java";
     } else if (language.equalsIgnoreCase("python")) {
-      command = "src/main/resources/temp/python" + studentId + ".py";
+      command = PATH + studentId + ".py";
     } else if (language.equalsIgnoreCase("cpp")) {
       command = "g++ cpp" + studentId + ".cpp -o cpp" + studentId;
     } else if (language.equalsIgnoreCase("c")) {
@@ -44,9 +47,9 @@ public class CodeProcessingUtil {
     } else if (language.equalsIgnoreCase("python")) {
       command = "py Main" + counter + ".py ";
     } else if (language.equalsIgnoreCase("cpp")) {
-      command = "src/main/resources/temp/" + "Main"+counter+".exe";
+      command = PATH + "Main"+counter+".exe";
     } else if (language.equalsIgnoreCase("c")) {
-      command = "src/main/resources/temp/Main"+counter+".exe";
+      command = PATH+"Main"+counter+".exe";
     }
     return command;
   }
@@ -58,9 +61,9 @@ public class CodeProcessingUtil {
     } else if (language.equalsIgnoreCase("python")) {
       command = "py python" + studentId + ".py ";
     } else if (language.equalsIgnoreCase("cpp")) {
-      command = "src/main/resources/temp/" + "exeofCPP ";
+      command = PATH + "exeofCPP ";
     } else if (language.equalsIgnoreCase("c")) {
-      command = "src/main/resources/temp/exeofc ";
+      command = PATH+"exeofc ";
     }
     return command;
   }
@@ -71,16 +74,16 @@ public class CodeProcessingUtil {
     String fileNameInLocal = null;
     if (language.equalsIgnoreCase("java")) {
       fileNameInLocal = "Main" + counter + ".java";
-      fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
+      fl = new FileWriter(PATH + fileNameInLocal);
     } else if (language.equalsIgnoreCase("python")) {
       fileNameInLocal = "Main" + counter + ".py";
-      fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
+      fl = new FileWriter(PATH+ fileNameInLocal);
     } else if (language.equalsIgnoreCase("cpp")) {
       fileNameInLocal = "Main" + counter + ".cpp";
-      fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
+      fl = new FileWriter(PATH + fileNameInLocal);
     } else if (language.equalsIgnoreCase("c")) {
       fileNameInLocal = "Main" + counter + ".c";
-      fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
+      fl = new FileWriter(PATH+ fileNameInLocal);
     }
     PrintWriter pr = new PrintWriter(fl);
     pr.write(code);
@@ -95,16 +98,16 @@ public class CodeProcessingUtil {
     FileWriter fl = null;
     if (language.equalsIgnoreCase("java")) {
       String fileNameInLocal = "Main.java";
-      fl = new FileWriter("src/main/resources/" + fileNameInLocal);
+      fl = new FileWriter(PATH+ fileNameInLocal);
     } else if (language.equalsIgnoreCase("python")) {
       String fileNameInLocal = "python" + studentId + ".py";
-      fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
+      fl = new FileWriter(PATH+ fileNameInLocal);
     } else if (language.equalsIgnoreCase("cpp")) {
       String fileNameInLocal = "cpp" + studentId + ".cpp";
-      fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
+      fl = new FileWriter(PATH + fileNameInLocal);
     } else if (language.equalsIgnoreCase("c")) {
       String fileNameInLocal = "c" + studentId + ".c";
-      fl = new FileWriter("src/main/resources/temp/" + fileNameInLocal);
+      fl = new FileWriter(PATH+ fileNameInLocal);
     }
     PrintWriter pr = new PrintWriter(fl);
     pr.write(code);
