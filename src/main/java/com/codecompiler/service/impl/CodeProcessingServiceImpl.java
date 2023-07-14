@@ -53,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CodeProcessingServiceImpl implements CodeProcessingService {
 //  private static final String SAVED_CODE_FILE_PATH = "src/main/resources/temp/";
-	private static final String SAVED_CODE_FILE_PATH ="/home/server/SERVERS/Testengine Jar/temp/";
+	private static final String SAVED_CODE_FILE_PATH ="/home/server/SERVERS/TestengineFiles/temp/";
   private static final String CLASS_NAME = "Main";
   @Autowired
   private StudentRepository studentRepository;
@@ -177,7 +177,9 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     try {
       String codeFile = this.codeProcessingUtil.saveCodeTemporary(String.valueOf(result), language, studentId, counter);
       String compilationCommand = this.codeProcessingUtil.compilationCommand(language, studentId, counter);
-      String compilationMessage = this.executeProcess(compilationCommand);
+      String compilationMessage="";
+  		if(!language.equalsIgnoreCase("python"))
+  		compilationMessage = executeProcess(compilationCommand);
       if (!compilationMessage.isEmpty()) {
         questionDetailDTO.setCompilationMsg(compilationMessage);
         log.info("compile code :: compilation error :: " + compilationMessage);
@@ -475,7 +477,9 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
 	CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
 	//Compile Code
 	String compilationCommand = codeProcessingUtil.compilationCommand(language, studentId,counterForTempSaveCode);
-	String compilationMessage = executeProcess(compilationCommand);
+	String compilationMessage="";
+	if(!language.equalsIgnoreCase("python"))
+		compilationMessage = executeProcess(compilationCommand);
 	ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
     TestCaseDTO testCases = questionService.getSampleTestCase(questionId);
 	if (!compilationMessage.isEmpty()) {
@@ -516,7 +520,9 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
   //Compile Code
     
   	String compilationCommand = codeProcessingUtil.compilationCommand(executeAllTestCasesDTO.getLanguage(), executeAllTestCasesDTO.getStudentId(),counterForTempSaveCode);
-  	String compilationMessage = executeProcess(compilationCommand);
+  	String compilationMessage="";
+	if(!language.equalsIgnoreCase("python"))
+		compilationMessage = executeProcess(compilationCommand);
       
   	if (!compilationMessage.isEmpty()) {
   	   codeResponseDTO.setComplilationMessage(compilationMessage);

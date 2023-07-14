@@ -235,8 +235,8 @@ public class StudentServiceImpl implements StudentService {
     List<ParticipantDTO> studentDetails = new ArrayList<ParticipantDTO>();
     for (Student student : students) {
       ParticipantDTO participantDTO = new ParticipantDTO();
-      participantDTO.setEmail(student.getEmail());
-      participantDTO.setPercentage(student.getPercentage());
+      participantDTO.setStudentEmail(student.getEmail());
+      participantDTO.setStudentPercentage(student.getPercentage());
       if (!(student.getFinalMailSent().equals("SuccessFullSent"))) {
         studentDetails.add(participantDTO);
       }
@@ -381,13 +381,11 @@ public class StudentServiceImpl implements StudentService {
 	    List<StudentTestDetail> students = studentTestDetailRepository.findByContestId(contestId);
 	    
 	    List<ParticipantDTO> studentResult = students.stream().map(student -> {
-	    	System.err.println("ID : "+student.getStudentId());
 	        Student s = studentRepository.findById(student.getStudentId());
-	        System.out.println("STUDENT : "+s);
 	        ParticipantDTO participant = new ParticipantDTO();
 	        if(s!=null) {
-		        participant.setEmail(s.getEmail());
-		        participant.setPercentage(student.getPercentage());
+		        participant.setStudentEmail(s.getEmail());
+		        participant.setStudentPercentage(student.getPercentage());
 		        participant.setStatus(s.getStatus());
 		        participant.setId(s.getId());
 	        }
