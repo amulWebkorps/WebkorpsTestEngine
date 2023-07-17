@@ -9,7 +9,8 @@ import java.io.*;
 @Service
 public class CodeProcessingUtil {
 	
-	public static final String PATH="/home/server/SERVERS/Testengine Jar/temp/";
+	public static final String PATH="/home/server/SERVERS/TestengineFiles/temp/";
+	public static final String cAndCPPRunCommand="./Main";
 //	public static final String PATH="src/main/resources/temp/";
 
   public String compilationCommand(String language, String studentId) {
@@ -45,11 +46,11 @@ public class CodeProcessingUtil {
     if (language.equalsIgnoreCase("java")) {
       command = "java Main" + counter + " ";
     } else if (language.equalsIgnoreCase("python")) {
-      command = "py Main" + counter + ".py ";
+      command = "python Main" + counter + ".py ";
     } else if (language.equalsIgnoreCase("cpp")) {
-      command = PATH + "Main"+counter+".exe";
+      command = PATH + cAndCPPRunCommand+counter;
     } else if (language.equalsIgnoreCase("c")) {
-      command = PATH+"Main"+counter+".exe";
+      command = PATH+cAndCPPRunCommand+counter;
     }
     return command;
   }
