@@ -131,34 +131,39 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     int count = 0;
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    for (QuestionDetailDTO questionDetailDTO : questionDetailsList) {
-	      Future<QuestionDetailDTO> testCaseSuccessFutureResult = executorService.submit(new Callable<QuestionDetailDTO>() {
-	        public QuestionDetailDTO call() throws Exception {
-	          return testCaseSuccessCount(questionDetailDTO, language, studentId);
-	        }
-	      });
-    	
+    if(questionDetailsList!=null) {
+    	for (QuestionDetailDTO questionDetailDTO : questionDetailsList) {
+  	      Future<QuestionDetailDTO> testCaseSuccessFutureResult = executorService.submit(new Callable<QuestionDetailDTO>() {
+  	        public QuestionDetailDTO call() throws Exception {
+  	          return testCaseSuccessCount(questionDetailDTO, language, studentId);
+  	        }
+  	      });
+      	
 
-	      try {
-	    	  
-	        QuestionDetailDTO updatedQuestionDetailDTO = testCaseSuccessFutureResult.get();
-	        count += updatedQuestionDetailDTO.getCount();
-	        questionDetailDTOList.add(updatedQuestionDetailDTO);
-	      } catch (InterruptedException | ExecutionException e) {
-	        throw new RuntimeException("Something went wrong, Please contact to HR\n" + e.getMessage());
-	      }
-	    }
-    
-    percentage = generatePercentage(questionDetailsList, count);
-    StudentTestDetail savedStudentDetails = this.studentTestDetailRepository.findByStudentId(studentId);
-    savedStudentDetails.setCount(count);
-    savedStudentDetails.setPercentage(percentage);
-    savedStudentDetails.setQuestionDetails(questionDetailDTOList);
-    this.studentTestDetailRepository.save(savedStudentDetails);
+  	      try {
+  	    	  
+  	        QuestionDetailDTO updatedQuestionDetailDTO = testCaseSuccessFutureResult.get();
+  	        count += updatedQuestionDetailDTO.getCount();
+  	        questionDetailDTOList.add(updatedQuestionDetailDTO);
+  	      } catch (InterruptedException | ExecutionException e) {
+  	        throw new RuntimeException("Something went wrong, Please contact to HR\n" + e.getMessage());
+  	      }
+  	    }
+      
+      percentage = generatePercentage(questionDetailsList, count);
+      StudentTestDetail savedStudentDetails = this.studentTestDetailRepository.findByStudentId(studentId);
+      savedStudentDetails.setCount(count);
+      savedStudentDetails.setPercentage(percentage);
+      savedStudentDetails.setQuestionDetails(questionDetailDTOList);
+      this.studentTestDetailRepository.save(savedStudentDetails);
 
-    studentTestDetailDTO = new StudentTestDetailDTO(studentTestDetail.getStudentId(), studentTestDetail.getContestId(),
-        savedStudentDetails.getLanguage(), savedStudentDetails.getQuestionDetails(), percentage);
-
+      studentTestDetailDTO = new StudentTestDetailDTO(studentTestDetail.getStudentId(), studentTestDetail.getContestId(),
+          savedStudentDetails.getLanguage(), savedStudentDetails.getQuestionDetails(), percentage);
+    }else {
+    	studentTestDetailDTO=new StudentTestDetailDTO();
+    	studentTestDetailDTO.setStudentId(studentId);
+    	studentTestDetailDTO.setStudentPercentage(0.0);
+    }
     log.info("compileCode(): ended");
     return studentTestDetailDTO;
   }
@@ -314,6 +319,11 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
       throw new StudentNotFoundException("Invalid student details");
 
     StudentTestDetail studentTestDetail = studentTestDetailDTO.prepareStudentObj(studentTestDetailsDTO);
+    Student student=studentRepository.findById(studentTestDetailsDTO.getStudentId());
+    if(student!=null) {
+    	student.setPassword(null);
+    	studentRepository.save(student);
+    }
     StudentTestDetail savedStudentDetails = studentTestDetailRepository.findByStudentId(studentTestDetailsDTO.getStudentId());
     if (savedStudentDetails == null || savedStudentDetails.getId().isBlank()) {
       return studentTestDetailRepository.save(studentTestDetail);
@@ -360,7 +370,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     log.info("executeAllTestCases() -> started");
     Boolean testCaseResponse;
     
-    CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
     String language = executeAllTestCasesDTO.getLanguage();
     String studentId = executeAllTestCasesDTO.getStudentId();
     TestCaseDTO testCases = questionService.getSampleTestCase(questionId);
@@ -369,7 +378,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     interpretationCommand=testCasesResult(interpretationCommand, testCase.getInput(),testCases.getQuestionType());
     String interprationMessage = executeProcess(interpretationCommand);
     if (interprationMessage.isEmpty()) {
- 	   codeResponseDTO.setComplilationMessage(interprationMessage);
  	   log.info("runORExecuteAllTestCases code :: compilation error message :: " + interprationMessage);
  	   deleteFile(language, counterForTempSaveCode);
  	   testCaseResponse=false;
@@ -491,6 +499,17 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     String interpretationCommand = codeProcessingUtil.interpretationCommand(language, studentId,counterForTempSaveCode);
     interpretationCommand=testCasesResult(interpretationCommand, testCases.getInput(),testCases.getQuestionType());
     String interprationMessage = executeProcess(interpretationCommand);
+    
+    if(language.equalsIgnoreCase("python")) {
+    	int index = interprationMessage.indexOf("File");
+        if (index != -1) {
+        	codeResponseDTO.setComplilationMessage(interprationMessage);
+        	deleteFile(language, counterForTempSaveCode);
+      	    testCasesSuccess.add(false);
+      	    codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+      	    return codeResponseDTO;
+        }
+    }
     if (interprationMessage.isEmpty()) {
  	   codeResponseDTO.setComplilationMessage(interprationMessage);
  	   log.info("runORExecuteAllTestCases code :: compilation error message :: " + interprationMessage);
@@ -523,6 +542,7 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
   	String compilationMessage="";
 	if(!language.equalsIgnoreCase("python"))
 		compilationMessage = executeProcess(compilationCommand);
+	
       
   	if (!compilationMessage.isEmpty()) {
   	   codeResponseDTO.setComplilationMessage(compilationMessage);

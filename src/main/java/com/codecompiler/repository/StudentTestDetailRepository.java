@@ -11,4 +11,5 @@ import java.util.List;
 public interface StudentTestDetailRepository extends MongoRepository<StudentTestDetail,String> {
   public  StudentTestDetail findByStudentId(String studentId);
   List<StudentTestDetail> findByContestId(String contestId);
+  public StudentTestDetailRepository deleteByStudentId(String id);
 }

@@ -169,6 +169,9 @@ public class StudentServiceImpl implements StudentService {
     Student student = studentRepository.findByEmail(emailId);
     if (student == null)
       throw new UserNotFoundException("User with email :: " + emailId + " not found");
+    StudentTestDetailRepository s=studentTestDetailRepository.deleteByStudentId(student.getId());
+    if(s==null)
+    	throw new UserNotFoundException("User with Id :: " + student.getId() + " not found");
     return studentRepository.deleteByEmail(emailId);
   }
 
