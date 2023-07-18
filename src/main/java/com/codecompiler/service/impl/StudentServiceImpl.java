@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -29,12 +30,14 @@ import com.codecompiler.dto.MyCellDTO;
 import com.codecompiler.dto.ParticipantDTO;
 import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.dto.TestCaseDTO;
+import com.codecompiler.entity.MCQ;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.exception.UserNotFoundException;
 import com.codecompiler.helper.ExcelPOIHelper;
+import com.codecompiler.repository.MCQRepository;
 import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService;
@@ -63,6 +66,9 @@ public class StudentServiceImpl implements StudentService {
 
   @Autowired
   private ExcelConvertorService excelConvertorService;
+  
+  @Autowired
+  private MCQRepository mcqRepository;
 
   public Student findById(String studentId) {
     log.info("findById:: has started with studentId: " + studentId);
@@ -238,11 +244,20 @@ public class StudentServiceImpl implements StudentService {
     List<ParticipantDTO> studentDetails = new ArrayList<ParticipantDTO>();
     for (Student student : students) {
       ParticipantDTO participantDTO = new ParticipantDTO();
-      participantDTO.setStudentEmail(student.getEmail());
-      participantDTO.setStudentPercentage(student.getPercentage());
-      if (!(student.getFinalMailSent().equals("SuccessFullSent"))) {
-        studentDetails.add(participantDTO);
+      int count=0;
+      for(int i=0;i<student.getMcqQuetionsId().size();i++) {
+    	  Optional<MCQ> mcq=mcqRepository.findById(student.getMcqQuetionsId().get(i));
+    	  if(mcq.isPresent()) {
+    		  if(mcq.get().getCorrectOption().get(0).equals(student.getCorrectAnswers().get(i)))
+    			  count++;
+    	  }
       }
+      participantDTO.setStudentId(student.getId());
+      participantDTO.setStudentEmail(student.getEmail());
+      double per=(count*100)/student.getMcqQuetionsId().size();
+      participantDTO.setStudentPercentage(per);
+      studentDetails.add(participantDTO);
+
     }
     log.info("findByContestId:: has been ended with studentDetails" + studentDetails.size());
     return studentDetails;
@@ -390,7 +405,7 @@ public class StudentServiceImpl implements StudentService {
 		        participant.setStudentEmail(s.getEmail());
 		        participant.setStudentPercentage(student.getPercentage());
 		        participant.setStatus(s.getStatus());
-		        participant.setId(s.getId());
+		        participant.setStudentId(s.getId());
 	        }
 	        return participant;
 	    }).collect(Collectors.toList());
