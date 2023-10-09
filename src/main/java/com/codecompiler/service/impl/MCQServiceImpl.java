@@ -19,6 +19,7 @@ import com.codecompiler.dto.MCQStatusDTO;
 import com.codecompiler.dto.MyCellDTO;
 import com.codecompiler.entity.Contest;
 import com.codecompiler.entity.MCQ;
+import com.codecompiler.exception.InsufficientDataException;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.helper.ExcelPOIHelper;
@@ -45,6 +46,8 @@ public class MCQServiceImpl implements MCQService {
 
 	@Autowired
 	private ContestService contestService;
+
+ 
 
 	@Override
 	public List<MCQ> saveFileForBulkMCQ(MultipartFile file, String contestId) throws IOException {
@@ -79,7 +82,7 @@ public class MCQServiceImpl implements MCQService {
 				.orElseThrow(() -> new NullPointerException("Method argument list does not contain a valid MCQ id"));
 
 		if (mcqIdList.size() < 2) {
-			throw new NullPointerException("Method argument is null or it has insufficient data");
+			throw new InsufficientDataException("Method argument is null or it has insufficient data");
 		}
 
 		List<MCQ> mcqDetails = mcqRepository.findByMcqIdIn(mcqIdList.getOrDefault("mcqIds", Collections.emptyList()));
@@ -133,7 +136,7 @@ public class MCQServiceImpl implements MCQService {
 	@Override
 	public void saveMcqQuestionOrContest(ArrayList<String> contestAndMcqQuestionId) {
 		if (contestAndMcqQuestionId == null || contestAndMcqQuestionId.size() < 2) {
-			throw new NullPointerException("Method argument is null or it has insufficient data");
+			throw new InsufficientDataException("Method argument is null or it has insufficient data");
 		}
 
 		String contestId = contestAndMcqQuestionId.get(0);
@@ -166,27 +169,34 @@ public class MCQServiceImpl implements MCQService {
 	}
 
 	public List<MCQ> saveAllMcq(List<MCQ> addMcq, Contest contest) {
-		List<MCQ> allMcq = mcqRepository.findAll();
-
-		List<String> contestPresentMcqsId = contest.getMcqStatus().stream().map(status -> status.getMcqId())
+		List<String> contestPresentMcqsId = contest.getMcqStatus().stream().map(MCQStatusDTO::getMcqId)
 				.collect(Collectors.toList());
 
 		List<MCQ> contestPresentMcqs = mcqRepository.findByMcqIdIn(contestPresentMcqsId);
+		List<MCQ> allMcq = mcqRepository.findAll();
 
-		Set<String> existingMcqQuestions = contestPresentMcqs.stream()
-				.map(mcq -> mcq.getMcqQuestion().toLowerCase().trim()).collect(Collectors.toSet());
+		List<MCQ> answer = new ArrayList<>(addMcq.size());
 
-		List<MCQ> newMcq = addMcq.stream().filter(mcq -> {
-			String question = mcq.getMcqQuestion().toLowerCase().trim();
-			return !existingMcqQuestions.contains(question) && allMcq.stream()
-					.noneMatch(existingMcq -> existingMcq.getMcqQuestion().toLowerCase().trim().equals(question));
-		}).collect(Collectors.toList());
+		if (contestPresentMcqs.isEmpty() || !allMcq.isEmpty()) {
+			Map<String, MCQ> existingMcqMap = contestPresentMcqs.stream()
+					.collect(Collectors.toMap(mcq -> mcq.getMcqQuestion().toLowerCase().trim(), mcq -> mcq));
 
-		if (!newMcq.isEmpty()) {
-			mcqRepository.saveAll(newMcq);
+			for (MCQ mcq : addMcq) {
+				String question = mcq.getMcqQuestion().toLowerCase().trim();
+				if (existingMcqMap.containsKey(question)) {
+					MCQ existingMcq = existingMcqMap.get(question);
+					if (!existingMcq.isMcqStatus()) {
+						existingMcq.setMcqStatus(true);
+						mcqRepository.save(existingMcq); // Save the updated status
+					}
+					answer.add(existingMcq);
+				} else {
+					answer.add(mcq);
+				}
+			}
 		}
 
-		return newMcq;
+		return answer;
 	}
 
 	public List<MCQ> saveMcq(List<MCQ> allMcq) {

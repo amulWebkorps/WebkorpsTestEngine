@@ -20,6 +20,12 @@ public class GlobalExceptionHandler {
 		return ResponseHandler.generateResponse("UNAUTHORIZED", HttpStatus.UNAUTHORIZED,"email and password does not match");
 	}
 	
+	@ExceptionHandler(InsufficientDataException.class)
+	public ResponseEntity<Object> insufficientData(InsufficientDataException insufficientDataException){
+		log.info("Exception occurs : "+insufficientDataException.getMessage());
+		return ResponseHandler.generateResponse("Insufficient Data", HttpStatus.UNAUTHORIZED,insufficientDataException.getMessage());
+	}
+	
 	@ExceptionHandler(UserAlreadyExistException.class)
 	public ResponseEntity<Object> userAlreadyExist(UserAlreadyExistException existException){
 		log.info("Exception occurs : "+existException.getMessage());
