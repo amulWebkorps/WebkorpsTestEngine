@@ -2,8 +2,11 @@ package com.codecompiler.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -43,26 +46,28 @@ public class MCQServiceImpl implements MCQService {
 	@Autowired
 	private ContestService contestService;
 
+	@Override
 	public List<MCQ> saveFileForBulkMCQ(MultipartFile file, String contestId) throws IOException {
 		if (!ExcelConvertorService.checkExcelFormat(file)) {
 			throw new UnSupportedFormatException("saveFileForBulkMCQ::Given file format is not supported");
 		}
-		
-		List<MCQ> allMCQ = null;
+
 		Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
 				file.getOriginalFilename());
-		allMCQ = excelConvertorService.convertExcelToListOfMCQ(data);
-		System.out.println("CONTSETID : "+contestId);
-		if(contestId.equals("null")) {
+
+		List<MCQ> allMCQ = excelConvertorService.convertExcelToListOfMCQ(data);
+
+		if (contestId.equals("null")) {
 			return saveMcq(allMCQ);
 		}
+
 		Contest contest = contestRepository.findByContestId(contestId);
 
-		if (allMCQ.isEmpty() || allMCQ == null) {
+		if (allMCQ.isEmpty()) {
 			throw new RecordNotFoundException("saveFileForBulkMCQ:: Data isn't present in the file");
 		}
 
-		allMCQ = saveAllMcq(allMCQ, contest);
+		allMCQ = this.saveAllMcq(allMCQ, contest);
 
 		List<String> mcqInContest = this.saveMCQContest(contest, allMCQ);
 		return mcqRepository.findByMcqIdIn(mcqInContest);
@@ -70,57 +75,43 @@ public class MCQServiceImpl implements MCQService {
 
 	@Override
 	public List<MCQ> getAllMCQs(Map<String, List<String>> mcqIdList) {
-		// TODO Auto-generated method stub
-		String contestId = mcqIdList.get("contestId").get(0);
-		if (contestId.isBlank() || contestId == null) {
-			throw new NullPointerException("Method argument list does not contain valid MCQ id");
-		}
+		String contestId = mcqIdList.getOrDefault("contestId", Collections.emptyList()).stream().findFirst()
+				.orElseThrow(() -> new NullPointerException("Method argument list does not contain a valid MCQ id"));
 
 		if (mcqIdList.size() < 2) {
+			throw new NullPointerException("Method argument is null or it has insufficient data");
+		}
 
-			throw new NullPointerException("Method argument is null or it have insufficient data");
+		List<MCQ> mcqDetails = mcqRepository.findByMcqIdIn(mcqIdList.getOrDefault("mcqIds", Collections.emptyList()));
+
+		if (mcqDetails.isEmpty()) {
+			throw new RecordNotFoundException("getAllMCQ:: Questions not found");
 		}
-		List<MCQ> mcqDetails = mcqRepository.findByMcqIdIn(mcqIdList.get("mcqIds"));
-		if (mcqDetails == null) {
-			throw new RecordNotFoundException("getAllMCQ:: Questions does not found");
-		}
+
 		this.saveContests(contestId, mcqIdList);
 		return mcqDetails;
 	}
 
 	public Contest saveContests(String contestId, Map<String, List<String>> mcqIdList) {
-		Contest contest = contestService.findByContestId(contestId);
-		if (contest == null) {
-			throw new RecordNotFoundException("saveContests:: Content does not found for contestId: " + contestId);
-		}
-		ArrayList<MCQStatusDTO> mcqStatus = contest.getMcqStatus();
-		if (mcqStatus == null) {
-			throw new RecordNotFoundException("saveContests:: McqStatus does not found");
-		}
-		boolean flag = false;
-		for (String idToChangeStatus : mcqIdList.get("mcqIds")) {
-			int index = 0;
-			for (MCQStatusDTO qs : mcqStatus) {
+		Contest contest = Optional.ofNullable(contestService.findByContestId(contestId)).orElseThrow(
+				() -> new RecordNotFoundException("saveContests:: Content does not found for contestId: " + contestId));
 
-				if (idToChangeStatus.equals(qs.getMcqId())) {
-					if (qs.isMcqstatus() == false) {
-						contest.getMcqStatus().get(index).setMcqstatus(true);
-						flag = true;
-					} else if (qs.isMcqstatus()) {
-						flag = true;
-					}
+		List<MCQStatusDTO> mcqStatus = Optional.ofNullable(contest.getMcqStatus())
+				.orElseThrow(() -> new RecordNotFoundException("saveContests:: McqStatus does not found"));
+
+		mcqIdList.get("mcqIds").forEach(idToChangeStatus -> {
+			mcqStatus.stream().filter(qs -> idToChangeStatus.equals(qs.getMcqId())).findFirst().ifPresentOrElse(qs -> {
+				if (!qs.isMcqstatus()) {
+					qs.setMcqstatus(true);
 				}
-				index++;
-			}
-			if (flag == false) {
+			}, () -> {
 				MCQStatusDTO mcqTemp = new MCQStatusDTO();
 				mcqTemp.setMcqId(idToChangeStatus);
 				mcqTemp.setMcqstatus(true);
-				contest.getMcqStatus().add(mcqTemp);
-			} else {
-				flag = false;
-			}
-		}
+				mcqStatus.add(mcqTemp);
+			});
+		});
+
 		return contestService.saveContest(contest);
 	}
 
@@ -142,17 +133,17 @@ public class MCQServiceImpl implements MCQService {
 	@Override
 	public void saveMcqQuestionOrContest(ArrayList<String> contestAndMcqQuestionId) {
 		if (contestAndMcqQuestionId == null || contestAndMcqQuestionId.size() < 2) {
-			throw new NullPointerException("Method argument is null or it have insufficient data");
+			throw new NullPointerException("Method argument is null or it has insufficient data");
 		}
-		Contest contest = new Contest();
-		contest = contestService.findByContestId(contestAndMcqQuestionId.get(0));
-		int index = 0;
-		for (MCQStatusDTO qs : contest.getMcqStatus()) {
-			if (qs.getMcqId().equals(contestAndMcqQuestionId.get(1))) {
-				contest.getMcqStatus().get(index).setMcqstatus(false);
-			}
-			index++;
-		}
+
+		String contestId = contestAndMcqQuestionId.get(0);
+		String mcqQuestionId = contestAndMcqQuestionId.get(1);
+
+		Contest contest = contestService.findByContestId(contestId);
+
+		contest.getMcqStatus().stream().filter(qs -> qs.getMcqId().equals(mcqQuestionId)).findFirst()
+				.ifPresent(qs -> qs.setMcqstatus(false));
+
 		contestService.saveContest(contest);
 	}
 
@@ -163,120 +154,65 @@ public class MCQServiceImpl implements MCQService {
 
 	@Override
 	public List<MCQ> getAllMcq() {
-		List<MCQ> mcqs = mcqRepository.findAllMCQ(true);
-		return mcqs;
+		return mcqRepository.findAllMCQ(true);
 	}
 
 	@Override
 	public MCQ deleteMcq(String mcqId) {
-		MCQ mcq = mcqRepository.findByMcqId(mcqId);
-		if (mcq != null) {
+		return Optional.ofNullable(mcqRepository.findByMcqId(mcqId)).map(mcq -> {
 			mcq.setMcqStatus(false);
-			mcq = mcqRepository.save(mcq);
-		}
-		return mcq;
+			return mcqRepository.save(mcq);
+		}).orElse(null);
 	}
 
 	public List<MCQ> saveAllMcq(List<MCQ> addMcq, Contest contest) {
-		List<MCQ> answer = new ArrayList<MCQ>();
-
-		List<String> contestPresentMcqsId = new ArrayList<String>();
-		
-		for (int i = 0; i < contest.getMcqStatus().size(); i++)
-			contestPresentMcqsId.add(contest.getMcqStatus().get(i).getMcqId());
-		
-		List<MCQ> contestPresentMcqs = mcqRepository.findByMcqIdIn(contestPresentMcqsId);
 		List<MCQ> allMcq = mcqRepository.findAll();
-		
-		if(contestPresentMcqs.size() == 0 && allMcq.size() > 0) {
-			List<MCQ> addMcqInContest=new ArrayList<MCQ>();
-			int index=0;
-			for(int i=0;i<allMcq.size();i++) {
-				boolean status=true;
-				for(int j=0;j<addMcq.size();j++) {
-					if(allMcq.get(i).getMcqQuestion().toLowerCase().trim().equals(addMcq.get(j).getMcqQuestion().toLowerCase().trim()))
-					{
-						status=false;
-						break;
-					}
-					index++;
-				}
-				if(status) {
-					answer.add(addMcq.get(index));
-					addMcqInContest.add(addMcq.get(index));
-				}
-				else
-					addMcqInContest.add(allMcq.get(i));
-				index=0;
-			}
-			if(answer.size()>0)
-				mcqRepository.saveAll(answer);
-			return addMcqInContest;
+
+		List<String> contestPresentMcqsId = contest.getMcqStatus().stream().map(status -> status.getMcqId())
+				.collect(Collectors.toList());
+
+		List<MCQ> contestPresentMcqs = mcqRepository.findByMcqIdIn(contestPresentMcqsId);
+
+		Set<String> existingMcqQuestions = contestPresentMcqs.stream()
+				.map(mcq -> mcq.getMcqQuestion().toLowerCase().trim()).collect(Collectors.toSet());
+
+		List<MCQ> newMcq = addMcq.stream().filter(mcq -> {
+			String question = mcq.getMcqQuestion().toLowerCase().trim();
+			return !existingMcqQuestions.contains(question) && allMcq.stream()
+					.noneMatch(existingMcq -> existingMcq.getMcqQuestion().toLowerCase().trim().equals(question));
+		}).collect(Collectors.toList());
+
+		if (!newMcq.isEmpty()) {
+			mcqRepository.saveAll(newMcq);
 		}
-		
-		if (allMcq.size() > 0) {
-			//here we filter those mcq which are not present in contest already
-			for(int i=0;i<addMcq.size();i++) {
-				boolean status=true;
-				for(int j=0;j<contestPresentMcqs.size();j++) {
-					if(contestPresentMcqs.get(j).getMcqQuestion().toLowerCase().trim().equals(addMcq.get(i).getMcqQuestion().toLowerCase().trim()))
-					{
-						status=false;
-						break;
-					}
-				}
-				if(status) {
-					answer.add(addMcq.get(i));
-					System.out.println(addMcq.get(i));
-				}
-			}
-			
-			addMcq=new ArrayList<MCQ>();
-			
-			//here we filter those mcq which are not present in MCQ
-			for(int i=0;i<answer.size();i++) {
-				boolean status=true;
-				for(int j=0;j<allMcq.size();j++) {
-					if(allMcq.get(j).getMcqQuestion().toLowerCase().trim().equals(answer.get(i).getMcqQuestion().toLowerCase().trim()))
-					{
-						status=false;
-						break;
-					}
-				}
-				if(status)
-					addMcq.add(answer.get(i));
-			}
-			if(addMcq.size()>0)
-				mcqRepository.saveAll(addMcq);
-		} 
-		else 
-			answer = mcqRepository.saveAll(addMcq);
-		
-		return answer;
+
+		return newMcq;
 	}
-	
-	public List<MCQ> saveMcq(List<MCQ> allMcq){
+
+	public List<MCQ> saveMcq(List<MCQ> allMcq) {
 		List<MCQ> oldMcq = mcqRepository.findAll();
-		List<MCQ> answer=new ArrayList<MCQ>();
-		System.out.println("HIiiiiiiiiiii");
-		
-		if(oldMcq.size()>0) {
-			for(int i=0;i<allMcq.size();i++) {
-				boolean status=true;
-				for(int j=0;j<oldMcq.size();j++) {
-					if(allMcq.get(i).getMcqQuestion().toLowerCase().trim().equals(oldMcq.get(j).getMcqQuestion().toLowerCase().trim()))
-					{
-						status=false;
-						break;
-					}
-				}
-				if(status)
-					answer.add(allMcq.get(i));
-			}
-			if(answer.size()>0)
-				answer=mcqRepository.saveAll(answer);
-		}else
-			answer=mcqRepository.saveAll(allMcq);
-		return answer;
+
+		allMcq.forEach(newMcq -> {
+			String newQuestion = newMcq.getMcqQuestion().toLowerCase().trim();
+			oldMcq.stream().filter(existingMcq -> newQuestion.equals(existingMcq.getMcqQuestion().toLowerCase().trim()))
+					.findFirst().ifPresent(existingMcq -> {
+						if (!existingMcq.isMcqStatus()) {
+							existingMcq.setMcqStatus(true);
+							mcqRepository.save(existingMcq);
+						}
+					});
+		});
+
+		List<MCQ> newMcq = allMcq.stream()
+				.filter(mcq -> oldMcq.stream().noneMatch(
+						existingMcq -> mcq.getMcqQuestion().equalsIgnoreCase(existingMcq.getMcqQuestion().trim())))
+				.collect(Collectors.toList());
+
+		if (!newMcq.isEmpty()) {
+			mcqRepository.saveAll(newMcq);
+		}
+
+		return newMcq;
 	}
+
 }
