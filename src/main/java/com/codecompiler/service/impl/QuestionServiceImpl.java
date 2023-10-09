@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,7 @@ public class QuestionServiceImpl implements QuestionService {
 		Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
 				file.getOriginalFilename());
 		allTrueQuestions = excelConvertorService.convertExcelToListOfQuestions(data);
+		
 		if (allTrueQuestions.isEmpty() || allTrueQuestions == null) {
 			throw new RecordNotFoundException("saveFileForBulkQuestion:: Data isn't present in the file");
 		}
@@ -271,8 +273,10 @@ public class QuestionServiceImpl implements QuestionService {
 			throw new NullPointerException("Question id should not be null");
 		else if (questionId.isBlank())
 			throw new IllegalArgumentException();
+		Map<String,Object> map=new HashedMap<String, Object>();
 		Question questions = questionRepository.findByQuestionId(questionId);
 		List<TestCaseDTO> testCasesRelatedToQuestionId = questions.getSampleTestCase();		
+		testCasesRelatedToQuestionId.get(0).setQuestionType(questions.getQuestionType());
 		return testCasesRelatedToQuestionId.get(0);
 	}
 }
