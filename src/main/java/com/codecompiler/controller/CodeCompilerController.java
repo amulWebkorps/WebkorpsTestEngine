@@ -26,68 +26,60 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CodeCompilerController {
 
-  @Autowired
-  private CodeProcessingService codeProcessingService;
+	@Autowired
+	private CodeProcessingService codeProcessingService;
 
-  @Autowired
-  private LanguageService languageService;
+	@Autowired
+	private LanguageService languageService;
 
-  @GetMapping("showAllLanguage")
-  public ResponseEntity<Object> showAllLanguage() {
-    log.info("showAllLanguage: started.");
-    List<Language> language = languageService.findAllLanguage();
-    log.info("showAllLanguage ended total languages ::" + language.size());
-    return ResponseHandler.generateResponse("success", HttpStatus.OK, language);
-  }
+	@GetMapping("showAllLanguage")
+	public ResponseEntity<Object> showAllLanguage() {
+		log.info("showAllLanguage: started.");
+		List<Language> language = languageService.findAllLanguage();
+		log.info("showAllLanguage ended total languages ::" + language.size());
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, language);
+	}
 
-  @PostMapping("runAndCompilerCode")
-  public ResponseEntity<Object> getCompiler(@RequestBody CodeDetailsDTO codeDetailsDTO) throws Exception {
-    log.info("getCompiler: started");
-    StudentTestDetail studentTestDetail = new StudentTestDetail(codeDetailsDTO.getStudentId(), codeDetailsDTO.getContestId(),
-        codeDetailsDTO.getLanguage(), LocalDateTime.now(), codeDetailsDTO.getQuestionsAndCode());
+	@PostMapping("runAndCompilerCode")
+	public ResponseEntity<Object> getCompiler(@RequestBody CodeDetailsDTO codeDetailsDTO) throws Exception {
+		log.info("getCompiler: started");
+		StudentTestDetail studentTestDetail = new StudentTestDetail(codeDetailsDTO.getStudentId(),
+				codeDetailsDTO.getContestId(), codeDetailsDTO.getLanguage(), LocalDateTime.now(),
+				codeDetailsDTO.getQuestionsAndCode());
 //    CodeResponseDTO response = codeProcessingService.compileCode(codeDetailsDTO);
-    StudentTestDetailDTO response = codeProcessingService.compileCode(studentTestDetail);
-    log.info("getCompiler: ended");
-    return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
-  }
+		StudentTestDetailDTO response = codeProcessingService.compileCode(studentTestDetail);
+		log.info("getCompiler: ended");
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
+	}
 
-  @PostMapping("runORExecuteAllTestCases")
-  public ResponseEntity<Object> runORExecuteAllTestCases(@RequestBody ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws Exception {
-    log.info("runORExecuteAllTestCases: started");
-    try {
-      CodeResponseDTO response = codeProcessingService.runORExecuteAllTestCases(executeAllTestCasesDTO);
-      log.info("runORExecuteAllTestCases: ended");
-      return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
-    } catch (Exception e) {
-      log.info("Something went wrong with this message: " + e.getMessage());
-      return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-    }
-  }
+	@PostMapping("runORExecuteAllTestCases")
+	public ResponseEntity<Object> runORExecuteAllTestCases(@RequestBody ExecuteAllTestCasesDTO executeAllTestCasesDTO)
+			throws Exception {
+		log.info("runORExecuteAllTestCases: started");
+		CodeResponseDTO response = codeProcessingService.runORExecuteAllTestCases(executeAllTestCasesDTO);
+		log.info("runORExecuteAllTestCases: ended");
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, response);
 
-  @PostMapping("save/code")
-  public ResponseEntity<?> saveStudentTestDetail(@RequestBody StudentTestDetailDTO studentTestDetailDTO) {
-    log.info("saveStudentCodeInfo() -> Started");
-    try {
-      StudentTestDetail savedStudentTestDetail = codeProcessingService.saveStudentTestDetail(studentTestDetailDTO);
-      log.info("saveStudentCodeInfo() -> studentCodeInfo has been save successfully");
-      return ResponseHandler.generateResponse("success", HttpStatus.OK, "StudentTestDetail saved successfully");
-    } catch (Exception e) {
-      log.info("Something went wrong with this message: " + e.getMessage());
-      return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-    }
-  }
+	}
 
-  @PostMapping("finish/test")
-  public ResponseEntity<?> saveStudentTestDetailAndFinishTest(@RequestBody StudentTestDetailDTO studentTestDetailDTO) {
-    log.info("saveStudentTestDetailAndFinishTest() -> Started");
-    try {
-      StudentTestDetail savedStudentTestDetail = codeProcessingService.saveStudentTestDetail(studentTestDetailDTO);
-      log.info("saveStudentTestDetailAndFinishTest() -> studentTestInfo has been save successfully");
-      return ResponseHandler.generateResponse("success", HttpStatus.OK, "StudentTestDetail saved successfully And Finishing the test");
-    } catch (Exception e) {
-      log.info("Something went wrong with this message: " + e.getMessage());
-      return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-    }
-  }
+	@PostMapping("save/code")
+	public ResponseEntity<?> saveStudentTestDetail(@RequestBody StudentTestDetailDTO studentTestDetailDTO) {
+		log.info("saveStudentCodeInfo() -> Started");
+		StudentTestDetail savedStudentTestDetail = codeProcessingService.saveStudentTestDetail(studentTestDetailDTO);
+		log.info("saveStudentCodeInfo() -> studentCodeInfo has been save successfully");
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, "StudentTestDetail saved successfully");
+
+	}
+
+	@PostMapping("finish/test")
+	public ResponseEntity<?> saveStudentTestDetailAndFinishTest(
+			@RequestBody StudentTestDetailDTO studentTestDetailDTO) {
+		log.info("saveStudentTestDetailAndFinishTest() -> Started");
+		StudentTestDetail savedStudentTestDetail = codeProcessingService.saveStudentTestDetail(studentTestDetailDTO);
+		log.info("saveStudentTestDetailAndFinishTest() -> studentTestInfo has been save successfully");
+		return ResponseHandler.generateResponse("success", HttpStatus.OK,
+				"StudentTestDetail saved successfully And Finishing the test");
+
+	}
 
 }

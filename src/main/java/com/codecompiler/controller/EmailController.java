@@ -27,48 +27,38 @@ public class EmailController {
 
 	@Autowired
 	private EmailService emailService;
-	
+
 	@Autowired
 	private StudentService studentService;
-	
+
 	@PostMapping("sendMail")
 	public ResponseEntity<Object> sendMail(@RequestBody Map<String, List<String>> sendEmailDetails) {
-		log.info("addContest: started sendEmailDetails size = "+sendEmailDetails.size());
-		try {
-			emailService.sendMailToStudents(sendEmailDetails);
-			log.info("Mail Send successfully");
-			return ResponseHandler.generateResponse("success", HttpStatus.OK, "mail send successfully");
-		} catch (Exception e) {
-			log.error("Exception occured in sendMail :: "+e.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
-		}
+		log.info("addContest: started sendEmailDetails size = " + sendEmailDetails.size());
+
+		emailService.sendMailToStudents(sendEmailDetails);
+		log.info("Mail Send successfully");
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, "mail send successfully");
+
 	}
-	
+
 	@GetMapping("sentMailForParticipator")
 	public ResponseEntity<Object> getAllSentMailsForParticipator() {
 		log.info("sentMailForParticipator: started");
-		try {
-			List<String> sentMailStudentList = studentService.findEmailByStatus(true);
-			log.info("sentMailForParticipator: Ended setMailStudentList Size :: "+ sentMailStudentList.size());
-			return ResponseHandler.generateResponse("succcess", HttpStatus.OK, sentMailStudentList);
-		} catch (Exception ex) {
-			log.error("Exception occured in sendMail :: "+ex.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
-		}	
-		
+
+		List<String> sentMailStudentList = studentService.findEmailByStatus(true);
+		log.info("sentMailForParticipator: Ended setMailStudentList Size :: " + sentMailStudentList.size());
+		return ResponseHandler.generateResponse("succcess", HttpStatus.OK, sentMailStudentList);
+
 	}
-	
+
 	@GetMapping("sentMailForParticipatorForMCQ")
 	public ResponseEntity<Object> getAllSentMailsForParticipatorForMCQ() {
 		log.info("sentMailForParticipator: started");
-		try {
-			List<String> sentMailStudentList = studentService.findEmailByfinalMailSent();
-			log.info("sentMailForParticipator: Ended setMailStudentList Size :: "+ sentMailStudentList.size());
-			return ResponseHandler.generateResponse("succcess", HttpStatus.OK, sentMailStudentList);
-		} catch (Exception ex) {
-			log.error("Exception occured in sendMail :: "+ex.getMessage());
-			return ResponseHandler.generateResponse("error", HttpStatus.INTERNAL_SERVER_ERROR,ex.getMessage());
-		}	
+
+		List<String> sentMailStudentList = studentService.findEmailByfinalMailSent();
+		log.info("sentMailForParticipator: Ended setMailStudentList Size :: " + sentMailStudentList.size());
+		return ResponseHandler.generateResponse("succcess", HttpStatus.OK, sentMailStudentList);
+
 	}
-	
+
 }

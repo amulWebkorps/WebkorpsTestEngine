@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class ParticipantDTO{
-	private String id;
+	private String studentId;
 	private String studentEmail;
 	private boolean status;	
 	private double studentPercentage;

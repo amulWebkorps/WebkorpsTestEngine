@@ -253,6 +253,7 @@ public class StudentServiceImpl implements StudentService {
     	  }
       }
       participantDTO.setStudentId(student.getId());
+      participantDTO.setStudentId(student.getId());
       participantDTO.setStudentEmail(student.getEmail());
       double per=(count*100)/student.getMcqQuetionsId().size();
       participantDTO.setStudentPercentage(per);
