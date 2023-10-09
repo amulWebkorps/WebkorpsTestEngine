@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -29,12 +30,14 @@ import com.codecompiler.dto.MyCellDTO;
 import com.codecompiler.dto.ParticipantDTO;
 import com.codecompiler.dto.StudentDTO;
 import com.codecompiler.dto.TestCaseDTO;
+import com.codecompiler.entity.MCQ;
 import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.exception.RecordNotFoundException;
 import com.codecompiler.exception.UnSupportedFormatException;
 import com.codecompiler.exception.UserNotFoundException;
 import com.codecompiler.helper.ExcelPOIHelper;
+import com.codecompiler.repository.MCQRepository;
 import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.service.ExcelConvertorService;
 import com.codecompiler.service.QuestionService;
@@ -63,6 +66,9 @@ public class StudentServiceImpl implements StudentService {
 
   @Autowired
   private ExcelConvertorService excelConvertorService;
+  
+  @Autowired
+  private MCQRepository mcqRepository;
 
   public Student findById(String studentId) {
     log.info("findById:: has started with studentId: " + studentId);
@@ -169,6 +175,9 @@ public class StudentServiceImpl implements StudentService {
     Student student = studentRepository.findByEmail(emailId);
     if (student == null)
       throw new UserNotFoundException("User with email :: " + emailId + " not found");
+    StudentTestDetailRepository s=studentTestDetailRepository.deleteByStudentId(student.getId());
+    if(s==null)
+    	throw new UserNotFoundException("User with Id :: " + student.getId() + " not found");
     return studentRepository.deleteByEmail(emailId);
   }
 
@@ -235,11 +244,20 @@ public class StudentServiceImpl implements StudentService {
     List<ParticipantDTO> studentDetails = new ArrayList<ParticipantDTO>();
     for (Student student : students) {
       ParticipantDTO participantDTO = new ParticipantDTO();
-      participantDTO.setEmail(student.getEmail());
-      participantDTO.setPercentage(student.getPercentage());
-      if (!(student.getFinalMailSent().equals("SuccessFullSent"))) {
-        studentDetails.add(participantDTO);
+      int count=0;
+      for(int i=0;i<student.getMcqQuetionsId().size();i++) {
+    	  Optional<MCQ> mcq=mcqRepository.findById(student.getMcqQuetionsId().get(i));
+    	  if(mcq.isPresent()) {
+    		  if(mcq.get().getCorrectOption().get(0).equals(student.getCorrectAnswers().get(i)))
+    			  count++;
+    	  }
       }
+      participantDTO.setStudentId(student.getId());
+      participantDTO.setStudentEmail(student.getEmail());
+      double per=(count*100)/student.getMcqQuetionsId().size();
+      participantDTO.setStudentPercentage(per);
+      studentDetails.add(participantDTO);
+
     }
     log.info("findByContestId:: has been ended with studentDetails" + studentDetails.size());
     return studentDetails;
@@ -345,6 +363,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
+    List<StudentFinalResponse> ans=new ArrayList<StudentFinalResponse>();
     for (StudentTestDetail studentTestDetail : participatedStudents) {
       StudentFinalResponse studentFinalResponse = new StudentFinalResponse();
       Future<StudentTestDetailDTO> studentTestDetailFutureResult = executorService
@@ -360,14 +379,14 @@ public class StudentServiceImpl implements StudentService {
         studentFinalResponse.setStudentPercentage(updatedStudentTestDetail.getStudentPercentage());
         Student student = this.studentRepository.findById(updatedStudentTestDetail.getStudentId());
         studentFinalResponse.setStudentEmail(student.getEmail());
-        studentsFinalResponse.add(studentFinalResponse);
+        ans.add(studentFinalResponse);
       } catch (InterruptedException | ExecutionException e) {
         throw new RuntimeException("Something went wrong, Please contact to HR " + e.getMessage());
       }
     }
     executorService.shutdownNow();
     log.info("evaluateStudentTestResult() :: has been ended with studentDetails" + studentsFinalResponse.size());
-    return studentsFinalResponse;
+    return ans;
   }
   
   public List<ParticipantDTO> findByContestIdForProgramming(String contestId){
@@ -380,15 +399,13 @@ public class StudentServiceImpl implements StudentService {
 	    List<StudentTestDetail> students = studentTestDetailRepository.findByContestId(contestId);
 	    
 	    List<ParticipantDTO> studentResult = students.stream().map(student -> {
-	    	System.err.println("ID : "+student.getStudentId());
 	        Student s = studentRepository.findById(student.getStudentId());
-	        System.out.println("STUDENT : "+s);
 	        ParticipantDTO participant = new ParticipantDTO();
 	        if(s!=null) {
-		        participant.setEmail(s.getEmail());
-		        participant.setPercentage(student.getPercentage());
+		        participant.setStudentEmail(s.getEmail());
+		        participant.setStudentPercentage(student.getPercentage());
 		        participant.setStatus(s.getStatus());
-		        participant.setId(s.getId());
+		        participant.setStudentId(s.getId());
 	        }
 	        return participant;
 	    }).collect(Collectors.toList());

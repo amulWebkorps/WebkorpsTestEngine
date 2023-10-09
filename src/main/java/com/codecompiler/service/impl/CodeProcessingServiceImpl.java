@@ -2,17 +2,12 @@ package com.codecompiler.service.impl;
 
 
 import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,11 +21,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.codecompiler.dto.CodeDetailsDTO;
@@ -39,10 +35,12 @@ import com.codecompiler.dto.ExecuteAllTestCasesDTO;
 import com.codecompiler.dto.QuestionDetailDTO;
 import com.codecompiler.dto.StudentTestDetailDTO;
 import com.codecompiler.dto.TestCaseDTO;
+import com.codecompiler.entity.Question;
 import com.codecompiler.entity.Student;
 import com.codecompiler.entity.StudentTestDetail;
 import com.codecompiler.entity.TestCases;
 import com.codecompiler.exception.StudentNotFoundException;
+import com.codecompiler.repository.QuestionRepository;
 import com.codecompiler.repository.StudentRepository;
 import com.codecompiler.repository.StudentTestDetailRepository;
 import com.codecompiler.service.CodeProcessingService;
@@ -54,12 +52,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class CodeProcessingServiceImpl implements CodeProcessingService {
-  private static final String SAVED_CODE_FILE_PATH = "src/main/resources/";
-  private static final String CODE_FILE_PATH = "src/main/resources/static";
+//  private static final String SAVED_CODE_FILE_PATH = "src/main/resources/temp/";
+	private static final String SAVED_CODE_FILE_PATH ="/home/server/SERVERS/TestengineFiles/temp/";
   private static final String CLASS_NAME = "Main";
-  private static final String METHOD_NAME = "writeCode";
   @Autowired
   private StudentRepository studentRepository;
+  
+  @Autowired
+  private QuestionRepository questionRepository;
 
   @Autowired
   private QuestionService questionService;
@@ -91,14 +91,25 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     return codeResponseDTO;
   }
 
-  private String executeProcess(String command) {
-    Process pro;
+  private String executeProcess(String command) throws IOException, InterruptedException {
+	  ProcessBuilder processBuilder = new ProcessBuilder(command.split("\\s+"));
+	  Process pro = processBuilder.start();
     try {
-      pro = Runtime.getRuntime().exec(command, null, new File("src/main/resources/"));
+      pro = Runtime.getRuntime().exec(command, null, new File(SAVED_CODE_FILE_PATH));
       String message = codeProcessingUtil.getMessagesFromProcessInputStream(pro.getInputStream());
-      if(message=="" || message.isBlank())
-    	  message = codeProcessingUtil.getMessagesFromProcessInputStream(pro.getErrorStream());
-      return message;
+      
+      int exitCode = pro.waitFor();
+      if (exitCode == 0) {
+          return message.toString().trim();
+      } else {
+          BufferedReader errorReader = new BufferedReader(new InputStreamReader(pro.getErrorStream()));
+          StringBuilder errorBuilder = new StringBuilder();
+          String errorLine;
+          while ((errorLine = errorReader.readLine()) != null) {
+              errorBuilder.append(errorLine).append("\n");
+          }
+          return errorBuilder.toString().trim();
+      }
     } catch (IOException e) {
       log.error("Object is null " + e.getMessage());
       return e.getMessage();
@@ -120,31 +131,39 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     int count = 0;
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    for (QuestionDetailDTO questionDetailDTO : questionDetailsList) {
-      Future<QuestionDetailDTO> testCaseSuccessFutureResult = executorService.submit(new Callable<QuestionDetailDTO>() {
-        public QuestionDetailDTO call() throws Exception {
-          return testCaseSuccessCount(questionDetailDTO, language, studentId);
-        }
-      });
+    if(questionDetailsList!=null) {
+    	for (QuestionDetailDTO questionDetailDTO : questionDetailsList) {
+  	      Future<QuestionDetailDTO> testCaseSuccessFutureResult = executorService.submit(new Callable<QuestionDetailDTO>() {
+  	        public QuestionDetailDTO call() throws Exception {
+  	          return testCaseSuccessCount(questionDetailDTO, language, studentId);
+  	        }
+  	      });
+      	
 
-      try {
-        QuestionDetailDTO updatedQuestionDetailDTO = testCaseSuccessFutureResult.get();
-        count += updatedQuestionDetailDTO.getCount();
-        questionDetailDTOList.add(updatedQuestionDetailDTO);
-      } catch (InterruptedException | ExecutionException e) {
-        throw new RuntimeException("Something went wrong, Please contact to HR\n" + e.getMessage());
-      }
+  	      try {
+  	    	  
+  	        QuestionDetailDTO updatedQuestionDetailDTO = testCaseSuccessFutureResult.get();
+  	        count += updatedQuestionDetailDTO.getCount();
+  	        questionDetailDTOList.add(updatedQuestionDetailDTO);
+  	      } catch (InterruptedException | ExecutionException e) {
+  	        throw new RuntimeException("Something went wrong, Please contact to HR\n" + e.getMessage());
+  	      }
+  	    }
+      
+      percentage = generatePercentage(questionDetailsList, count);
+      StudentTestDetail savedStudentDetails = this.studentTestDetailRepository.findByStudentId(studentId);
+      savedStudentDetails.setCount(count);
+      savedStudentDetails.setPercentage(percentage);
+      savedStudentDetails.setQuestionDetails(questionDetailDTOList);
+      this.studentTestDetailRepository.save(savedStudentDetails);
+
+      studentTestDetailDTO = new StudentTestDetailDTO(studentTestDetail.getStudentId(), studentTestDetail.getContestId(),
+          savedStudentDetails.getLanguage(), savedStudentDetails.getQuestionDetails(), percentage);
+    }else {
+    	studentTestDetailDTO=new StudentTestDetailDTO();
+    	studentTestDetailDTO.setStudentId(studentId);
+    	studentTestDetailDTO.setStudentPercentage(0.0);
     }
-    percentage = generatePercentage(questionDetailsList, count);
-    StudentTestDetail savedStudentDetails = this.studentTestDetailRepository.findByStudentId(studentId);
-    savedStudentDetails.setCount(count);
-    savedStudentDetails.setPercentage(percentage);
-    savedStudentDetails.setQuestionDetails(questionDetailDTOList);
-    this.studentTestDetailRepository.save(savedStudentDetails);
-
-    studentTestDetailDTO = new StudentTestDetailDTO(studentTestDetail.getStudentId(), studentTestDetail.getContestId(),
-        savedStudentDetails.getLanguage(), savedStudentDetails.getQuestionDetails(), percentage);
-
     log.info("compileCode(): ended");
     return studentTestDetailDTO;
   }
@@ -153,28 +172,28 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     log.info("testCaseSuccessCount() started");
     List<Boolean> testCaseResult = new ArrayList<>();
     AtomicInteger count = new AtomicInteger();
-    StringBuffer code = new StringBuffer(questionDetailDTO.getCode());
+    String code = questionDetailDTO.getCode();
     counter = ++counter;
-    code.insert(37, counter);
+//    code.insert(37, counter);
+    String result = code.replace("Main", CLASS_NAME+ counter);
+    if(language.equalsIgnoreCase("java")) {
+    	result = result.replaceAll("Solution", "Solution"+ counter);
+    }
     try {
-      String codeFile = this.codeProcessingUtil.saveCodeTemporary(String.valueOf(code), language, studentId, counter);
+      String codeFile = this.codeProcessingUtil.saveCodeTemporary(String.valueOf(result), language, studentId, counter);
       String compilationCommand = this.codeProcessingUtil.compilationCommand(language, studentId, counter);
-      String compilationMessage = this.executeProcess(compilationCommand);
+      String compilationMessage="";
+  		if(!language.equalsIgnoreCase("python"))
+  		compilationMessage = executeProcess(compilationCommand);
       if (!compilationMessage.isEmpty()) {
         questionDetailDTO.setCompilationMsg(compilationMessage);
         log.info("compile code :: compilation error :: " + compilationMessage);
         return questionDetailDTO;
       }
-      List<TestCases> testCases = this.questionService.getTestCase(questionDetailDTO.getQuestionId());
-      String interpretationCommand = this.codeProcessingUtil.interpretationCommand(language, studentId, counter);
-      String exceptionMessage = executeProcess(interpretationCommand);
-     
-      if (!exceptionMessage.isEmpty()) {
-        questionDetailDTO.setCompilationMsg(exceptionMessage);
-        log.info("compile code :: exception occurred :: " + exceptionMessage);
-        return questionDetailDTO;
-      }
-
+//      List<TestCases> testCases = this.questionService.getTestCase(questionDetailDTO.getQuestionId());
+      Question questions = questionRepository.findByQuestionId(questionDetailDTO.getQuestionId());
+      List<TestCases> testCases = questions.getTestcases();
+      String questionType=questions.getQuestionType();
       //preparing command line argument
       List<String> inputList = new ArrayList<>();
       List<String> outputList = new ArrayList<>();
@@ -182,43 +201,70 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
         inputList.add(testCases1.getInput());
         outputList.add(testCases1.getOutput());
       });
+      
+      for(int i=0;i<inputList.size();i++) {
+    	  String input=inputList.get(i);
+    	  String interpretationCommand = this.codeProcessingUtil.interpretationCommand(language, studentId, counter);
+    	  try {
+          	
+          	if(questionType.equalsIgnoreCase("Array")) {
+              	Pattern keyValuePattern = Pattern.compile("([^=,]+)=([^=,]+)");
+              	Matcher keyValueMatcher = keyValuePattern.matcher(input);
+              	while (keyValueMatcher.find()) {
+              	    String value = keyValueMatcher.group(2);
 
-      inputList.forEach(input -> {
-        try {
-          //Creating an object of dynamically generated class and testing against testCase input at once
-          File savedJavaFile = new File(CODE_FILE_PATH);
-          URL[] urls = new URL[]{new File(String.valueOf(savedJavaFile)).getParentFile().toURI().toURL()};
-          ClassLoader cl = new URLClassLoader(urls);
-          Class<?> yourClass = cl.loadClass(CLASS_NAME+counter);
-          Method method = yourClass.getMethod(METHOD_NAME, String.class);
-          Object programOutput = method.invoke(METHOD_NAME, input.toString());
-         String result="";
-          
-          if(programOutput!=null)
-        	  result=programOutput+"";
-          if (outputList.contains(result)) {
-            testCaseResult.add(true);
-            count.incrementAndGet();
-          } else {
-            testCaseResult.add(false);
+              	    if (value.startsWith("[") && value.endsWith("]")) {
+              	        // Extract array values
+              	        String[] stringArray = value.substring(1, value.length() - 1).split("/");
+              	        int[] intArray = new int[stringArray.length];
+              	        for (int j = 0; j < stringArray.length; j++) {
+              	            intArray[j] = Integer.parseInt(stringArray[j]);
+              	        }
+              	        String arr="[";
+              	        for(int j=0;j<intArray.length-1;j++)
+              	        	arr=arr+intArray[j]+",";
+              	        arr=arr+intArray[intArray.length-1]+"]";
+              	        interpretationCommand=interpretationCommand+" "+arr;
+              	    } else {
+              	        // Treat value as integer
+              	        int intValue = Integer.parseInt(value);
+              	        interpretationCommand=interpretationCommand+" "+intValue;
+              	    }
+              	}
+              }else if(questionType.equalsIgnoreCase("String")) {
+              	String[] parts = input.split(",");
+          		for (String part : parts) {
+              	    String[] keyValue = part.split("=");
+              	    if (keyValue.length == 2) {
+              	        String value = keyValue[1];
+              	        interpretationCommand=interpretationCommand+" "+value;
+              	    }else if (keyValue.length==1) {
+              	    	String value = keyValue[0];
+              	        interpretationCommand=interpretationCommand+" "+value;
+          			}
+              	}
+              	
+              }
+              String interpritionMessage = executeProcess(interpretationCommand);
+              if (interpritionMessage.isEmpty()) {
+                questionDetailDTO.setCompilationMsg(interpritionMessage);
+                log.info("compile code :: exception occurred :: " + interpritionMessage);
+                return questionDetailDTO;
+              }
+              
+            if (outputList.get(i).equals(interpritionMessage)) {
+              testCaseResult.add(true);
+              count.incrementAndGet();
+            } else {
+              testCaseResult.add(false);
+            }
+          } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
           }
-        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException |
-                 NoSuchMethodException | MalformedURLException e) {
-          throw new RuntimeException(e);
-        }
-      });
+      }
 
       //deleting the saved java file & java dot class file after completing program execution
-      File savedJavaFile = new File(SAVED_CODE_FILE_PATH + codeFile);
-      File savedJavaDotClassFile = new File(SAVED_CODE_FILE_PATH + "Main" + counter + ".class");
-      if(savedJavaDotClassFile.exists()) {
-    	  if (savedJavaFile.delete() && savedJavaDotClassFile.delete()) {
-    	        log.info(savedJavaFile.getName() + " is successfully deleted");
-    	      } else {
-    	        log.info("Failed to delete " + savedJavaFile.getName() + " file");
-    	      }
-      }else
-    	  savedJavaFile.delete();
+      deleteFile(language, counterForTempSaveCode);
      
     } catch (Exception e) {
       log.error("Object is null " + e.getMessage());
@@ -243,9 +289,6 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
   public CodeResponseDTO runORExecuteAllTestCases(ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IOException {
     log.info("runORExecuteAllTestCases code: started");
     CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
-    Process pro = null;
-    codeProcessingUtil.saveCodeTemporary(executeAllTestCasesDTO.getCode(), executeAllTestCasesDTO.getLanguage(),
-        executeAllTestCasesDTO.getStudentId());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     Future<CodeResponseDTO> futureResult = null;
     try {
@@ -276,6 +319,11 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
       throw new StudentNotFoundException("Invalid student details");
 
     StudentTestDetail studentTestDetail = studentTestDetailDTO.prepareStudentObj(studentTestDetailsDTO);
+    Student student=studentRepository.findById(studentTestDetailsDTO.getStudentId());
+    if(student!=null) {
+    	student.setPassword(null);
+    	studentRepository.save(student);
+    }
     StudentTestDetail savedStudentDetails = studentTestDetailRepository.findByStudentId(studentTestDetailsDTO.getStudentId());
     if (savedStudentDetails == null || savedStudentDetails.getId().isBlank()) {
       return studentTestDetailRepository.save(studentTestDetail);
@@ -285,162 +333,84 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
     }
   }
 
-  private Object executeStudentCode(ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IllegalArgumentException, InstantiationException {
+  private Object executeStudentCode(ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IllegalArgumentException, InstantiationException, IOException, InterruptedException {
     log.info("executeStudentCode() -> started");
     CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
-    String language = executeAllTestCasesDTO.getLanguage();
-    String studentId = executeAllTestCasesDTO.getStudentId();
-    String questionId = executeAllTestCasesDTO.getQuestionId();
-
-    String compilationCommand = codeProcessingUtil.compilationCommand(language, studentId);
-    String compilationMessage = executeProcess(compilationCommand);
-    if (!compilationMessage.isEmpty()) {
-      codeResponseDTO.setComplilationMessage(compilationMessage);
-      log.info("runORExecuteAllTestCases code :: compilation error message :: " + compilationMessage);
-      return codeResponseDTO;
-    }
-    String interpretationCommand = codeProcessingUtil.interpretationCommand(language, studentId);
-    System.out.println("INTER COMMAND : "+interpretationCommand);
+    String questionId=executeAllTestCasesDTO.getQuestionId();
     if (executeAllTestCasesDTO.getFlag() == 1) {
-      codeResponseDTO = executeAllTestCases(questionId, interpretationCommand);
+      codeResponseDTO = executeAllTestCases(questionId, executeAllTestCasesDTO);
     } else {
-      codeResponseDTO = executeSampleTestCase(questionId, interpretationCommand);
+      codeResponseDTO = executeSampleTestCase(questionId,executeAllTestCasesDTO);
     }
     log.info("executeStudentCode() -> end");
     return codeResponseDTO;
   }
 
   @Cacheable(value = "executeCodeForEveryTestcase", key = "#questionId")
-  public CodeResponseDTO executeAllTestCases(String questionId, String interpretationCommand) {
+  public CodeResponseDTO executeAllTestCases(String questionId,ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IOException, InterruptedException {
     log.info("executeAllTestCases() -> started");
     CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
-    List<Callable<Boolean>> taskList = new ArrayList<Callable<Boolean>>();
-    List<Future<Boolean>> futureList = new ArrayList<Future<Boolean>>();
-    ArrayList<Boolean> testCasesResult = new ArrayList<Boolean>();
-    List<TestCases> testCases = questionService.getTestCase(questionId);
-    ExecutorService executorService = Executors.newFixedThreadPool(testCases.size());
-
-    try {
-      for (TestCases testCase : testCases) {
-        taskList.add(new Callable<Boolean>() {
-          @Override
-          public Boolean call() throws Exception {
-            return getTestCaseResponse(testCase, interpretationCommand);
-          }
-        });
-      }
-      futureList = executorService.invokeAll(taskList);
-      for (Future<Boolean> testCaseResponse : futureList) {
-        testCasesResult.add(testCaseResponse.get());
-      }
-    } catch (InterruptedException e) {
-      log.error("executeAllTestCases() -> Something went wrong with this message: " + e.getMessage());
-      codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR\n"+e.getMessage());
-      return codeResponseDTO;
-    } catch (Exception e) {
-      log.error("executeAllTestCases() -> Something went wrong with this message: " + e.getMessage());
-      codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR\n"+e.getMessage());
-      return codeResponseDTO;
-    } finally {
-      executorService.shutdown();
-      futureList.clear();
-      taskList.clear();
+    
+  //Save Temporary Code
+    String result = executeAllTestCasesDTO.getCode().replace("Main", CLASS_NAME+ ++counterForTempSaveCode);
+    codeProcessingUtil.saveCodeTemporary(result, executeAllTestCasesDTO.getLanguage(),
+         executeAllTestCasesDTO.getStudentId(),counterForTempSaveCode);
+    
+    if(executeAllTestCasesDTO.getLanguage().equalsIgnoreCase("java")) {
+    	result = result.replaceAll("Solution", "Solution"+ counterForTempSaveCode);
     }
-    codeResponseDTO.setTestCasesSuccess(testCasesResult);
+    
+    codeResponseDTO=javaCodeTestCases(counterForTempSaveCode,executeAllTestCasesDTO.getStudentId(),executeAllTestCasesDTO.getLanguage(),executeAllTestCasesDTO,questionId);
+   
     log.info("executeAllTestCases() -> end");
     return codeResponseDTO;
   }
 
-  private Boolean getTestCaseResponse(TestCases testCase, String interpretationCommand) throws IllegalArgumentException, InstantiationException {
+  private Object getTestCaseResponse(int counterForTempSaveCode,TestCases testCase,String questionId,ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IllegalArgumentException, InstantiationException, IOException, InterruptedException {
     log.info("executeAllTestCases() -> started");
     Boolean testCaseResponse;
-    String input = testCase.getInput();
-    try {
-        //Creating an object of dynamically generated class and testing against testCase input at once
-        File savedJavaFile = new File(SAVED_CODE_FILE_PATH);
-        URL[] urls = new URL[]{new File(String.valueOf(savedJavaFile)).getParentFile().toURI().toURL()};
-        ClassLoader cl = new URLClassLoader(urls);
-        Class<?> yourClass = cl.loadClass(CLASS_NAME);
-        Method method = yourClass.getMethod(METHOD_NAME, String.class);
-        Object programOutput =method.invoke(METHOD_NAME, input+"");
-        
-        String result=String.valueOf(programOutput);
-        if (result.contains(testCase.getOutput()) || result.equalsIgnoreCase(testCase.getOutput())) {
-        	
-        	testCaseResponse=true;
-        } else {
-        	testCaseResponse=false;
-        }
-      } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException |
-               NoSuchMethodException | MalformedURLException e) {
-        throw new RuntimeException(e);
-      }
     
-    File savedJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+".java");
-    if(savedJavaFile.exists()) {
-  	  if (savedJavaFile.delete()) {
-  	        log.info(savedJavaFile.getName() + " is successfully deleted");
-  	      } else {
-  	        log.info("Failed to delete " + savedJavaFile.getName() + " file");
-  	      }
+    String language = executeAllTestCasesDTO.getLanguage();
+    String studentId = executeAllTestCasesDTO.getStudentId();
+    TestCaseDTO testCases = questionService.getSampleTestCase(questionId);
+    
+    String interpretationCommand = codeProcessingUtil.interpretationCommand(language, studentId,counterForTempSaveCode);
+    interpretationCommand=testCasesResult(interpretationCommand, testCase.getInput(),testCases.getQuestionType());
+    String interprationMessage = executeProcess(interpretationCommand);
+    if (interprationMessage.isEmpty()) {
+ 	   log.info("runORExecuteAllTestCases code :: compilation error message :: " + interprationMessage);
+ 	   deleteFile(language, counterForTempSaveCode);
+ 	   testCaseResponse=false;
+ 	   return testCaseResponse;
+ 	}
+    
+    if (interprationMessage.equals(testCase.getOutput())) {
+    	testCaseResponse=true;
+    } else {
+    	testCaseResponse=false;
     }
+    
     log.info("executeAllTestCases() -> end");
     return testCaseResponse;
   }
 
-  private CodeResponseDTO executeSampleTestCase(String questionId, String interpretationCommand) throws IllegalArgumentException, InstantiationException {
-    log.info("executeSampleTestCase() -> started");
+  public static int counterForTempSaveCode=0;
+  private CodeResponseDTO executeSampleTestCase(String questionId,ExecuteAllTestCasesDTO executeAllTestCasesDTO) throws IllegalArgumentException, InstantiationException, IOException, InterruptedException {
+    log.info("executeSampleTestCase() -> started"); 
     CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
-    ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
-    TestCaseDTO testCases = questionService.getSampleTestCase(questionId);
-    String input = testCases.getInput();
-    ClassLoader cl =null;
-    try {
-        //Creating an object of dynamically generated class and testing against testCase input at once
-//        File savedJavaFile = new File(SAVED_CODE_FILE_PATH);
-//        URL[] urls = new URL[]{new File(String.valueOf(savedJavaFile)).getParentFile().toURI().toURL()};
-//        cl = new URLClassLoader(urls);
-//        Class<?> yourClass = cl.loadClass(CLASS_NAME);
-//        Method method = yourClass.getMethod(METHOD_NAME, String.class);
-//        Object programOutput =method.invoke(CLASS_NAME, input+"");
-    	
-    	String filePath = SAVED_CODE_FILE_PATH+"Main.java";
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Process each line of the file
-                System.out.println(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    	Class<?> yourClass = Class.forName(CLASS_NAME);
-        Method method = yourClass.getMethod(METHOD_NAME, String.class);
-        Object programOutput = method.invoke(yourClass.getDeclaredConstructor().newInstance(), input);
-        yourClass=null;
-        
-        String result=String.valueOf(programOutput);
-        System.out.println("RESULT : "+result);
-        System.out.println("OUTPIT : "+programOutput);
-        System.out.println("TEST : "+input+"======"+testCases.getOutput());
-        if (result.equalsIgnoreCase(testCases.getOutput())) {
-        	testCasesSuccess.add(true);
-        } else {
-        	testCasesSuccess.add(false);
-        }
-      } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException |
-               NoSuchMethodException e) {
-        throw new RuntimeException(e);
-      }
-    File savedJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+".java");
-    if(savedJavaFile.exists()) {
-  	  if (savedJavaFile.delete()) {
-  	        log.info(savedJavaFile.getName() + " is successfully deleted");
-  	      } else {
-  	        log.info("Failed to delete " + savedJavaFile.getName() + " file");
-  	      }
+    String language = executeAllTestCasesDTO.getLanguage();
+    String studentId = executeAllTestCasesDTO.getStudentId();
+    
+    //Save Temporary Code
+    String result = executeAllTestCasesDTO.getCode().replace("Main", CLASS_NAME+ ++counterForTempSaveCode);
+    if(language.equalsIgnoreCase("java")) {
+    	result = result.replaceAll("Solution", "Solution"+ counterForTempSaveCode);
     }
-    codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+    codeProcessingUtil.saveCodeTemporary(result, executeAllTestCasesDTO.getLanguage(),
+         executeAllTestCasesDTO.getStudentId(),counterForTempSaveCode);
+    
+    codeResponseDTO=javaCodeSampleTestCases(counterForTempSaveCode,studentId,language,executeAllTestCasesDTO,questionId);
+
     log.info("executeSampleTestCase() -> end");
     return codeResponseDTO;
   }
@@ -510,14 +480,207 @@ public class CodeProcessingServiceImpl implements CodeProcessingService {
       counter1 = 0;
       Arrays.fill(array, null);
   }
+  
+  public CodeResponseDTO javaCodeSampleTestCases(int counterForTempSaveCode,String studentId,String language,ExecuteAllTestCasesDTO executeAllTestCasesDTO,String questionId) throws IOException, InterruptedException {
+	CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
+	//Compile Code
+	String compilationCommand = codeProcessingUtil.compilationCommand(language, studentId,counterForTempSaveCode);
+	String compilationMessage="";
+	if(!language.equalsIgnoreCase("python"))
+		compilationMessage = executeProcess(compilationCommand);
+	ArrayList<Boolean> testCasesSuccess = new ArrayList<Boolean>();
+    TestCaseDTO testCases = questionService.getSampleTestCase(questionId);
+	if (!compilationMessage.isEmpty()) {
+	   codeResponseDTO.setComplilationMessage(compilationMessage);
+	   log.info("runORExecuteAllTestCases code :: compilation error message :: " + compilationMessage);
+	   deleteFile(language, counterForTempSaveCode);
+	   return codeResponseDTO;
+	}
+    String interpretationCommand = codeProcessingUtil.interpretationCommand(language, studentId,counterForTempSaveCode);
+    interpretationCommand=testCasesResult(interpretationCommand, testCases.getInput(),testCases.getQuestionType());
+    String interprationMessage = executeProcess(interpretationCommand);
+    
+    if(language.equalsIgnoreCase("python")) {
+    	int index = interprationMessage.indexOf("File");
+        if (index != -1) {
+        	codeResponseDTO.setComplilationMessage(interprationMessage);
+        	deleteFile(language, counterForTempSaveCode);
+      	    testCasesSuccess.add(false);
+      	    codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+      	    return codeResponseDTO;
+        }
+    }
+    if (interprationMessage.isEmpty()) {
+ 	   codeResponseDTO.setComplilationMessage(interprationMessage);
+ 	   log.info("runORExecuteAllTestCases code :: compilation error message :: " + interprationMessage);
+ 	   deleteFile(language, counterForTempSaveCode);
+ 	   testCasesSuccess.add(false);
+ 	   codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+ 	   return codeResponseDTO;
+ 	}
+    if(interprationMessage.equals(testCases.getOutput()))
+        testCasesSuccess.add(true);
+    else
+        testCasesSuccess.add(false);
+    
+    deleteFile(language, counterForTempSaveCode);
+    codeResponseDTO.setTestCasesSuccess(testCasesSuccess);
+    return codeResponseDTO;
+  }
+  
+  
+  public CodeResponseDTO javaCodeTestCases(int counterForTempSaveCode,String studentId,String language,ExecuteAllTestCasesDTO executeAllTestCasesDTO,String questionId) throws IOException, InterruptedException{
+	CodeResponseDTO codeResponseDTO = new CodeResponseDTO();
+    List<Callable<Boolean>> taskList = new ArrayList<Callable<Boolean>>();
+    List<Future<Boolean>> futureList = new ArrayList<Future<Boolean>>();
+    ArrayList<Boolean> testCasesResult = new ArrayList<Boolean>();
+    List<TestCases> testCases = questionService.getTestCase(questionId);
+    ExecutorService executorService = Executors.newFixedThreadPool(testCases.size());
+  //Compile Code
+    
+  	String compilationCommand = codeProcessingUtil.compilationCommand(executeAllTestCasesDTO.getLanguage(), executeAllTestCasesDTO.getStudentId(),counterForTempSaveCode);
+  	String compilationMessage="";
+	if(!language.equalsIgnoreCase("python"))
+		compilationMessage = executeProcess(compilationCommand);
+	
+      
+  	if (!compilationMessage.isEmpty()) {
+  	   codeResponseDTO.setComplilationMessage(compilationMessage);
+  	   log.info("runORExecuteAllTestCases code :: compilation error message :: " + compilationMessage);
+  	   deleteFile(language, counterForTempSaveCode);
+  	   return codeResponseDTO;
+  	}
 
-  private static void refreshProject() {
-      // Reinitialize variables
-      counter1 = 0;
-      Arrays.fill(array, null);
+    try {
+      for (TestCases testCase : testCases) {
+        taskList.add(new Callable<Boolean>() {
+          @Override
+          public Boolean call() throws Exception {
+            return (Boolean) getTestCaseResponse(counterForTempSaveCode,testCase, questionId,executeAllTestCasesDTO);
+          }
+        });
+      }
+      futureList = executorService.invokeAll(taskList);
+      for (Future<Boolean> testCaseResponse : futureList) {
+        testCasesResult.add(testCaseResponse.get());
+      }
+    } catch (InterruptedException e) {
+      log.error("executeAllTestCases() -> Something went wrong with this message: " + e.getMessage());
+      codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR\n"+e.getMessage());
+      return codeResponseDTO;
+    } catch (Exception e) {
+      log.error("executeAllTestCases() -> Something went wrong with this message: " + e.getMessage());
+      codeResponseDTO.setComplilationMessage("Something went wrong. Please contact to HR\n"+e.getMessage());
+      return codeResponseDTO;
+    } finally {
+      executorService.shutdown();
+      futureList.clear();
+      taskList.clear();
+    }
+	 codeResponseDTO.setTestCasesSuccess(testCasesResult); 
+	 return codeResponseDTO;
+  }
+  
+  public String testCasesResult(String interpretationCommand,String input,String questionType) {
+	  if(questionType.equalsIgnoreCase("Array")) {
+	    	Pattern keyValuePattern = Pattern.compile("([^=,]+)=([^=,]+)");
+	    	Matcher keyValueMatcher = keyValuePattern.matcher(input);
+	    	while (keyValueMatcher.find()) {
+	    	    String value = keyValueMatcher.group(2);
 
-      List<String> list = new ArrayList<>();
-      list.clear();
+	    	    if (value.startsWith("[") && value.endsWith("]")) {
+	    	        // Extract array values
+	    	        String[] stringArray = value.substring(1, value.length() - 1).split("/");
+	    	        int[] intArray = new int[stringArray.length];
+	    	        for (int i = 0; i < stringArray.length; i++) {
+	    	            intArray[i] = Integer.parseInt(stringArray[i]);
+	    	        }
+	    	        String arr="[";
+	    	        for(int i=0;i<intArray.length-1;i++)
+	    	        	arr=arr+intArray[i]+",";
+	    	        arr=arr+intArray[intArray.length-1]+"]";
+	    	        interpretationCommand=interpretationCommand+" "+arr;
+	    	    } else {
+	    	        // Treat value as integer
+	    	        int intValue = Integer.parseInt(value);
+	    	        interpretationCommand=interpretationCommand+" "+intValue;
+	    	    }
+	    	}
+	    }else if(questionType.equalsIgnoreCase("String")) {
+//	    	String input=testCases.getInput();
+	    	String[] parts = input.split(",");
+			for (String part : parts) {
+	    	    String[] keyValue = part.split("=");
+	    	    if (keyValue.length == 2) {
+	    	        String value = keyValue[1];
+	    	        interpretationCommand=interpretationCommand+" "+value;
+	    	    }else if (keyValue.length==1) {
+	    	    	String value = keyValue[0];
+	    	        interpretationCommand=interpretationCommand+" "+value;
+				}
+	    	}
+	    	
+	    }
+	  return interpretationCommand;
+  }
+  
+  
+  public void deleteFile(String language,int counterForTempSaveCode) {
+	  if(language.equalsIgnoreCase("java")) {
+		  File savedJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+counterForTempSaveCode+".java");
+	 	   if(savedJavaFile.exists()) {
+	 		  	 if (savedJavaFile.delete()) 
+	 		  		 log.info(savedJavaFile.getName() + " is successfully deleted");
+	 		  	 else
+	 		  	     log.info("Failed to delete " + savedJavaFile.getName() + " file");
+	 	   }
+	 	   File savedClassJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+counterForTempSaveCode+".class");
+	 	   if(savedClassJavaFile.exists()) {
+	 		  	 if (savedClassJavaFile.delete()) 
+	 		  		 log.info(savedJavaFile.getName() + " is successfully deleted");
+	 		  	 else
+	 		  	     log.info("Failed to delete " + savedClassJavaFile.getName() + " file");
+	 	   }
+	 	  File solutionClassJavaFile = new File(SAVED_CODE_FILE_PATH + "Solution"+counterForTempSaveCode+".class");
+	 	   if(solutionClassJavaFile.exists()) {
+	 		  	 if (solutionClassJavaFile.delete()) 
+	 		  		 log.info(solutionClassJavaFile.getName() + " is successfully deleted");
+	 		  	 else
+	 		  	     log.info("Failed to delete " + solutionClassJavaFile.getName() + " file");
+	 	   }
+	  }else if(language.equalsIgnoreCase("c")) {
+		  File savedJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+counterForTempSaveCode+".c");
+	 	   if(savedJavaFile.exists()) {
+	 		  	 if (savedJavaFile.delete()) 
+	 		  		 log.info(savedJavaFile.getName() + " is successfully deleted");
+	 		  	 else
+	 		  	     log.info("Failed to delete " + savedJavaFile.getName() + " file");
+	 	   }
+	 	   File savedClassJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+counterForTempSaveCode+".exe");
+	 	   if(savedClassJavaFile.exists()) {
+	 		  	 if (savedClassJavaFile.delete()) 
+	 		  		 log.info(savedJavaFile.getName() + " is successfully deleted");
+	 		  	 else
+	 		  	     log.info("Failed to delete " + savedClassJavaFile.getName() + " file");
+	 	   }
+	  }else if(language.equalsIgnoreCase("cpp")) {
+		  File savedJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+counterForTempSaveCode+".cpp");
+	 	   if(savedJavaFile.exists()) {
+	 		  	 if (savedJavaFile.delete()) 
+	 		  		 log.info(savedJavaFile.getName() + " is successfully deleted");
+	 		  	 else
+	 		  	     log.info("Failed to delete " + savedJavaFile.getName() + " file");
+	 	   }
+	 	   File savedClassJavaFile = new File(SAVED_CODE_FILE_PATH + CLASS_NAME+counterForTempSaveCode+".exe");
+	 	   if(savedClassJavaFile.exists()) {
+	 		  	 if (savedClassJavaFile.delete()) 
+	 		  		 log.info(savedJavaFile.getName() + " is successfully deleted");
+	 		  	 else
+	 		  	     log.info("Failed to delete " + savedClassJavaFile.getName() + " file");
+	 	   }
+	  }else if(language.equalsIgnoreCase("python")) {
+		  
+	  }
   }
 }
 

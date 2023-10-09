@@ -108,7 +108,7 @@ public class ExcelPOIHelper {
             XSSFSheet sheet = workbook.getSheetAt(0);
             FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
             
-            for (int i = sheet.getFirstRowNum(); i <sheet.getLastRowNum(); i++) {
+            for (int i = sheet.getFirstRowNum(); i <=sheet.getLastRowNum(); i++) {
                 XSSFRow row = sheet.getRow(i);
                 data.put(i, new ArrayList<>());
                 if (row != null) {

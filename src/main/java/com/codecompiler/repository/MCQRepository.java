@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.codecompiler.entity.MCQ;
 
 @Repository
-public interface MCQRepository extends MongoRepository<MCQ,Integer> {
+public interface MCQRepository extends MongoRepository<MCQ,String> {
 	
 	public List<MCQ> findByMcqIdIn(List<String> mcqId);
 	public List<MCQ> findByMcqStatus(boolean mcqId);
