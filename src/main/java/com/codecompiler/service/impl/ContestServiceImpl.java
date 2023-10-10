@@ -193,7 +193,7 @@ public class ContestServiceImpl implements ContestService {
 			}).collect(Collectors.toList());
 		}else if(selectlanguage.equalsIgnoreCase("Python")) {
 			contestQuestionsList=contestQuestionsList.stream().map(q -> {
-				q.setSampleCode(q.getPythonSampleCoe());
+				q.setSampleCode(q.getPythonSampleCode());
 				return q;
 			}).collect(Collectors.toList());
 		}
