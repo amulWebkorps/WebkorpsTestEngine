@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -167,37 +166,44 @@ public class MCQServiceImpl implements MCQService {
 			return mcqRepository.save(mcq);
 		}).orElse(null);
 	}
-
 	public List<MCQ> saveAllMcq(List<MCQ> addMcq, Contest contest) {
-		List<String> contestPresentMcqsId = contest.getMcqStatus().stream().map(MCQStatusDTO::getMcqId)
-				.collect(Collectors.toList());
+	    List<String> contestPresentMcqsId = contest.getMcqStatus().stream()
+	            .map(MCQStatusDTO::getMcqId)
+	            .collect(Collectors.toList());
 
-		List<MCQ> contestPresentMcqs = mcqRepository.findByMcqIdIn(contestPresentMcqsId);
-		List<MCQ> allMcq = mcqRepository.findAll();
+	    List<MCQ> contestPresentMcqs = mcqRepository.findByMcqIdIn(contestPresentMcqsId);
+	    List<MCQ> allMcq = mcqRepository.findAll();
 
-		List<MCQ> answer = new ArrayList<>(addMcq.size());
+	    List<MCQ> answer = new ArrayList<>(addMcq.size());
 
-		if (contestPresentMcqs.isEmpty() || !allMcq.isEmpty()) {
-			Map<String, MCQ> existingMcqMap = contestPresentMcqs.stream()
-					.collect(Collectors.toMap(mcq -> mcq.getMcqQuestion().toLowerCase().trim(), mcq -> mcq));
+	    if (contestPresentMcqs.isEmpty() || !allMcq.isEmpty()) {
+	        Map<String, MCQ> existingMcqMap = contestPresentMcqs.stream()
+	                .collect(Collectors.toMap(
+	                        mcq -> mcq.getMcqQuestion().toLowerCase().trim(),
+	                        mcq -> mcq
+	                ));
 
-			for (MCQ mcq : addMcq) {
-				String question = mcq.getMcqQuestion().toLowerCase().trim();
-				if (existingMcqMap.containsKey(question)) {
-					MCQ existingMcq = existingMcqMap.get(question);
-					if (!existingMcq.isMcqStatus()) {
-						existingMcq.setMcqStatus(true);
-						mcqRepository.save(existingMcq); // Save the updated status
-					}
-					answer.add(existingMcq);
-				} else {
-					answer.add(mcq);
-				}
-			}
-		}
+	        for (MCQ mcq : addMcq) {
+	            String question = mcq.getMcqQuestion().toLowerCase().trim();
+	            if (existingMcqMap.containsKey(question)) {
+	                MCQ existingMcq = existingMcqMap.get(question);
+	                if (!existingMcq.isMcqStatus()) {
+	                    existingMcq.setMcqStatus(true);
+	                    answer.add(existingMcq);
+	                }
+	            } else {
+	                answer.add(mcq);
+	            }
+	        }
 
-		return answer;
+	        if (!answer.isEmpty()) {
+	            mcqRepository.saveAll(answer);
+	        }
+	    }
+
+	    return answer;
 	}
+
 
 	public List<MCQ> saveMcq(List<MCQ> allMcq) {
 		List<MCQ> oldMcq = mcqRepository.findAll();
