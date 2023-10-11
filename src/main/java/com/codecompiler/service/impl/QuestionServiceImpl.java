@@ -2,6 +2,7 @@ package com.codecompiler.service.impl;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -48,19 +49,12 @@ public class QuestionServiceImpl implements QuestionService {
 
 	@Override
 	public List<Question> findAllQuestion() {
-		List<Question> totalQuestionWithStatusTrue = new ArrayList<>();
-		List<Question> questions = questionRepository.findAll();
-		if (questions == null) {
-			throw new RecordNotFoundException("findAllQuestion:: Questions doesn't found");
-		}
-		for (Question verifyQuestion : questions) {
-			if (verifyQuestion.getQuestionStatus() != null) {
-				if (verifyQuestion.getQuestionStatus().equals("true"))
-					totalQuestionWithStatusTrue.add(verifyQuestion);
-			}
-		}
-		return totalQuestionWithStatusTrue;
+		return questionRepository.findAll().stream()
+				.filter(question -> "true".equals(question.getQuestionStatus()))
+				.collect(Collectors.toList());
 	}
+
+
 
 	public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId, String contestLevel)
 			throws IOException {
@@ -145,14 +139,10 @@ public class QuestionServiceImpl implements QuestionService {
 			throw new NullPointerException();
 		else if (filterByString.isBlank())
 			throw new IllegalArgumentException();
-		ArrayList<Question> totalQuestionWithStatusTrue = new ArrayList<Question>();
-		List<Question> questions = questionRepository.findByContestLevel(filterByString);
-		for (Question verifyQuestion : questions) {
-			if (verifyQuestion.getQuestionStatus() != null && verifyQuestion.getQuestionStatus().equals("true")) {
-				totalQuestionWithStatusTrue.add(verifyQuestion);
-			}
-		}
-		return totalQuestionWithStatusTrue;
+		return questionRepository.findByContestLevel(filterByString)
+				.stream()
+				.filter(question -> "true".equals(question.getQuestionStatus()))
+				.collect(Collectors.toList());
 	}
 
 	@Cacheable(value = "TestCases" , key = "#questionId")

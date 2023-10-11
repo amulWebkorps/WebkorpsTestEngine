@@ -31,6 +31,17 @@ public class Contest implements Serializable {
 	public Contest() {
 		super();		
 	}
+
+	public Contest(String contestId, String contestName, String contestLevel, String contestDescription, String date, String contestTime, String contestType) {
+		this.contestId = contestId;
+		this.contestName = contestName;
+		this.contestLevel = contestLevel;
+		this.contestDescription = contestDescription;
+		this.date = date;
+		this.contestTime = contestTime;
+		this.contestType = contestType;
+	}
+
 	public String getContestId() {
 		return contestId;
 	}

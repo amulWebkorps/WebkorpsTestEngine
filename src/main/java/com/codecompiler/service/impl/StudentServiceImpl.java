@@ -139,11 +139,11 @@ public class StudentServiceImpl implements StudentService {
     return studentRepository.save(studentDetails);
   }
 
-  public List<String> findEmailByStatus(Boolean True) {
-    if (True == null) {
-      throw new NullPointerException();
+  public List<String> findEmailByStatus(Boolean isActive) {
+    if (isActive == null) {
+      throw new IllegalArgumentException("Status parameter cannot be null");
     }
-    List<Student> sentMail = studentRepository.findEmailByStatus(True);
+    List<Student> sentMail = studentRepository.findEmailByStatus(isActive);
     return sentMail.stream().map(Student::getEmail).collect(Collectors.toList());
   }
 
@@ -271,8 +271,7 @@ public class StudentServiceImpl implements StudentService {
 
   @Override
   public List<String> findAll() {
-    List<Student> presentStudent = studentRepository.findEmailByStatus(false);
-    List<String> emailList = presentStudent.stream().map(Student::getEmail).collect(Collectors.toList());
+    List<String> emailList =  studentRepository.findEmailByStatus(false).stream().map(Student::getEmail).collect(Collectors.toList());
     if (emailList.isEmpty()) {
       throw new RecordNotFoundException("No Participator is in active state");
     }
@@ -330,12 +329,12 @@ public class StudentServiceImpl implements StudentService {
   }
 
   public List<String> findByContestLevel(String filterByString) {
+    System.out.println("findByContestLevel called");
     if (filterByString == null)
       throw new NullPointerException();
     else if (filterByString.isBlank())
       throw new IllegalArgumentException();
-    List<Student> participants = studentRepository.findByContestLevelAndStatus(filterByString, false);
-    return participants.stream().map(Student::getEmail).collect(Collectors.toList());
+    return studentRepository.findByContestLevelAndStatus(filterByString, false).stream().map(Student::getEmail).collect(Collectors.toList());
   }
 
   @Override
