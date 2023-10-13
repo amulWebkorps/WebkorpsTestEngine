@@ -5,8 +5,7 @@ import java.util.List;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
-//import javax.persistence.Id;
-
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.codecompiler.dto.TestCaseDTO;
@@ -15,7 +14,7 @@ import com.codecompiler.dto.TestCaseDTO;
 @EntityScan
 public class Question implements Serializable{
 
-	@org.springframework.data.annotation.Id
+	@Id
 	private String questionId;	
 	private String question;
 	private  String contestLevel;	
@@ -27,7 +26,7 @@ public class Question implements Serializable{
 	private String questionType;
 	private String javaSampleCode;
 	private String cPlusPluseSampleCode;
-	private String pythonSampleCoe;
+	private String pythonSampleCode;
 	private String sampleCode;
 	
 	public String getcSampleCode() {
@@ -62,12 +61,12 @@ public class Question implements Serializable{
 		this.cPlusPluseSampleCode = cPlusPluseSampleCode;
 	}
 
-	public String getPythonSampleCoe() {
-		return pythonSampleCoe;
+	public String getPythonSampleCode() {
+		return pythonSampleCode;
 	}
 
-	public void setPythonSampleCoe(String pythonSampleCoe) {
-		this.pythonSampleCoe = pythonSampleCoe;
+	public void setPythonSampleCode(String pythonSampleCode) {
+		this.pythonSampleCode = pythonSampleCode;
 	}
 
 	public String getQuestionType() {

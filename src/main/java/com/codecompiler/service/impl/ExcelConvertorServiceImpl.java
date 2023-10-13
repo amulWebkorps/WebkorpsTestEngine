@@ -1,13 +1,9 @@
 package com.codecompiler.service.impl;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,53 +84,50 @@ public class ExcelConvertorServiceImpl implements ExcelConvertorService {
 
 		try {
 			List<MyCellDTO> headerRow = data.get(0);
+
 			for (int i = 1; i < data.size(); i++) {
-				Question question = new Question();
-				TestCaseDTO sampleTestCases = new TestCaseDTO();
-				List<TestCaseDTO> ListSampleTestCase = new ArrayList<>();
-				List<TestCases> listTestCases = new ArrayList<>();
-				TestCases testCases = new TestCases();
-				String tempQid = UUID.randomUUID().toString();
 				List<MyCellDTO> row = data.get(i);
+
+				Question question = new Question();
+				String tempQid = UUID.randomUUID().toString();
+
 				question.setContestLevel(row.get(0).getContent());
 				question.setQuestion(row.get(1).getContent());
+
+				TestCaseDTO sampleTestCases = new TestCaseDTO();
 				sampleTestCases.setConstraints(row.get(2).getContent());
 				sampleTestCases.setInput(row.get(3).getContent());
 				sampleTestCases.setOutput(row.get(4).getContent());
+
+				List<TestCaseDTO> listSampleTestCase = Collections.singletonList(sampleTestCases);
+				question.setSampleTestCase(listSampleTestCase);
+
+				List<TestCases> listTestCases = new ArrayList<>();
 				for (int k = 10; k < headerRow.size(); k++) {
-					if (row.get(k).getContent() != "") {
-						int flag = 0;
+					if (!row.get(k).getContent().isEmpty()) {
+						TestCases testCases = new TestCases();
 						if (k % 2 != 1) {
 							testCases.setInput(row.get(k).getContent());
-							flag = 1;
 						} else {
 							testCases.setOutput(row.get(k).getContent());
-							flag = 2;
-						}
-						if (flag == 2) {
 							listTestCases.add(testCases);
-							testCases = new TestCases();
 						}
 					}
 				}
-				ListSampleTestCase.add(sampleTestCases);
+
 				question.setQuestionId(tempQid);
 				question.setQuestionStatus("true");
 				question.setTestcases(listTestCases);
-				question.setSampleTestCase(ListSampleTestCase);
-				question.setCreatedDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+				question.setCreatedDate(LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
 				question.setJavaSampleCode(row.get(5).getContent());
 				question.setCSampleCode(row.get(6).getContent());
 				question.setcPlusPluseSampleCode(row.get(7).getContent());
-				question.setPythonSampleCoe(row.get(8).getContent());
+				question.setPythonSampleCode(row.get(8).getContent());
 				question.setQuestionType(row.get(9).getContent());
-				Question result = listOfQuestions.stream()
-						.filter(obj -> obj.getQuestion().equals(question.getQuestion())).findFirst().orElse(null);
 
-				if (result != null)
-					continue;
-
-				questionList.add(question);
+				if (listOfQuestions.stream().noneMatch(obj -> obj.getQuestion().equals(question.getQuestion()))) {
+					questionList.add(question);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

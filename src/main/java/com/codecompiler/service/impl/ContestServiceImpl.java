@@ -1,7 +1,6 @@
 package com.codecompiler.service.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -96,22 +95,16 @@ public class ContestServiceImpl implements ContestService {
 	@Override
 	public List<Contest> findAllContest() {
 		logger.info("getAllContest: started");
-		List<Contest> contestIdAndName = new ArrayList<>();
 		List<Contest> contestList = contestRepository.findAll();
-		contestList.forEach(eachContestRecord -> {
-			Contest contestRecord = new Contest();
-			contestRecord.setContestId(eachContestRecord.getContestId());
-			contestRecord.setContestName(eachContestRecord.getContestName());
-			contestRecord.setContestLevel(eachContestRecord.getContestLevel());
-			contestRecord.setContestDescription(eachContestRecord.getContestDescription());
-			contestRecord.setDate(eachContestRecord.getDate());
-			contestRecord.setContestTime(eachContestRecord.getContestTime());
-			contestRecord.setContestType(eachContestRecord.getContestType());
-			contestIdAndName.add(contestRecord);
-		});
+		List<Contest> contestIdAndName = contestList.stream()
+				.map(contest -> new Contest(contest.getContestId(), contest.getContestName(), contest.getContestLevel(),
+						contest.getContestDescription(), contest.getDate(), contest.getContestTime(), contest.getContestType()))
+				.collect(Collectors.toList());
+
 		logger.info("getAllContest: ended");
 		return contestIdAndName;
 	}
+
 
 	@Override
 	public Map<String, Object> getContestDetail(String contestId, String contestType) {
@@ -193,7 +186,7 @@ public class ContestServiceImpl implements ContestService {
 			}).collect(Collectors.toList());
 		}else if(selectlanguage.equalsIgnoreCase("Python")) {
 			contestQuestionsList=contestQuestionsList.stream().map(q -> {
-				q.setSampleCode(q.getPythonSampleCoe());
+				q.setSampleCode(q.getPythonSampleCode());
 				return q;
 			}).collect(Collectors.toList());
 		}
@@ -357,7 +350,7 @@ public class ContestServiceImpl implements ContestService {
 	}
 
 	@Override
-	public Map<String, Object> findAllUploadedQuetions(String contestId, String studentId) {
+	public Map<String, Object> findAllUploadedQuestions(String contestId, String studentId) {
 		Contest contest = contestRepository.findByContestId(contestId);
 		List<MCQDTO> list = new ArrayList<MCQDTO>();
 

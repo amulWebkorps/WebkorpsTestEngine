@@ -23,7 +23,7 @@ import com.codecompiler.dto.JwtResponseDTO;
 import com.codecompiler.dto.ParticipantDTO;
 import com.codecompiler.dto.StudentFinalResponse;
 import com.codecompiler.entity.Student;
-import com.codecompiler.reponse.ResponseHandler;
+import com.codecompiler.response.ResponseHandler;
 import com.codecompiler.service.ContestService;
 import com.codecompiler.service.StudentService;
 import com.codecompiler.util.JwtUtil;
@@ -48,22 +48,26 @@ public class ParticipantController {
 
 	@PostMapping("public/doSignInForParticipator")
 	public ResponseEntity<Object> doSignIn(@RequestBody Student student, @RequestParam("contestId") String contestId) {
-		log.info("doSignIn:: Started : " + contestId);
+		log.info("doSignIn:: Started : {}", contestId);
 
-		Authentication authObj = this.authenticationManager.authenticate(
+		Authentication authObj = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(student.getEmail().toLowerCase(), student.getPassword()));
-		Student studentExists = this.studentService.findByEmailAndPassword(student.getEmail().toLowerCase(),
-				student.getPassword());
-		String contestType = contestService.findContestTypeByContestId(contestId);
-		JwtResponseDTO jwtResponseDTO = new JwtResponseDTO();
-		studentExists.setContestId(contestId);
-		studentExists.setContestType(contestType);
-		jwtResponseDTO.setToken(this.jwtUtil.generateToken(authObj.getName()));
-		jwtResponseDTO.setStudent(studentExists);
-		log.info("doSignIn:: Particepant authenticate successfully :" + jwtResponseDTO);
-		log.info("doCome:: Particepant authenticate successfully :" + jwtResponseDTO);
-		return ResponseHandler.generateResponse("success", HttpStatus.OK, jwtResponseDTO);
 
+		Student authenticatedStudent = studentService.findByEmailAndPassword(student.getEmail().toLowerCase(),
+				student.getPassword());
+
+		String contestType = contestService.findContestTypeByContestId(contestId);
+
+		JwtResponseDTO jwtResponseDTO = new JwtResponseDTO();
+		authenticatedStudent.setContestId(contestId);
+		authenticatedStudent.setContestType(contestType);
+
+		jwtResponseDTO.setToken(jwtUtil.generateToken(authObj.getName()));
+		jwtResponseDTO.setStudent(authenticatedStudent);
+
+		log.info("Participanct authenticated successfully: {}", jwtResponseDTO);
+
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, jwtResponseDTO);
 	}
 
 	@GetMapping("admin/getParticipatorDetail")

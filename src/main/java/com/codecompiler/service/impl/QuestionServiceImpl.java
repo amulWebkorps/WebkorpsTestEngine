@@ -1,14 +1,13 @@
 package com.codecompiler.service.impl;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import com.codecompiler.exception.InsufficientDataException;
 import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -50,19 +49,12 @@ public class QuestionServiceImpl implements QuestionService {
 
 	@Override
 	public List<Question> findAllQuestion() {
-		List<Question> totalQuestionWithStatusTrue = new ArrayList<>();
-		List<Question> questions = questionRepository.findAll();
-		if (questions == null) {
-			throw new RecordNotFoundException("findAllQuestion:: Questions doesn't found");
-		}
-		for (Question verifyQuestion : questions) {
-			if (verifyQuestion.getQuestionStatus() != null) {
-				if (verifyQuestion.getQuestionStatus().equals("true"))
-					totalQuestionWithStatusTrue.add(verifyQuestion);
-			}
-		}
-		return totalQuestionWithStatusTrue;
+		return questionRepository.findAll().stream()
+				.filter(question -> "true".equals(question.getQuestionStatus()))
+				.collect(Collectors.toList());
 	}
+
+
 
 	public List<Question> saveFileForBulkQuestion(MultipartFile file, String contestId, String contestLevel)
 			throws IOException {
@@ -72,10 +64,10 @@ public class QuestionServiceImpl implements QuestionService {
 		Contest contest = contestRepository.findByContestId(contestId);
 		List<Question> allTrueQuestions = null;
 		Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
-				file.getOriginalFilename());
+				Objects.requireNonNull(file.getOriginalFilename()));
 		allTrueQuestions = excelConvertorService.convertExcelToListOfQuestions(data);
 		
-		if (allTrueQuestions.isEmpty() || allTrueQuestions == null) {
+		if (allTrueQuestions.isEmpty()) {
 			throw new RecordNotFoundException("saveFileForBulkQuestion:: Data isn't present in the file");
 		}
 		allTrueQuestions = questionRepository.saveAll(allTrueQuestions);
@@ -147,14 +139,10 @@ public class QuestionServiceImpl implements QuestionService {
 			throw new NullPointerException();
 		else if (filterByString.isBlank())
 			throw new IllegalArgumentException();
-		ArrayList<Question> totalQuestionWithStatusTrue = new ArrayList<Question>();
-		List<Question> questions = questionRepository.findByContestLevel(filterByString);
-		for (Question verifyQuestion : questions) {
-			if (verifyQuestion.getQuestionStatus() != null && verifyQuestion.getQuestionStatus().equals("true")) {
-				totalQuestionWithStatusTrue.add(verifyQuestion);
-			}
-		}
-		return totalQuestionWithStatusTrue;
+		return questionRepository.findByContestLevel(filterByString)
+				.stream()
+				.filter(question -> "true".equals(question.getQuestionStatus()))
+				.collect(Collectors.toList());
 	}
 
 	@Cacheable(value = "TestCases" , key = "#questionId")
@@ -171,19 +159,21 @@ public class QuestionServiceImpl implements QuestionService {
 
 	@Override
 	public List<Question> getAllQuestions(Map<String, List<String>> questionIdList) {
-		String contestId = questionIdList.get("contestId").get(0);
-		if (contestId.isBlank() || contestId == null) {
-			throw new NullPointerException("Method argument list does not contain valid question id");
-		}
+		String contestId = Optional.ofNullable(questionIdList.get("contestId"))
+				.map(list -> list.get(0))
+				.orElseThrow(() -> new NullPointerException("Method argument list does not contain a valid contestId"));
+
+		Objects.requireNonNull(contestId, "ContestId cannot be null");
 
 		if (questionIdList.size() < 2) {
-			throw new NullPointerException("Method argument is null or it have insufficient data");
+			throw new InsufficientDataException("Method argument is null or it has insufficient data");
 		}
 
 		List<Question> questionDetails = questionRepository.findByQuestionIdIn(questionIdList.get("questionsIds"));
 		if (questionDetails == null) {
-			throw new RecordNotFoundException("getAllQuestions:: Questions does not found");
+			throw new RecordNotFoundException("getAllQuestions:: Questions do not found");
 		}
+
 		this.saveContests(contestId, questionIdList);
 		return questionDetails;
 	}
@@ -225,22 +215,24 @@ public class QuestionServiceImpl implements QuestionService {
 
 	@Override
 	public void saveQuestionOrContest(ArrayList<String> contestAndQuestionId) {
-		if (contestAndQuestionId == null || contestAndQuestionId.size() < 2) {
-			throw new NullPointerException("Method argument is null or it have insufficient data");
+		Objects.requireNonNull(contestAndQuestionId, "Method argument is null");
+		if (contestAndQuestionId.size() < 2) {
+			throw new IllegalArgumentException("Insufficient data in the method argument");
 		}
-		if (contestAndQuestionId.get(0).equals("questionForLevel")) {
-			Question questionStatusChange = findByQuestionId(contestAndQuestionId.get(1));
+
+		String firstElement = contestAndQuestionId.get(0);
+		String secondElement = contestAndQuestionId.get(1);
+
+		if ("questionForLevel".equals(firstElement)) {
+			Question questionStatusChange = findByQuestionId(secondElement);
 			questionStatusChange.setQuestionStatus("false");
 			saveQuestion(questionStatusChange);
 		} else {
-			Contest contest = new Contest();
-			contest = contestService.findByContestId(contestAndQuestionId.get(0));
-			int index = 0;
+			Contest contest = contestService.findByContestId(firstElement);
 			for (QuestionStatusDTO qs : contest.getQuestionStatus()) {
-				if (qs.getQuestionId().equals(contestAndQuestionId.get(1))) {
-					contest.getQuestionStatus().get(index).setStatus(false);
+				if (qs.getQuestionId().equals(secondElement)) {
+					qs.setStatus(false);
 				}
-				index++;
 			}
 			contestService.saveContest(contest);
 		}
