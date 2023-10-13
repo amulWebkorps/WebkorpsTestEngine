@@ -1,4 +1,4 @@
-package com.codecompiler.reponse;
+package com.codecompiler.response;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

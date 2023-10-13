@@ -350,7 +350,7 @@ public class ContestServiceImpl implements ContestService {
 	}
 
 	@Override
-	public Map<String, Object> findAllUploadedQuetions(String contestId, String studentId) {
+	public Map<String, Object> findAllUploadedQuestions(String contestId, String studentId) {
 		Contest contest = contestRepository.findByContestId(contestId);
 		List<MCQDTO> list = new ArrayList<MCQDTO>();
 

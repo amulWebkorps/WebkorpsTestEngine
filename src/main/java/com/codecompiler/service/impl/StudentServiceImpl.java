@@ -1,16 +1,8 @@
 package com.codecompiler.service.impl;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -150,21 +142,25 @@ public class StudentServiceImpl implements StudentService {
   @Override
   public List<String> saveFileForBulkParticipator(MultipartFile file) {
     log.info("saveFileForBulkParticipator:: has started");
+
     if (!ExcelConvertorService.checkExcelFormat(file)) {
       throw new UnSupportedFormatException("Please check excel file format");
     }
-    List<Student> uploadParticipator = new ArrayList<>();
-    try {
-      Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(file.getInputStream(),
-          file.getOriginalFilename());
+
+    List<Student> uploadParticipator;
+    try (InputStream inputStream = file.getInputStream()) {
+      Map<Integer, List<MyCellDTO>> data = excelPOIHelper.readExcel(inputStream, Objects.requireNonNull(file.getOriginalFilename()));
       uploadParticipator = excelConvertorService.convertExcelToListOfStudent(data);
       studentRepository.saveAll(uploadParticipator);
       log.info("saveFileForBulkParticipator:: bulk participators saved successfully");
     } catch (IOException e) {
-      log.info("Exception occurs in saveFileForBulkParticipator: " + e.getMessage());
+      log.error("Exception occurs in saveFileForBulkParticipator: ", e);
+      uploadParticipator = Collections.emptyList();
     }
+
     return uploadParticipator.stream().map(Student::getEmail).collect(Collectors.toList());
   }
+
 
   public Student deleteByEmail(String emailId) {
     log.info("deleteByEmail:: started with an email: " + emailId);

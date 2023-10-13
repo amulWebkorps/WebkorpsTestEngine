@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.codecompiler.entity.Admin;
-import com.codecompiler.reponse.ResponseHandler;
+import com.codecompiler.response.ResponseHandler;
 import com.codecompiler.service.AdminService;
 import com.codecompiler.util.JwtUtil;
 
@@ -34,18 +34,22 @@ public class AdminController {
 
 	@PostMapping("public/admin/signIn")
 	public ResponseEntity<Object> doLogin(@RequestBody Admin admin) {
-		log.info("doLogin started user email :: " + admin.getEmail());
+		log.info("doLogin started user email :: {}", admin.getEmail());
 
 		Authentication authObj = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(admin.getEmail().toLowerCase(), admin.getPassword()));
+
 		String token = jwtUtil.generateToken(authObj.getName());
+
 		log.info("doLogin ended token generated successfully");
+
 		return ResponseHandler.generateResponse("success", HttpStatus.OK, token);
 	}
 
+
 	@PostMapping("public/adminRegistration")
 	private ResponseEntity<Object> adminRegistration(@RequestBody Admin admin) {
-		log.info("adminRegistration started admin email ::" + admin.getEmail());
+		log.info("adminRegistration started admin email :: {}", admin.getEmail());
 		adminService.saveAdminDetails(admin);
 		log.info("Admin details saved successfully");
 		return ResponseHandler.generateResponse("success", HttpStatus.OK, "Admin registered successfully");
