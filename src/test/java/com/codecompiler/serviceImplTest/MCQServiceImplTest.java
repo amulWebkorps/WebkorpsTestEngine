@@ -69,7 +69,7 @@ public class MCQServiceImplTest {
 
 	@Test
 	public void testDeleteMcqWhenAlreadyDeleted() {
-	
+		
 		String mcqId = "123";
 		MCQ mcq = new MCQ();
 		mcq.setMcqId(mcqId);
@@ -366,7 +366,7 @@ public class MCQServiceImplTest {
 
 	@Test
 	void testSaveMcq() {
-		 
+		
 		MCQ existingMCQ1 = new MCQ();
 		existingMCQ1.setMcqId("1");
 		existingMCQ1.setMcqQuestion("Sample Question 1");
@@ -380,7 +380,7 @@ public class MCQServiceImplTest {
 		List<MCQ> oldMcqList = Arrays.asList(existingMCQ1, existingMCQ2);
 
 		MCQ newMCQ1 = new MCQ();
-		newMCQ1.setMcqQuestion("New Question 1");
+		newMCQ1.setMcqQuestion("Sample Question 1");
 		newMCQ1.setMcqStatus(true);
 
 		MCQ newMCQ2 = new MCQ();
