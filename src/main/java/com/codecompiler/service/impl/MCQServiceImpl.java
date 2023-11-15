@@ -116,7 +116,7 @@ public class MCQServiceImpl implements MCQService {
 
 		return contestService.saveContest(contest);
 	}
-
+	 
 	public List<String> saveMCQContest(Contest contest, List<MCQ> allTrueQuestions) {
 		ArrayList<MCQStatusDTO> mcqStatusList = new ArrayList<MCQStatusDTO>();
 		allTrueQuestions.forEach(latestUploadedQuestions -> {

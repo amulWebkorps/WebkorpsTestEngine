@@ -7,10 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,6 +33,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.mongodb.core.aggregation.SetOperators.AnyElementTrue;
 import org.springframework.mock.web.MockMultipartFile;
 
 import com.codecompiler.dto.MCQStatusDTO;
@@ -69,7 +72,7 @@ public class MCQServiceImplTest {
 
 	@Test
 	public void testDeleteMcqWhenAlreadyDeleted() {
-		
+
 		String mcqId = "123";
 		MCQ mcq = new MCQ();
 		mcq.setMcqId(mcqId);
@@ -147,10 +150,11 @@ public class MCQServiceImplTest {
 		assertEquals(mcq.getMcqId(), mcqIdList.get("mcqIds").get(0));
 
 	}
+	
 
 	@Test
 	public void testSaveContests() {
-
+		 
 		String contestId = "123";
 		Map<String, List<String>> mcqIdList = Map.of("mcqIds", Arrays.asList("1", "2", "3"));
 		Contest contest = new Contest();
@@ -366,7 +370,7 @@ public class MCQServiceImplTest {
 
 	@Test
 	void testSaveMcq() {
-		
+
 		MCQ existingMCQ1 = new MCQ();
 		existingMCQ1.setMcqId("1");
 		existingMCQ1.setMcqQuestion("Sample Question 1");
@@ -455,12 +459,14 @@ public class MCQServiceImplTest {
 		existingMCQ1.setMcqId("1");
 		existingMCQ1.setMcqQuestion("Sample Question 1");
 		existingMCQ1.setMcqStatus(true);
-
+	 
+		
 		MCQ existingMCQ2 = new MCQ();
 		existingMCQ2.setMcqId("2");
 		existingMCQ2.setMcqQuestion("Sample Question 2");
 		existingMCQ2.setMcqStatus(true);
 
+		 
 		List<MCQ> oldMcqList = Arrays.asList(existingMCQ1, existingMCQ2);
 
 		MCQ newMCQ1 = new MCQ();
@@ -486,4 +492,5 @@ public class MCQServiceImplTest {
 		assertTrue(newMCQ2.isMcqStatus());
 	}
 
+ 
 }
