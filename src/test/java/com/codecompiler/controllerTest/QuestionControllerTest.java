@@ -2,6 +2,8 @@ package com.codecompiler.controllerTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -81,4 +83,31 @@ public class QuestionControllerTest {
 		assertEquals(mockMCQDetails, responseBody.get("data"));
 	}
 
+	@Test
+	void testUpdateMcqQuestionStatus() {
+
+		ArrayList<String> contestAndMcqQuestionId = new ArrayList<>();
+		contestAndMcqQuestionId.add("CONTEST_ID");
+		contestAndMcqQuestionId.add("MCQ_QUESTION_ID");
+
+		ResponseEntity<Object> response = questionController.updateMcqQuestionStatus(contestAndMcqQuestionId);
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		verify(mcqService).saveMcqQuestionOrContest(contestAndMcqQuestionId);
+
+		assertNotNull(response.getBody());
+
+		if (response.getBody() instanceof Map) {
+			Map<?, ?> responseBody = (Map<?, ?>) response.getBody();
+			assertEquals("success", responseBody.get("message"));
+			assertEquals(HttpStatus.OK.value(), responseBody.get("statusCode"));
+			assertNotNull(responseBody.get("data"));
+
+			assertTrue(responseBody.get("data") instanceof List);
+		} else {
+			fail("Response body structure is unexpected");
+		}
+
+	}
 }
