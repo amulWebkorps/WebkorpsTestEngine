@@ -110,4 +110,60 @@ public class QuestionControllerTest {
 		}
 
 	}
+
+	@Test
+	void testGetAllMcq() {
+
+		List<MCQ> mockMcqs = new ArrayList<>();
+		mockMcqs.add(new MCQ());
+
+		when(mcqService.getAllMcq()).thenReturn(mockMcqs);
+
+		ResponseEntity<Object> response = questionController.getAllMcq();
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		verify(mcqService).getAllMcq();
+
+		assertNotNull(response.getBody());
+
+		if (response.getBody() instanceof Map) {
+			Map<?, ?> responseBody = (Map<?, ?>) response.getBody();
+			assertEquals("success", responseBody.get("message"));
+			assertEquals(HttpStatus.OK.value(), responseBody.get("statusCode"));
+			assertNotNull(responseBody.get("data"));
+
+			assertTrue(responseBody.get("data") instanceof List);
+			assertEquals(mockMcqs.size(), ((List<?>) responseBody.get("data")).size());
+		} else {
+			fail("Response body structure is unexpected");
+		}
+	}
+
+	@Test
+	void testDeleteMcq() {
+
+		String mockMcqId = "yourMcqId";
+		MCQ mockDeletedMcq = new MCQ();
+
+		when(mcqService.deleteMcq(mockMcqId)).thenReturn(mockDeletedMcq);
+
+		ResponseEntity<Object> response = questionController.deleteMcq(mockMcqId);
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+
+		verify(mcqService).deleteMcq(mockMcqId);
+
+		assertNotNull(response.getBody());
+
+		if (response.getBody() instanceof Map) {
+			Map<?, ?> responseBody = (Map<?, ?>) response.getBody();
+			assertEquals("success", responseBody.get("message"));
+			assertEquals(HttpStatus.OK.value(), responseBody.get("statusCode"));
+			assertNotNull(responseBody.get("data"));
+			assertEquals(mockDeletedMcq, responseBody.get("data"));
+		} else {
+			fail("Response body structure is unexpected");
+		}
+	}
 }

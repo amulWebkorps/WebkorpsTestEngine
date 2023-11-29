@@ -120,8 +120,6 @@ public class QuestionController {
 
 	}
 
-
-
 	@GetMapping(value = "/admin/getAllMcq")
 	public ResponseEntity<Object> getAllMcq() {
 		logger.info("Get All quetions:");
